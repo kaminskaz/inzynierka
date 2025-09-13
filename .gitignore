@@ -1,0 +1,23 @@
+# Systemowe pliki macOS
+.DS_Store
+
+# Foldery tymczasowe edytorów i IDE
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Pliki tymczasowe i cache
+*.log
+*.tmp
+*.temp
+
+# Foldery środowisk wirtualnych Pythona
+venv/
+env/
+
+# Pliki konfiguracyjne lokalne
+.env
+
