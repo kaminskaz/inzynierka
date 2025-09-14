@@ -82,7 +82,7 @@ def main():
 
     # save output
     with open(output_path, "w", encoding="utf-8") as f:
-        f.write(output_text)
+        f.write(output_text[0])
 
 if __name__ == "__main__":
     main()
