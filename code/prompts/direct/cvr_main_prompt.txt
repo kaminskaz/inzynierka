@@ -1,0 +1,8 @@
+You are shown four labeled images: A, B, C, and D.
+Three of these images share a consistent visual structure or pattern. One does not.
+
+Your task is to:
+- Select the image that does not match the shared rule or pattern.
+- Describe clearly why it differs, based only on observable features such as shapes, colors, sizes, positions, or spatial relationships.
+
+Stick to what is directly visible. Do not assume hidden rules or patterns that aren't clearly shown.
