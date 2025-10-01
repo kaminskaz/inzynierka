@@ -11,3 +11,4 @@ git+https://github.com/huggingface/transformers
 accelerate==0.30.1
 datasets==3.6.0
 huggingface_hub==0.34.6
+python-dotenv
