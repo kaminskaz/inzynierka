@@ -1,0 +1,4 @@
+class RAVENProcessor:
+    pass
+
+        
