@@ -142,12 +142,12 @@ class MARSProcessor:
 
             # Add letter prefixes: A:, B:, C:, ...
             letters = string.ascii_uppercase
-            processed_annotations = [
-                f"{letters[i % 26]}: {desc}" for i, desc in enumerate(processed_annotations)
-            ]
-
+            processed_annotations = {
+                letters[i % 26]: desc for i, desc in enumerate(processed_annotations)
+            }
             return processed_annotations
 
+    
         except Exception as e:
             print(f"Error reading annotations: {e}")
             return None

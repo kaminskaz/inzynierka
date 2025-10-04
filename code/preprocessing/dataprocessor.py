@@ -4,6 +4,7 @@ from huggingface_hub import login, snapshot_download
 from code.preprocessing.bongard.BPprocessor import BPProcessor
 from code.preprocessing.vcog.CVRprocessor import CVRProcessor
 from code.preprocessing.vcog.MARSprocessor import MARSProcessor
+from code.preprocessing.vcog.RAVENprocessor import RAVENProcessor
 
 load_dotenv()
 
@@ -14,6 +15,7 @@ class DataProcessor:
         self.bp_processor = BPProcessor()
         self.cvr_processor = CVRProcessor()
         self.mars_processor = MARSProcessor()
+        self.raven_processor = RAVENProcessor()
 
     def process(self):
         if self.load:
@@ -25,6 +27,8 @@ class DataProcessor:
         print("CVR problems processed.")
         self.mars_processor.process()
         print("MARS problems processed.")
+        self.raven_processor.process()
+        print("RAVEN problems processed.")
 
     def download_data_from_huggingface(self, repo_id: str, repo_type: str = "dataset"):
 
