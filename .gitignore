@@ -21,9 +21,6 @@ env/
 # Pliki konfiguracyjne lokalne
 .env
 
-# Folder z surowymi danymi
-data_raw/
-
 # cache
 __pycache__/
 *__pycache__/
