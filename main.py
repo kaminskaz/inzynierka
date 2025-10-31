@@ -1,19 +1,41 @@
 import argparse
-from code.preprocessing.dataprocessor import DataProcessor
+import logging
+from code.preprocessing_new.datamodule import DataModule
+from code.preprocessing_new.logging_configuration import setup_logging
+
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Run data preprocessing.")
+    
+    parser = argparse.ArgumentParser(description="Process visual reasoning datasets")
     parser.add_argument(
-        "--preprocess_data",
-        action="store_true",
-        help="Run preprocessing if this flag is provided."
+        "--config", 
+        type=str, 
+        default="code/preprocessing_new/dataset_config.json",
+        help="Path to configuration file"
     )
+    parser.add_argument(
+        "--download", 
+        action="store_true",
+        help="Download datasets from HuggingFace (only if hf_repo_id is specified in config)"
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level"
+    )
+    
     args = parser.parse_args()
-
-    if args.preprocess_data:
-        print("Starting data preprocessing...")
-        processor = DataProcessor(load=False)
-        processor.process()
-        print("Data preprocessing completed.")
-    else:
-        print("Preprocessing skipped.")
+    
+    # Setup logging with specified level
+    logger = setup_logging(getattr(logging, args.log_level))
+    
+    # Create and run data module
+    data_module = DataModule(
+        config_path=args.config,
+        load_from_hf=args.download
+    )
+    
+    data_module.run()
