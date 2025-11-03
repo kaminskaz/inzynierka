@@ -2,7 +2,9 @@ import logging
 
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
     """Setup logging configuration."""
-    logger = logging.getLogger("DataProcessor")
+    
+    # Get the root logger
+    logger = logging.getLogger()
     logger.setLevel(level)
     
     # Avoid adding handlers multiple times

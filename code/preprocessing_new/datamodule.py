@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path 
 import traceback
-from typing import Dict
+from typing import Dict, Tuple, Any
 from dotenv import load_dotenv
 from huggingface_hub import snapshot_download, login
 from code.preprocessing_new.logging_configuration import setup_logging
@@ -18,26 +18,30 @@ class DataModule:
         self.config_path = Path(config_path)
         self.load_from_hf = load_from_hf
         self.logger = logging.getLogger("DataModule")
-        self.configs = self.load_configs()
+        self.configs: Dict[str, ProcessorConfig] = {}
+        self.raw_config_dicts: Dict[str, Dict[str, Any]] = {}
+        self.configs, self.raw_config_dicts = self.load_configs()
         self.processors = {}
         
         load_dotenv()
     
-    def load_configs(self) -> Dict[str, ProcessorConfig]:
+    def load_configs(self) -> Tuple[Dict[str, ProcessorConfig], Dict[str, Dict[str, Any]]]:
         """Load all dataset configurations."""
         try:
             with open(self.config_path, 'r') as f:
                 config_dict = json.load(f)
             
             configs = {}
+            raw_cfgs = {}
             for name, cfg in config_dict.items():
                 try:
                     configs[name] = ProcessorConfig.from_dict(cfg)
+                    raw_cfgs[name] = cfg  # Store the raw config dict
                 except Exception as e:
                     self.logger.error(f"Error loading config for {name}: {e}")
             
             self.logger.info(f"Loaded {len(configs)} dataset configurations")
-            return configs
+            return configs, raw_cfgs
             
         except Exception as e:
             self.logger.error(f"Error loading config file {self.config_path}: {e}")
@@ -115,15 +119,66 @@ class DataModule:
                 repo_id=repo_id,
                 repo_type=repo_type,
                 local_dir=str(data_path),
-                max_workers=3,
-                resume_download=True,  
-                local_dir_use_symlinks=False 
+                max_workers=3
             )
             self.logger.info(f"Download (or resume) complete for {repo_id}")
 
         except Exception as e:
             self.logger.error(f"Error downloading {repo_id}: {e}", exc_info=True)
             raise
+    
+    def check_dataset_counts(self) -> bool:
+        """
+        Check actual downloaded sample counts against 'expected_num_samples' from config.
+        Asks user whether to continue if mismatches are found.
+        
+        Returns:
+            bool: True to continue processing, False to abort.
+        """
+        self.logger.info("Checking dataset sample counts...")
+        all_match = True
+        
+        for dataset_name, config in self.configs.items():
+            raw_cfg = self.raw_config_dicts[dataset_name]
+            expected = raw_cfg.get("expected_num_samples")
+            
+            if expected is None:
+                self.logger.debug(f"No 'expected_num_samples' for {dataset_name}, skipping check.")
+                continue
+            
+            raw_data_path = Path(config.data_folder)
+            actual = 0
+            
+            try:
+                if not raw_data_path.exists():
+                    self.logger.warning(f"Data folder for {dataset_name} not found: {raw_data_path}")
+                else:
+                    # Count subdirectories, as each represents a problem
+                    actual = len([p for p in os.listdir(raw_data_path) 
+                                if (raw_data_path / p).is_dir()])
+            except Exception as e:
+                self.logger.error(f"Error counting samples for {dataset_name} in {raw_data_path}: {e}")
+            
+            if actual == expected:
+                self.logger.warning(f"{dataset_name}: Found {actual} / {expected} samples (Match)")
+            else:
+                self.logger.warning(f"{dataset_name}: Found {actual} / {expected} samples (MISMATCH)")
+                all_match = False
+        
+        if all_match:
+            self.logger.info("All dataset counts match expected values.")
+            return True
+        else:
+            self.logger.warning("Some dataset counts do not match expected values.")
+            while True:
+                user_input = input("Do you want to continue with processing? (y/n): ").strip().lower()
+                if user_input == 'y':
+                    self.logger.info("User chose to continue processing despite count mismatch.")
+                    return True
+                if user_input == 'n':
+                    self.logger.info("User aborted processing due to count mismatch.")
+                    return False
+                print("Invalid input. Please enter 'y' or 'n'.")
 
     
     def process_all(self) -> None:
@@ -158,6 +213,16 @@ class DataModule:
         else:
             self.logger.info("Using existing local data (HuggingFace download disabled)")
         
+        # --- Check dataset counts ---
+        self.logger.info("Checking downloaded dataset counts...")
+        try:
+            if not self.check_dataset_counts():
+                self.logger.info("Pipeline stopped by user due to dataset count mismatch.")
+                return
+        except Exception as e:
+            self.logger.error(f"Failed to check dataset counts: {e}", exc_info=True)
+            return  # Stop if check fails
+
         self.logger.info("Setting up processors...")
         try:
             self.setup()
@@ -178,3 +243,4 @@ class DataModule:
         #         self.logger.error(f"Failed to remove data_raw/vcog-bench directory: {e}")
 
         self.logger.info("Pipeline execution complete!")
+        self.logger.info("You can now run 'python verify_outputs.py' to check processing results.")

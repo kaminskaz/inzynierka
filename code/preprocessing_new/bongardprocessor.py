@@ -106,39 +106,67 @@ class BongardProcessor(BaseProcessor):
                     img = img.resize((max_width, new_height))
                 resized_images.append(img)
             
-            # Split into two panels
-            panels = [resized_images[:6], resized_images[6:]]
+            # --- START LAYOUT FIX ---
             
-            # Calculate dimensions
             col_width = max_width
-            total_width = col_width * 4 + spacing * 3 + space_between_panels
             
-            # Compute total height (simplified for uniform rows)
-            row_heights = [max(panels[0][i].height, panels[1][i].height) for i in range(6)]
-            total_height = sum(row_heights[:3]) + sum(row_heights[3:]) + spacing * 4
+            # Calculate max height for each of the 3 rows
+            max_row_heights = [
+                max(resized_images[0].height, resized_images[3].height, resized_images[6].height, resized_images[9].height),  # Row 0
+                max(resized_images[1].height, resized_images[4].height, resized_images[7].height, resized_images[10].height), # Row 1
+                max(resized_images[2].height, resized_images[5].height, resized_images[8].height, resized_images[11].height)  # Row 2
+            ]
+            
+            # Calculate total width
+            total_width = col_width * 4 + spacing * 3 + space_between_panels + 2 * margin
+            
+            # Calculate new total height
+            total_height = sum(max_row_heights) + spacing * 2 + 2 * margin
             
             # Create sheet
-            sheet = Image.new('RGB', (total_width + 2 * margin, total_height + 2 * margin), color=(255, 255, 255))
+            sheet = Image.new('RGB', (total_width, total_height), color=(255, 255, 255))
             draw = ImageDraw.Draw(sheet)
             
-            x_offset = margin
+            # Define x-coordinates for the 4 columns
+            x_coords = [
+                margin,
+                margin + col_width + spacing,
+                margin + col_width * 2 + spacing * 2 + space_between_panels,
+                margin + col_width * 3 + spacing * 3 + space_between_panels
+            ]
             
-            for panel_idx, panel in enumerate(panels):
-                for col in range(2):
-                    y_pos = margin
-                    for row in range(3):
-                        img_idx = col * 3 + row
-                        img = panel[img_idx]
-                        sheet.paste(img, (x_offset, y_pos))
-                        draw.rectangle(
-                            [x_offset, y_pos, x_offset + img.width - 1, y_pos + img.height - 1],
-                            outline="black", 
-                            width=border_thickness
-                        )
-                        y_pos += img.height + spacing
-                    x_offset += col_width + spacing
-                if panel_idx == 0:
-                    x_offset += space_between_panels - spacing
+            # Define y-coordinates for the 3 rows
+            y_coords = [
+                margin,
+                margin + max_row_heights[0] + spacing,
+                margin + max_row_heights[0] + max_row_heights[1] + spacing * 2
+            ]
+            
+            # Map of image indices for the [row][col] grid layout
+            image_grid_indices = [
+                [0, 3, 6, 9],   # Row 0
+                [1, 4, 7, 10],  # Row 1
+                [2, 5, 8, 11]   # Row 2
+            ]
+
+            for r_idx in range(3):
+                for c_idx in range(4):
+                    img_idx = image_grid_indices[r_idx][c_idx]
+                    img = resized_images[img_idx]
+                    x_pos = x_coords[c_idx]
+                    y_pos = y_coords[r_idx]
+                    
+                    # Paste image (aligns to top-left of its grid cell)
+                    sheet.paste(img, (x_pos, y_pos))
+                    
+                    # Draw border around the pasted image
+                    draw.rectangle(
+                        [x_pos, y_pos, x_pos + img.width - 1, y_pos + img.height - 1],
+                        outline="black", 
+                        width=border_thickness
+                    )
+            
+            # --- END LAYOUT FIX ---
             
             return sheet
         
