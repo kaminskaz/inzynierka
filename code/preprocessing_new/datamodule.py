@@ -102,29 +102,29 @@ class DataModule:
         self.logger.info(f"Downloaded {len(downloaded)} datasets from HuggingFace")
     
     def download_from_hf(self, repo_id: str, repo_type: str = "dataset") -> None:
-        """Download a single dataset from HuggingFace."""
+        """Download or resume downloading a dataset from HuggingFace."""
         data_path = Path("data_raw") / repo_id.split("/")[-1]
-        
-        # Check if already exists
-        if data_path.exists() and any(data_path.iterdir()):
-            self.logger.info(f"Dataset {repo_id} already exists at {data_path}, skipping download")
-            return
-        
         data_path.mkdir(parents=True, exist_ok=True)
-        
-        self.logger.info(f"Downloading {repo_id} to {data_path}...")
-        
+
+        self.logger.info(f"Checking existing data for {repo_id} in {data_path}...")
+
         try:
+            # Attempt to download or resume — this handles incomplete downloads automatically
+            self.logger.info(f"Starting (or resuming) download of {repo_id} to {data_path}")
             snapshot_download(
                 repo_id=repo_id,
                 repo_type=repo_type,
                 local_dir=str(data_path),
-                max_workers=3
+                max_workers=3,
+                resume_download=True,  
+                local_dir_use_symlinks=False 
             )
-            self.logger.info(f"Successfully downloaded {repo_id}")
+            self.logger.info(f"Download (or resume) complete for {repo_id}")
+
         except Exception as e:
             self.logger.error(f"Error downloading {repo_id}: {e}", exc_info=True)
             raise
+
     
     def process_all(self) -> None:
         """Process all datasets."""
@@ -169,12 +169,12 @@ class DataModule:
         self.process_all()
         
         #remove data_raw folder and everything inside after processing
-        data_raw_path = Path("data_raw/vcog-bench")
-        if data_raw_path.exists() and data_raw_path.is_dir():
-            try:
-                shutil.rmtree(data_raw_path)
-                self.logger.info("Removed temporary data_raw/vcog-bench directory after processing")
-            except Exception as e:
-                self.logger.error(f"Failed to remove data_raw/vcog-bench directory: {e}")
+        # data_raw_path = Path("data_raw/vcog-bench")
+        # if data_raw_path.exists() and data_raw_path.is_dir():
+        #     try:
+        #         shutil.rmtree(data_raw_path)
+        #         self.logger.info("Removed temporary data_raw/vcog-bench directory after processing")
+        #     except Exception as e:
+        #         self.logger.error(f"Failed to remove data_raw/vcog-bench directory: {e}")
 
         self.logger.info("Pipeline execution complete!")
