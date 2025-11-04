@@ -3,6 +3,7 @@ import json
 from typing import List, Optional, Dict, Any
 from PIL import Image, ImageDraw
 from code.preprocessing_new.baseprocessor import BaseProcessor
+from code.preprocessing_new.standardsheetmaker import StandardSheetMaker
 from code.preprocessing_new.processorconfig import ProcessorConfig
 
 
@@ -52,6 +53,12 @@ class BongardProcessor(BaseProcessor):
                 # Save both sheets
                 self.save_sheet(problem_id_standardized, sheets["normal"])
                 self.save_sheet(problem_id_standardized, sheets["switched"], switched=True)
+
+                # Generate and save classification panel
+                sheetmaker = StandardSheetMaker()
+
+                classification_panel,_,_ = sheetmaker.generate_question_sheet_from_images(images=[sheets["normal"], sheets["switched"]], shuffle_answers=False, true_answer_index=None)
+                self.save_sheet(problem_id_standardized, classification_panel, classification_panel=True)
                 
                 processed_count += 1
                 self.logger.debug(f"Successfully processed problem {problem_id_standardized}")

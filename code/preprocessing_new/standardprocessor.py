@@ -136,12 +136,26 @@ class StandardProcessor(BaseProcessor):
                     self.save_sheet(problem_id_standardized, sheet)
 
                     # --- FIX 2: Generate blackout versions *using shuffled_choices* ---
-                    if "cvr" in str(self.config.data_folder).lower():
-                        self.generate_blackout_sheets(problem_id_standardized, shuffled_choices, question_image)
+                    if self.config.category == "choice_only":
+                        tmp_images = self.generate_blackout_sheets(problem_id_standardized, shuffled_choices, question_image)
 
                     # --- FIX 3: Generate filled versions *using shuffled_choices* ---
-                    if "raven" in str(self.config.data_folder).lower() or "marsvqa" in str(self.config.data_folder).lower():
-                        self.sheet_maker.generate_question_filled(question_image, shuffled_choices, self.config.data_folder, problem_id_standardized, self.output_base_path, crop_px=2)
+                    if self.config.category == "standard":
+                        tmp_images = self.sheet_maker.generate_question_filled(question_image, shuffled_choices, self.config.data_folder, problem_id_standardized, self.output_base_path, crop_px=2)
+                        choice_panel, _, _ = self.sheet_maker.generate_question_sheet_from_images(
+                        shuffled_choices,
+                        shuffle_answers=False,
+                        true_answer_index=None 
+                        )
+                        self.save_sheet(problem_id_standardized, choice_panel, choice_panel=True)
+
+                    # Save blackout/filled images for classification setting
+                    classification_panel = self.sheet_maker.generate_question_sheet_from_images(
+                        tmp_images,
+                        shuffle_answers=False,
+                        true_answer_index=None
+                    )[0]
+                    self.save_sheet(problem_id_standardized, classification_panel, classification_panel=True)
                 
                 # Store metadata (runs even if images were skipped, to populate metadata)
                 if answer_label is not None:
@@ -303,11 +317,12 @@ class StandardProcessor(BaseProcessor):
         if self.annotations_dict:
             self.save_json(self.annotations_dict, f"{self.dataset_name}_annotations.json")
 
-    def generate_blackout_sheets(self, problem_id_standardized: str, choice_images: list, question_image: Image.Image | None) -> None:
+    def generate_blackout_sheets(self, problem_id_standardized: str, choice_images: list, question_image: Image.Image | None) -> list[Image.Image]:
         """
         Generate and save blackout sheets (A–D) for each answer position.
         Assumes choice_images is the *final* list (i.e., already shuffled).
         """
+        blackout_image_list = []
         blackout_dir = self.output_base_path / "cvr" / "problems" / problem_id_standardized / "blackout"
         blackout_dir.mkdir(parents=True, exist_ok=True)
 
@@ -319,10 +334,14 @@ class StandardProcessor(BaseProcessor):
                     question_image=question_image,
                     shuffle_answers=False,  # no shuffle, list is already in final order
                     blackout=i,              # black out the i-th choice
+                    no_label=True            # do not label choices
                 )
                 label = string.ascii_uppercase[i]
                 out_path = blackout_dir / f"{label}.png"
                 sheet.save(out_path)
+                blackout_image_list.append(sheet)
                 self.logger.debug(f"Saved blackout sheet for {problem_id_standardized} ({label}) at {out_path}")
             except Exception as e:
                 self.logger.error(f"Failed to generate blackout sheet {label} for {problem_id_standardized}: {e}")
+
+        return blackout_image_list
