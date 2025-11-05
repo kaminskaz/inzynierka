@@ -2,9 +2,9 @@ import os
 import json
 from typing import List, Optional, Dict, Any
 from PIL import Image, ImageDraw
-from code.preprocessing_new.baseprocessor import BaseProcessor
-from code.preprocessing_new.standardsheetmaker import StandardSheetMaker
-from code.preprocessing_new.processorconfig import ProcessorConfig
+from code.preprocessing.baseprocessor import BaseProcessor
+from code.preprocessing.standardsheetmaker import StandardSheetMaker
+from code.preprocessing.processorconfig import ProcessorConfig
 
 
 class BongardProcessor(BaseProcessor):
@@ -20,7 +20,7 @@ class BongardProcessor(BaseProcessor):
                    if (self.raw_data_path / p).is_dir()]
         
         self.logger.info(f"Found {len(problems)} problems to process")
-        
+        classification_solutions = {}
         for problem_id in problems:
             problem_path = self.raw_data_path / problem_id
             
@@ -57,15 +57,22 @@ class BongardProcessor(BaseProcessor):
                 # Generate and save classification panel
                 sheetmaker = StandardSheetMaker()
 
-                classification_panel,_,_ = sheetmaker.generate_question_sheet_from_images(images=[sheets["normal"], sheets["switched"]], shuffle_answers=False, true_answer_index=None)
+                classification_panel, answer_label, _ = sheetmaker.generate_question_sheet_from_images(
+                    images=[sheets["normal"], sheets["switched"]], 
+                    shuffle_answers=True,  # <-- Set to True
+                    true_answer_index=0    # <-- Tell it the 1st image (index 0) is the correct one
+                )
                 self.save_sheet(problem_id_standardized, classification_panel, classification_panel=True)
-                
+
+                classification_solutions[problem_id_standardized] = answer_label
+
                 processed_count += 1
                 self.logger.debug(f"Successfully processed problem {problem_id_standardized}")
-                
+
             except Exception as e:
                 self.logger.error(f"Error processing problem {problem_id}: {e}", exc_info=True)
                 error_count += 1
+        self.save_json(classification_solutions, "classification_solutions.json")
         
         # Log summary
         self.logger.info(

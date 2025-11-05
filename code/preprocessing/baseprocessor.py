@@ -3,13 +3,13 @@ import json
 import random
 import re
 import string
-from code.preprocessing_new.logging_configuration import setup_logging
+from code.preprocessing.logging_configuration import setup_logging
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional, Dict
 from PIL import Image
-from code.preprocessing_new.processorconfig import ProcessorConfig
+from code.preprocessing.processorconfig import ProcessorConfig
 
 class BaseProcessor(ABC):
     """Abstract base class for all dataset processors."""

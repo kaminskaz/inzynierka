@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Union, Optional
 import PIL.Image
 
-from code.preprocessing_new.processorconfig import ProcessorConfig 
+from code.preprocessing.processorconfig import ProcessorConfig 
 
 class StrategyBase(ABC):
     def __init__(self, dataset_name: str, model: PIL.Image.Image, dataset_config: ProcessorConfig):

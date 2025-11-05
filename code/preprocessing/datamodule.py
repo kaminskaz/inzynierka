@@ -6,16 +6,16 @@ from typing import Dict, Tuple, Any
 import PIL
 from dotenv import load_dotenv
 from huggingface_hub import snapshot_download, login
-from code.preprocessing_new.logging_configuration import setup_logging
-from code.preprocessing_new.processorconfig import ProcessorConfig
-from code.preprocessing_new.processorfactory import ProcessorFactory
+from code.preprocessing.logging_configuration import setup_logging
+from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.processorfactory import ProcessorFactory
 import logging
 import shutil
 
 class DataModule:
     """Main data processing module."""
     
-    def __init__(self, config_path: str = "code/preprocessing_new/dataset_config.json", load_from_hf: bool = False):
+    def __init__(self, config_path: str = "code/preprocessing/dataset_config.json", load_from_hf: bool = False):
         self.config_path = Path(config_path)
         self.load_from_hf = load_from_hf
         self.logger = logging.getLogger("DataModule")
@@ -51,7 +51,7 @@ class DataModule:
     def setup(self) -> None:
         """Set up all processors."""
         # Import sheet maker (avoiding circular imports)
-        from code.preprocessing_new.standardsheetmaker import StandardSheetMaker
+        from code.preprocessing.standardsheetmaker import StandardSheetMaker
         sheet_maker = StandardSheetMaker()
         
         for dataset_name, config in self.configs.items():
