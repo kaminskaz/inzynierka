@@ -3,6 +3,7 @@ import json
 from pathlib import Path 
 import traceback
 from typing import Dict, Tuple, Any
+import PIL
 from dotenv import load_dotenv
 from huggingface_hub import snapshot_download, login
 from code.preprocessing_new.logging_configuration import setup_logging
@@ -194,6 +195,16 @@ class DataModule:
                 processor.process()
             except Exception as e:
                 self.logger.error(f"Failed to process {dataset_name}: {e}", exc_info=True)
+
+        # change all images to .png in data/ and folders inside
+        for root, dirs, files in os.walk("data/"):
+            for file in files:
+                if file.lower().endswith(('.jpg', '.jpeg', '.bmp', '.gif', '.tiff')):
+                    file_path = os.path.join(root, file)
+                    img = PIL.Image.open(file_path)
+                    png_file_path = os.path.splitext(file_path)[0] + '.png'
+                    img.save(png_file_path, 'PNG')
+                    os.remove(file_path)
         
         self.logger.info(f"{'='*60}")
         self.logger.info("All datasets processing complete")
@@ -213,7 +224,6 @@ class DataModule:
         else:
             self.logger.info("Using existing local data (HuggingFace download disabled)")
         
-        # --- Check dataset counts ---
         self.logger.info("Checking downloaded dataset counts...")
         try:
             if not self.check_dataset_counts():
@@ -233,14 +243,5 @@ class DataModule:
         self.logger.info("Processing all datasets...")
         self.process_all()
         
-        #remove data_raw folder and everything inside after processing
-        # data_raw_path = Path("data_raw/vcog-bench")
-        # if data_raw_path.exists() and data_raw_path.is_dir():
-        #     try:
-        #         shutil.rmtree(data_raw_path)
-        #         self.logger.info("Removed temporary data_raw/vcog-bench directory after processing")
-        #     except Exception as e:
-        #         self.logger.error(f"Failed to remove data_raw/vcog-bench directory: {e}")
-
         self.logger.info("Pipeline execution complete!")
         self.logger.info("You can now run 'python verify_outputs.py' to check processing results.")
