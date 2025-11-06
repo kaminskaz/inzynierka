@@ -24,9 +24,13 @@ class PromptFormatter:
     def _format_image_content(self, content: ImageContent) -> Dict:
         _, ext = os.path.splitext(content.image_path)
         raw_ext = ext.replace(".", "")
-        with open(content.image_path, "rb") as image_file:
-            image = base64.b64encode(image_file.read()).decode("utf-8")
-        return {
-            "type": "image_url",
-            "image_url": {"url": f"data:image/{raw_ext};base64,{image}"},
-        }
+        if ImageContent.is_image_supported(content.image_path):
+            with open(content.image_path, "rb") as image_file:
+                image = base64.b64encode(image_file.read()).decode("utf-8")
+            return {
+                "type": "image_url",
+                "image_url": {"url": f"data:image/{raw_ext};base64,{image}"},
+            }
+        
+        else:
+            return "Image format not supported."

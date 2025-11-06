@@ -16,4 +16,4 @@ export PYTHONFAULTHANDLER=1
 cd /mnt/evafs/groups/jrafalko-lab 
 
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
-python code/main.py slurm_id=${SLURM_JOB_ID} "$@"
+python code/main.py slurm_id=${SLURM_JOB_ID} "$@" 

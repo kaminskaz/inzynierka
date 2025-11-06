@@ -23,7 +23,6 @@ class ImageContent(Content):
         super().__init__()
         self.image_path = image_path
 
-
     def __str__(self) -> str:
         return f"{self.__class__.__name__} - image_path: {self.image_path}"
 

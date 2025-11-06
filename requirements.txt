@@ -11,4 +11,5 @@ pydantic==2.12.3
 openai==2.2.0
 portpicker==1.6.0
 requests==2.31.0
+transformers==4.41.2
 python-dotenv
