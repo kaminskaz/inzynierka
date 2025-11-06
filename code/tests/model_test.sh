@@ -13,11 +13,11 @@
 # Debugging flags (optional)
 export PYTHONFAULTHANDLER=1
 
-export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/kdunal/huggingface/tmp/${SLURM_JOB_ID}"
+export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/inzynierka/huggingface/tmp/${SLURM_JOB_ID}"
 mkdir ${JOB_HF_HOME}
 echo "JOB_HF_HOME: ${JOB_HF_HOME}"
 
-export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/kdunal/tmp/${SLURM_JOB_ID}"
+export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/inzynierka/tmp/${SLURM_JOB_ID}"
 mkdir ${JOB_TMPDIR}
 echo "JOB_TMPDIR: ${JOB_TMPDIR}"
 
