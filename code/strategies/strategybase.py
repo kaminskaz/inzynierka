@@ -10,6 +10,7 @@ class StrategyBase(ABC):
         self.dataset_name: str = dataset_name
         self.model: Any = model
         self.config: ProcessorConfig = dataset_config
+        self.strategy_name: str = self.__class__.__name__
         
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
@@ -19,16 +20,13 @@ class StrategyBase(ABC):
         pass
 
     @abstractmethod
+    def get_prompt(self, dataset_name: str, strategy_name: str) -> str:
+        pass
+
     def save_metadata(self) -> None:
         pass
 
-    @abstractmethod
     def save_raw_answers_to_csv(self) -> None:
-        pass
-
-    @abstractmethod
-    def ask_model(self) -> Any:
-        # functions from model module and prompt formatter here
         pass
 
     # FUNCTIONS FOR GETTING IMAGES AND PANELS
