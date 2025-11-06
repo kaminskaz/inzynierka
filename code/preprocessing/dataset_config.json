@@ -12,7 +12,8 @@
     "annotations_folder": "/choice/text/annotation.json",
     "regex_choice_number": "{image_index}.jpeg",
     "regex_answer_number": "{image_index}.jpeg",
-    "shuffle": false
+    "shuffle": false,
+    "expected_num_samples": 560
   },
 
   "cvr": {
@@ -28,7 +29,8 @@
     "regex_choice_number": "sub_image_{image_index+1}.png",
     "regex_answer_number": "sub_image_{image_index+1}.png",
     "shuffle": true,
-    "true_idx": 3
+    "true_idx": 3,
+    "expected_num_samples": 309
   },
 
   "marsvqa": {
@@ -45,7 +47,8 @@
     "regex_choice_number": "T{image_index+1}",
     "regex_answer_number": "T{image_index+1}",
     "shuffle": true,
-    "true_idx": 0
+    "true_idx": 0,
+    "expected_num_samples": 480
   },
 
   "bp": {
@@ -56,6 +59,7 @@
     "choice_images_folder": "",
     "solutions_folder": "/solutions.json",
     "regex_choice_number": "{image_index}.png",
-    "shuffle": true
+    "shuffle": true,
+    "expected_num_samples": 100
   }
 }

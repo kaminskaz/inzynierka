@@ -4,8 +4,8 @@ import json
 import string
 from typing import List, Optional, Dict, Any
 from PIL import Image
-from code.preprocessing_new.baseprocessor import BaseProcessor
-from code.preprocessing_new.processorconfig import ProcessorConfig
+from code.preprocessing.baseprocessor import BaseProcessor
+from code.preprocessing.processorconfig import ProcessorConfig
 from PIL import Image, ImageDraw, ImageFont
 import random
 
@@ -15,11 +15,29 @@ class StandardProcessor(BaseProcessor):
     def __init__(self, config: ProcessorConfig, sheet_maker, output_base_path: str = "data"):
         super().__init__(config, output_base_path)
         self.sheet_maker = sheet_maker
-        self.answers_dict = {}
-        self.shuffle_orders = {}
-        self.annotations_dict = {}
+        # Load existing metadata first to make processing additive
+        self.answers_dict = self.load_existing_json(f"{self.dataset_name}_solutions.json")
+        self.shuffle_orders = self.load_existing_json(f"{self.dataset_name}_shuffle_orders.json")
+        self.annotations_dict = self.load_existing_json(f"{self.dataset_name}_annotations.json")
+        
+        # Log counts of loaded metadata
+        self.logger.info(f"Loaded {len(self.answers_dict)} existing solutions")
+        self.logger.info(f"Loaded {len(self.annotations_dict)} existing annotations")
+        
         random.seed(42)  # For reproducible shuffling
     
+    def load_existing_json(self, filename: str) -> Dict[str, Any]:
+        """Loads an existing JSON metadata file if it exists."""
+        json_path = self.output_base_path / self.dataset_name / "jsons" / filename
+        if json_path.exists():
+            try:
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception as e:
+                self.logger.warning(f"Could not load existing metadata {filename}: {e}. Starting fresh.")
+                return {}
+        return {}
+
     def process(self) -> None:
         """Process all problems in the dataset."""
         processed_count = 0
@@ -31,6 +49,9 @@ class StandardProcessor(BaseProcessor):
         
         self.logger.info(f"Found {len(problems)} problems to process")
         
+        # Keep track of problems processed in *this* run
+        newly_processed_problem_ids = set()
+
         for problem_id in problems:
             problem_path = self.raw_data_path / problem_id
             
@@ -42,9 +63,15 @@ class StandardProcessor(BaseProcessor):
             
             # Check if already processed
             if self.is_already_processed(problem_id_standardized):
-                self.logger.debug(f"Problem {problem_id_standardized} already processed, skipping")
-                skipped_count += 1
-                continue
+                self.logger.debug(f"Problem {problem_id_standardized} already processed, skipping image generation")
+                
+                # Check if metadata exists. If not, re-generate it.
+                if problem_id_standardized not in self.answers_dict or \
+                   (self.config.annotations_folder and problem_id_standardized not in self.annotations_dict):
+                    self.logger.debug(f"Missing metadata for {problem_id_standardized}. Re-populating...")
+                else:
+                    skipped_count += 1
+                    continue # Skip fully if images AND metadata exist
             
             try:
                 # Load images
@@ -55,32 +82,82 @@ class StandardProcessor(BaseProcessor):
                     continue
                 
                 question_image = self.load_question_image(problem_id)
-
-                # Save to refactored/
-                self.save_refactored_images(problem_id_standardized, choice_images, letters=True, question_image=question_image)
                 
                 # Determine answer and shuffle settings
                 answer_info = self.get_answer_info(problem_id)
                 
-                # Generate sheet
-                sheet, answer_label, shuffle_order = self.sheet_maker.generate_question_sheet_from_images(
-                    choice_images,
-                    question_image=question_image,
-                    shuffle_answers=self.config.shuffle,
-                    true_answer_index=answer_info['true_idx']
-                )
+                # Determine shuffle order (load if it exists, else generate)
+                shuffle_order = self.shuffle_orders.get(problem_id_standardized)
+                true_answer_index = answer_info['true_idx']
                 
-                # Generate blackout versions for CVR dataset
-                if "cvr" in str(self.config.data_folder).lower():
-                    self.generate_blackout_sheets(problem_id_standardized, choice_images, question_image)
+                # --- NEW SHUFFLE LOGIC: Run this *before* any image generation ---
+                if self.config.shuffle:
+                    if shuffle_order:
+                        # Use existing shuffle order
+                        self.logger.debug(f"Using existing shuffle order for {problem_id_standardized}")
+                        shuffled_choices = [choice_images[i] for i in shuffle_order]
+                        if true_answer_index is not None:
+                            answer_label = string.ascii_uppercase[shuffle_order.index(true_answer_index)]
+                        else:
+                            answer_label = None
+                    else:
+                        # Generate new shuffle order
+                        self.logger.debug(f"Generating new shuffle order for {problem_id_standardized}")
+                        indices = list(range(len(choice_images)))
+                        random.shuffle(indices)
+                        shuffle_order = indices
+                        shuffled_choices = [choice_images[i] for i in shuffle_order]
+                        if true_answer_index is not None:
+                            answer_label = string.ascii_uppercase[shuffle_order.index(true_answer_index)]
+                        else:
+                            answer_label = None
+                else:
+                    # No shuffle
+                    shuffle_order = None # Explicitly set to None
+                    shuffled_choices = choice_images
+                    if true_answer_index is not None:
+                        answer_label = string.ascii_uppercase[true_answer_index]
+                    else:
+                        answer_label = None
+                # --- END OF SHUFFLE LOGIC ---
 
-                if "raven" in str(self.config.data_folder).lower() or "marsvqa" in str(self.config.data_folder).lower():
-                    self.sheet_maker.generate_question_filled(question_image, choice_images, self.config.data_folder, problem_id_standardized, self.output_base_path, crop_px=2)
+                # Generate sheet (only if not already processed)
+                if not self.is_already_processed(problem_id_standardized):
+                    # --- FIX 1: Save refactored images *using shuffled_choices* ---
+                    self.save_refactored_images(problem_id_standardized, shuffled_choices, letters=True, question_image=question_image)
+                    
+                    sheet, _, _ = self.sheet_maker.generate_question_sheet_from_images(
+                        shuffled_choices, # Use the (potentially) shuffled choices
+                        question_image=question_image,
+                        shuffle_answers=False, # Shuffling is now done manually above
+                        true_answer_index=None # Not needed, we derived label already
+                    )
+                    # Save sheet
+                    self.save_sheet(problem_id_standardized, sheet)
 
-                # Save sheet
-                self.save_sheet(problem_id_standardized, sheet)
+                    # --- FIX 2: Generate blackout versions *using shuffled_choices* ---
+                    if self.config.category == "choice_only":
+                        tmp_images = self.generate_blackout_sheets(problem_id_standardized, shuffled_choices, question_image)
+
+                    # --- FIX 3: Generate filled versions *using shuffled_choices* ---
+                    if self.config.category == "standard":
+                        tmp_images = self.sheet_maker.generate_question_filled(question_image, shuffled_choices, self.config.data_folder, problem_id_standardized, self.output_base_path, crop_px=2)
+                        choice_panel, _, _ = self.sheet_maker.generate_question_sheet_from_images(
+                        shuffled_choices,
+                        shuffle_answers=False,
+                        true_answer_index=None 
+                        )
+                        self.save_sheet(problem_id_standardized, choice_panel, choice_panel=True)
+
+                    # Save blackout/filled images for classification setting
+                    classification_panel = self.sheet_maker.generate_question_sheet_from_images(
+                        tmp_images,
+                        shuffle_answers=False,
+                        true_answer_index=None
+                    )[0]
+                    self.save_sheet(problem_id_standardized, classification_panel, classification_panel=True)
                 
-                # Store metadata
+                # Store metadata (runs even if images were skipped, to populate metadata)
                 if answer_label is not None:
                     self.answers_dict[problem_id_standardized] = answer_label
                 else:
@@ -88,16 +165,19 @@ class StandardProcessor(BaseProcessor):
                         idx = answer_info['true_idx']
                         label = string.ascii_uppercase[idx] if 0 <= idx < len(string.ascii_uppercase) else str(idx)
                         self.answers_dict[problem_id_standardized] = label
+                
                 if shuffle_order:
                     self.shuffle_orders[problem_id_standardized] = shuffle_order
                 
                 # Load and store annotations if available
+                # This function correctly uses the shuffle_order to remap annotations
                 annotations = self.load_annotations(problem_id, shuffle_order)
                 if annotations:
                     self.annotations_dict[problem_id_standardized] = annotations
                 
                 processed_count += 1
-                self.logger.debug(f"Successfully processed problem {problem_id_standardized}")
+                newly_processed_problem_ids.add(problem_id_standardized)
+                self.logger.debug(f"Successfully processed/updated metadata for problem {problem_id_standardized}")
                 
             except Exception as e:
                 self.logger.error(f"Error processing problem {problem_id}: {e}", exc_info=True)
@@ -105,13 +185,14 @@ class StandardProcessor(BaseProcessor):
         
         # Log summary
         self.logger.info(
-            f"Processing complete: {processed_count} processed, "
-            f"{skipped_count} skipped (already processed), "
+            f"Processing complete: {processed_count} processed/updated, "
+            f"{skipped_count} skipped (images and metadata OK), "
             f"{error_count} errors"
         )
         
         # Save all metadata
         if processed_count > 0:
+            self.logger.info(f"Saving metadata for {len(self.answers_dict)} total problems...")
             self.save_metadata()
         else:
             self.logger.info("No new problems processed, skipping metadata save")
@@ -225,19 +306,23 @@ class StandardProcessor(BaseProcessor):
     
     def save_metadata(self) -> None:
         """Save all metadata to JSON files."""
-        dataset_name = self.dataset_name
+        dataset__name = self.dataset_name
         
         if self.answers_dict:
-            self.save_json(self.answers_dict, f"{dataset_name}_solutions.json")
+            self.save_json(self.answers_dict, f"{self.dataset_name}_solutions.json")
         
         if self.shuffle_orders:
-            self.save_json(self.shuffle_orders, f"{dataset_name}_shuffle_orders.json")
+            self.save_json(self.shuffle_orders, f"{self.dataset_name}_shuffle_orders.json")
         
         if self.annotations_dict:
-            self.save_json(self.annotations_dict, f"{dataset_name}_annotations.json")
+            self.save_json(self.annotations_dict, f"{self.dataset_name}_annotations.json")
 
-    def generate_blackout_sheets(self, problem_id_standardized: str, choice_images: list, question_image: Image.Image | None) -> None:
-        """Generate and save blackout sheets (A–D) for each answer position."""
+    def generate_blackout_sheets(self, problem_id_standardized: str, choice_images: list, question_image: Image.Image | None) -> list[Image.Image]:
+        """
+        Generate and save blackout sheets (A–D) for each answer position.
+        Assumes choice_images is the *final* list (i.e., already shuffled).
+        """
+        blackout_image_list = []
         blackout_dir = self.output_base_path / "cvr" / "problems" / problem_id_standardized / "blackout"
         blackout_dir.mkdir(parents=True, exist_ok=True)
 
@@ -247,13 +332,16 @@ class StandardProcessor(BaseProcessor):
                 sheet, _, _ = self.sheet_maker.generate_question_sheet_from_images(
                     choice_images,
                     question_image=question_image,
-                    shuffle_answers=False,  # no shuffle for blackout
+                    shuffle_answers=False,  # no shuffle, list is already in final order
                     blackout=i,              # black out the i-th choice
+                    no_label=True            # do not label choices
                 )
                 label = string.ascii_uppercase[i]
                 out_path = blackout_dir / f"{label}.png"
                 sheet.save(out_path)
+                blackout_image_list.append(sheet)
                 self.logger.debug(f"Saved blackout sheet for {problem_id_standardized} ({label}) at {out_path}")
             except Exception as e:
                 self.logger.error(f"Failed to generate blackout sheet {label} for {problem_id_standardized}: {e}")
 
+        return blackout_image_list

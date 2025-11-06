@@ -3,13 +3,13 @@ import json
 import random
 import re
 import string
-from code.preprocessing_new.logging_configuration import setup_logging
+from code.preprocessing.logging_configuration import setup_logging
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional, Dict
 from PIL import Image
-from code.preprocessing_new.processorconfig import ProcessorConfig
+from code.preprocessing.processorconfig import ProcessorConfig
 
 class BaseProcessor(ABC):
     """Abstract base class for all dataset processors."""
@@ -43,15 +43,19 @@ class BaseProcessor(ABC):
         path.mkdir(parents=True, exist_ok=True)
         return path
 
-    def save_sheet(self, problem_id: str, sheet: Image.Image, switched: bool = False) -> None:
+    def save_sheet(self, problem_id: str, sheet: Image.Image, switched: bool = False, choice_panel: bool = False, classification_panel: bool = False) -> None:
         """Save the generated question panel image."""
         # Directory structure: data/<dataset_name>/<problem_id>/
         output_dir = self.output_base_path / self.dataset_name / "problems" / problem_id
         output_dir.mkdir(parents=True, exist_ok=True)
-        if not switched:
-            save_path = output_dir / "question_panel.png"
-        else:
+        if classification_panel:
+            save_path = output_dir / "classification_panel.png"
+        elif switched and not choice_panel:
             save_path = output_dir / "question_panel_switched.png"
+        elif choice_panel:
+            save_path = output_dir / "choice_panel.png"
+        else:
+            save_path = output_dir / "question_panel.png"
         sheet.save(save_path)
         self.logger.debug(f"Saved question panel for problem {problem_id} to {save_path}")
 
@@ -68,7 +72,6 @@ class BaseProcessor(ABC):
         self.logger.info(f"Saved JSON metadata to {file_path}")
 
 
-    
     def load_image_by_pattern(self, directory: Path, pattern: str) -> Optional[Image.Image]:
         """Load image matching a pattern in the directory."""
         try:

@@ -15,7 +15,8 @@ class StandardSheetMaker:
         border_thickness=2,
         shuffle_answers=False,
         true_answer_index=None,
-        blackout=None  # <-- can be int or None
+        blackout=None,  # <-- can be int or None
+        no_label: bool = False
     ) -> tuple[Image.Image, str | None, list[int] | None]:
 
         if shuffle_answers:
@@ -94,6 +95,9 @@ class StandardSheetMaker:
             y_offset += question_img_height
 
         labels = [chr(ord("A") + i) for i in range(num_images)]
+        
+        if no_label:
+            labels = [""] * num_images
 
         def draw_row(imgs, labels_row, y_offset):
             x_offset = margin
@@ -142,6 +146,7 @@ class StandardSheetMaker:
         Returns:
             A list of new PIL.Image objects in the same order as `choice_images`.
         """
+        images_list = []
         dataset_name = Path(dataset_folder).name
         results = []
         for choice in choice_images:
@@ -166,4 +171,7 @@ class StandardSheetMaker:
             label = chr(ord('A') + i)
             save_path = output_dir / f"{label}.png"
             img.save(save_path)
+            images_list.append(img) 
+            
+        return images_list
 

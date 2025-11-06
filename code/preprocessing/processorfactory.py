@@ -1,7 +1,7 @@
-from code.preprocessing_new.baseprocessor import BaseProcessor
-from code.preprocessing_new.processorconfig import ProcessorConfig
-from code.preprocessing_new.standardprocessor import StandardProcessor
-from code.preprocessing_new.bongardprocessor import BongardProcessor
+from code.preprocessing.baseprocessor import BaseProcessor
+from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.standardprocessor import StandardProcessor
+from code.preprocessing.bongardprocessor import BongardProcessor
 
 class ProcessorFactory:
     """Factory for creating appropriate processor instances."""

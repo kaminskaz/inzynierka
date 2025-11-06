@@ -19,6 +19,7 @@ class ProcessorConfig:
     regex_answer_number: Optional[str] = None
     solutions_folder: Optional[str] = None
     true_idx: Optional[int] = None
+    expected_num_samples: Optional[int] = None
 
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> 'ProcessorConfig':
