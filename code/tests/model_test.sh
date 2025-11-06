@@ -13,15 +13,15 @@
 # Debugging flags (optional)
 export PYTHONFAULTHANDLER=1
 
-cd /mnt/evafs/groups/jrafalko-lab/inzynierka
-
-export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/dunalk/huggingface/tmp/${SLURM_JOB_ID}"
+export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/kdunal/huggingface/tmp/${SLURM_JOB_ID}"
 mkdir ${JOB_HF_HOME}
 echo "JOB_HF_HOME: ${JOB_HF_HOME}"
 
-export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/dunalk/tmp/${SLURM_JOB_ID}"
+export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/kdunal/tmp/${SLURM_JOB_ID}"
 mkdir ${JOB_TMPDIR}
 echo "JOB_TMPDIR: ${JOB_TMPDIR}"
+
+cd /mnt/evafs/groups/jrafalko-lab
 
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 python code/tests/model_test.py slurm_id=${SLURM_JOB_ID} "$@" 
