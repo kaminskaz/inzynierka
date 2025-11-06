@@ -6,9 +6,9 @@ import PIL.Image
 from code.preprocessing.processorconfig import ProcessorConfig 
 
 class StrategyBase(ABC):
-    def __init__(self, dataset_name: str, model: PIL.Image.Image, dataset_config: ProcessorConfig):
+    def __init__(self, dataset_name: str, model: Any, dataset_config: ProcessorConfig):
         self.dataset_name: str = dataset_name
-        self.model: PIL.Image.Image = model
+        self.model: Any = model
         self.config: ProcessorConfig = dataset_config
         
         self.logger = logging.getLogger(self.__class__.__name__)
