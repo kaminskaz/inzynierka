@@ -1,0 +1,8 @@
+JOB_HF_HOME: /mnt/evafs/groups/jrafalko-lab/kdunal/huggingface/tmp/1276600
+JOB_TMPDIR: /mnt/evafs/groups/jrafalko-lab/kdunal/tmp/1276600
+Traceback (most recent call last):
+  File "/mnt/evafs/groups/jrafalko-lab/inzynierka/code/tests/model_test.py", line 2, in <module>
+    from code.models.vllm import VLLMFactory
+  File "/mnt/evafs/groups/jrafalko-lab/inzynierka/code/models/vllm.py", line 5, in <module>
+    import portpicker
+ModuleNotFoundError: No module named 'portpicker'

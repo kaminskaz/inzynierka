@@ -1,0 +1,6 @@
+JOB_HF_HOME: /mnt/evafs/groups/jrafalko-lab/huggingface/tmp/1276598
+JOB_TMPDIR: /mnt/evafs/groups/jrafalko-lab/tmp/1276598
+Traceback (most recent call last):
+  File "/mnt/evafs/groups/jrafalko-lab/inzynierka/code/tests/model_test.py", line 2, in <module>
+    from code.models.vllm import VLLMFactory
+ModuleNotFoundError: No module named 'code.models'; 'code' is not a package

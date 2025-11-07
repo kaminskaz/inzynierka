@@ -13,18 +13,42 @@
 # Debugging flags (optional)
 export PYTHONFAULTHANDLER=1
 
-export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/huggingface/tmp/${SLURM_JOB_ID}"
-mkdir -p ${JOB_HF_HOME}
+PROJEKT_DIR="/mnt/evafs/groups/jrafalko-lab/inzynierka"
+# Używamy ścieżki do TWOJEGO katalogu użytkownika (kdunal), aby uniknąć błędów mkdir
+# Musimy założyć, że folder 'kdunal' istnieje w katalogu jrafalko-lab.
+USER_DIR="/mnt/evafs/groups/jrafalko-lab/kdunal" 
+
+
+# --- 1. POPRAWKA KATALOGÓW TYMCZASOWYCH (MUSI BYĆ W FOLDERZE UŻYTKOWNIKA) ---
+
+# Używamy mkdir -p na katalogach nadrzędnych, aby mieć pewność, że istnieją:
+mkdir -p "${USER_DIR}/huggingface/tmp"
+mkdir -p "${USER_DIR}/tmp"
+
+export JOB_HF_HOME="${USER_DIR}/huggingface/tmp/${SLURM_JOB_ID}"
+mkdir ${JOB_HF_HOME}
 echo "JOB_HF_HOME: ${JOB_HF_HOME}"
 
-export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/tmp/${SLURM_JOB_ID}"
-mkdir -p ${JOB_TMPDIR}
+export JOB_TMPDIR="${USER_DIR}/tmp/${SLURM_JOB_ID}"
+mkdir ${JOB_TMPDIR}
 echo "JOB_TMPDIR: ${JOB_TMPDIR}"
 
-cd /mnt/evafs/groups/jrafalko-lab
+# -----------------------------------------------------------------------------
 
-source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
-python code/tests/model_test.py slurm_id=${SLURM_JOB_ID} "$@" 
+# 2. Przejście do katalogu projektu
+cd ${PROJEKT_DIR}
 
+# 3. WYMUSZENIE ŚCIEŻKI DLA PYTHONA (NAPRAWIA MODULE NOT FOUND ERROR)
+# Dodaje folder 'inzynierka' do PYTHONPATH, aby Python znalazł moduł 'code'.
+export PYTHONPATH="${PYTHONPATH}:${PROJEKT_DIR}"
+
+# 4. Aktywacja środowiska wirtualnego
+# Musimy użyć ścieżki względnej, bo jesteśmy już w katalogu projektu
+source .venv/bin/activate
+
+# 5. Uruchomienie skryptu
+python code/tests/model_test.py slurm_id=${SLURM_JOB_ID} "$@" 
+
+# 6. Czyszczenie (używamy '-r' dla usunięcia katalogu, nawet jeśli jest pusty)
 rm -r ${JOB_HF_HOME}
 rm -r ${JOB_TMPDIR}

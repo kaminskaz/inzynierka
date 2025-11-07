@@ -3,6 +3,15 @@ from code.models.vllm import VLLMFactory
 from code.technical.content import ImageContent, TextContent
 import asyncio
 import os
+import sys
+print(f"DEBUG: Bieżący katalog roboczy (cwd): {os.getcwd()}")
+# WYNIK: Powinien to być /mnt/evafs/groups/jrafalko-lab/inzynierka
+
+# WYŚWIETLENIE ŚCIEŻKI URUCHOMIENIA SKRYPTU (jak skrypt został wywołany)
+print(f"DEBUG: Ścieżka skryptu (__file__): {os.path.abspath(__file__)}")
+
+# Sprawdzenie, czy katalog nadrzędny 'code' jest widoczny
+print(f"DEBUG: Czy katalog 'code' istnieje tutaj: {os.path.exists('code')}")
 
 class TestVLLM(unittest.TestCase):
 
