@@ -4,12 +4,10 @@ matplotlib==3.10.3
 seaborn==0.13.2
 Pillow==11.1.0
 scipy==1.15.2
-qwen-vl-utils==0.0.11
-huggingface_hub==0.34.6
 vllm==0.11.0
 pydantic==2.12.3
 openai==2.2.0
 portpicker==1.6.0
 requests==2.31.0
-transformers==4.41.2
+transformers==4.55.2
 python-dotenv
