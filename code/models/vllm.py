@@ -134,7 +134,7 @@ class VLLMFactory:
         self.process = launch_vllm_server(
             model_name,
             self.base_url,
-            timeout=7200,
+            timeout=120,
             api_key=self.api_key,
             other_args=(
                 "--port",
@@ -185,19 +185,24 @@ def launch_vllm_server(
     env: Optional[Dict[str, str]] = None,
 ):
     command = ["vllm", "serve", model, "--api-key", api_key, *other_args]
-    
+
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        env=env,
+        stderr=subprocess.STDOUT,  
         text=True,
+        env=env,
     )
 
     start_time = time.time()
+    stdout_lines = []
+
     while time.time() - start_time < timeout:
-        if process.poll() is not None:
-             break
+        if process.stdout:
+            for line in iter(process.stdout.readline, ''):
+                if line:
+                    stdout_lines.append(line)
+                    logger.info(line.strip())  
 
         try:
             headers = {
@@ -207,37 +212,38 @@ def launch_vllm_server(
             response = requests.get(f"{base_url}/v1/models", headers=headers)
             if response.status_code == 200:
                 logger.info(f"VLLM server for '{model}' is ready on {base_url}.")
-                return process 
+                return process
         except requests.RequestException:
-            pass 
-            
-        time.sleep(5) 
+            pass
+
+        if process.poll() is not None:
+            break
+
+        time.sleep(1)
 
     if process.poll() is None:
         process.terminate()
-        time.sleep(1) 
-        
-    # Read the output streams up to the point of failure/termination
-    try:
-        stdout, stderr = process.communicate(timeout=5)
-    except subprocess.TimeoutExpired:
-        stdout, stderr = "Could not read stdout.", "Could not read stderr."
+        time.sleep(1)
 
-    # Error Classification Logic
-    stderr_lower = stderr.lower()
+    try:
+        remaining_output, _ = process.communicate(timeout=5)
+        if remaining_output:
+            stdout_lines.append(remaining_output)
+            logger.info(remaining_output)
+    except subprocess.TimeoutExpired:
+        logger.warning("Could not read remaining stdout from vLLM process.")
+
+    full_output = "".join(stdout_lines).lower()
     error_detail = "Could not determine exact cause from vLLM output. Check full logs."
-    
-    if "out of memory" in stderr_lower or "oom" in stderr_lower or "cuda memory" in stderr_lower:
+
+    if "out of memory" in full_output or "oom" in full_output or "cuda memory" in full_output:
         error_detail = "GPU OUT OF MEMORY (OOM) Error. Try reducing max-model-len or using a smaller model."
-    elif "architecture" in stderr_lower and "not supported" in stderr_lower:
+    elif "architecture" in full_output and "not supported" in full_output:
         error_detail = "MODEL ARCHITECTURE NOT SUPPORTED by this vLLM version."
-    elif "error" in stderr_lower or "exception" in stderr_lower or "traceback" in stderr_lower:
-        error_detail = f"VLLM internal error/dependency issue. Full stderr excerpt: {stderr[:500]}..."
+    elif "error" in full_output or "exception" in full_output or "traceback" in full_output:
+        error_detail = f"VLLM internal error/dependency issue. Full log excerpt:\n{full_output[:500]}..."
 
     logger.critical(f"VLLM Server launch FAILED for '{model}'. Reason: {error_detail}")
-    logger.debug(f"VLLM STDOUT:\n{stdout}")
-    logger.debug(f"VLLM STDERR:\n{stderr}")
-
     raise TimeoutError(f"Server failed to start within the timeout period. Reason: {error_detail}")
 
 
