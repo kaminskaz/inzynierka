@@ -3,7 +3,7 @@ from code.technical.content import ImageContent, TextContent
 from code.technical.response_schema import ResponseSchema
 
 class DirectStrategy(StrategyBase):
-    def run(self, ):
+    def run(self):
         image_input = self.get_question_panel()
         problem_descr = self.get_prompt("problem_description_main", self.strategy_name, self.dataset_name)
         question_prompt = self.get_prompt("question_main", self.strategy_name, self.dataset_name)

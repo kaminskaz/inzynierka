@@ -80,7 +80,8 @@ class StrategyFactory:
 
             self.logger.info(f"Successfully loaded {len(vllm_models)} instance(s) of model: '{model_name}'")
 
-            # in our project we implement usage of only one model instance at a time
+            # in our project we implement usage of only one model instance at a time but the factory supports multiple instances if needed,
+            # rest of the code would need to be adapted accordingly
             return vllm_models[0] if vllm_models else None
     
         except TimeoutError as e:

@@ -16,7 +16,7 @@ class StrategyBase(ABC):
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
 
     @abstractmethod
-    def run(self, prompt_type: str) -> None:
+    def run(self) -> None:
         pass
 
     def get_prompt(self, prompt_type: str) -> str:

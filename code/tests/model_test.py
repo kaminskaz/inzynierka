@@ -6,7 +6,7 @@ import sys
 
 async def main():
     print("Preparing VLLM", flush=True)
-    vllm = VLLMFactory(model_name="Qwen/Qwen2.5-VL-72B-Instruct")
+    vllm = VLLMFactory(model_name="Qwen/Qwen2.5-VL-7B-Instruct")
 
     text_content = TextContent("What is the capital of Norway?")
     response1 = await vllm.ask([text_content])
