@@ -65,7 +65,9 @@ def run_single_experiment(dataset_name: str, strategy_name: str, model_name: str
         logger.info("Strategy created successfully. Running experiment...")
         strategy.run()
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
-    
+
+        strategy_factory._stop_model()
+
     except ImportError as e:
         logger.error(f"Failed to create strategy. Does '{strategy_name}' exist and is it importable? Error: {e}", exc_info=True)
         sys.exit(1)

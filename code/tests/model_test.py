@@ -24,5 +24,7 @@ async def main():
     response2 = await vllm.ask([text_content, image_content])
     print("Response (multimodal):", response2, flush=True)
 
+    vllm._stop_vllm_server()
+
 if __name__ == "__main__":
     asyncio.run(main())

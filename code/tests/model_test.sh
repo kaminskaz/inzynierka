@@ -24,7 +24,9 @@ mkdir -p ${JOB_TMPDIR}
 cd /mnt/evafs/groups/jrafalko-lab
 
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
-python code/tests/model_test.py slurm_id=${SLURM_JOB_ID} "$@" 
+
+cd inzynierka
+python -m code.tests.model_test
 
 rm -r ${JOB_HF_HOME}
 rm -r ${JOB_TMPDIR}

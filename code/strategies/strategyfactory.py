@@ -75,8 +75,8 @@ class StrategyFactory:
         self.logger.info(f"Attempting to load model: '{model_name}'")
 
         try:
-            vllm_factory = VLLMFactory(model_name=model_name, max_tokens=max_tokens, limit_mm_per_prompt=limit_mm_per_prompt, custom_args=custom_args)
-            vllm_models = vllm_factory.make_vllm_messengers(temperature=temperature, max_output_tokens=max_output_tokens, n=1)
+            self.vllm_factory = VLLMFactory(model_name=model_name, max_tokens=max_tokens, limit_mm_per_prompt=limit_mm_per_prompt, custom_args=custom_args)
+            vllm_models = self.vllm_factory.make_vllm_messengers(temperature=temperature, max_output_tokens=max_output_tokens, n=1)
 
             self.logger.info(f"Successfully loaded {len(vllm_models)} instance(s) of model: '{model_name}'")
 
@@ -93,6 +93,15 @@ class StrategyFactory:
         except Exception as e:
             self.logger.error(f"An unexpected error occurred during VLLM setup for '{model_name}'. Error: {e}")
             return None
+        
+    def _stop_model(self):
+        """Stops the running vLLM server if active."""
+        if hasattr(self, "vllm_factory") and self.vllm_factory is not None:
+            try:
+                self.vllm_factory.stop_vllm_server()
+                self.logger.info("vLLM server stopped successfully.")
+            except Exception as e:
+                self.logger.warning(f"Error while stopping vLLM server: {e}")
 
 
     def create_strategy(self, dataset_name: str, strategy_name: str, model_name: str) -> StrategyBase:

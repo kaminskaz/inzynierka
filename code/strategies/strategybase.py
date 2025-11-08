@@ -16,12 +16,17 @@ class StrategyBase(ABC):
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
 
     @abstractmethod
-    def run(self) -> None:
+    def run(self, prompt_type: str) -> None:
         pass
 
-    @abstractmethod
-    def get_prompt(self, dataset_name: str, strategy_name: str) -> str:
-        pass
+    def get_prompt(self, prompt_type: str) -> str:
+        try:
+            with open(f"prompts/{self.strategy_name}/{self.dataset_name}/{prompt_type}.txt", 'r') as f:
+                prompt = f.read()
+            return prompt
+        except Exception as e:
+            self.logger.exception(f"Error reading prompt for strategy '{self.strategy_name}' and dataset '{self.dataset_name}': {e}")
+            return ""
 
     def save_metadata(self) -> None:
         pass
@@ -49,7 +54,6 @@ class StrategyBase(ABC):
             return None
         
         image_path = f"data/{self.dataset_name}/problems/{problem_id}/choice_panel.png"
-        # return self.get_image_from_path(image_path)
         return image_path
 
     def get_choice_image(self, problem_id: str, image_index: Union[str, int]) -> Optional[PIL.Image.Image]:
@@ -59,13 +63,11 @@ class StrategyBase(ABC):
             return None
         
         image_path = f"data/{self.dataset_name}/problems/{problem_id}/choices/{image_index}.png"
-        # return self.get_image_from_path(image_path)
         return image_path
     
     def get_question_panel(self, problem_id: str) -> Optional[PIL.Image.Image]:
         # applicable to all datasets
         image_path = f"data/{self.dataset_name}/problems/{problem_id}/question_panel.png"
-        # return self.get_image_from_path(image_path)
         return image_path
     
     def get_question_image(self, problem_id: str) -> Optional[PIL.Image.Image]:
@@ -78,7 +80,6 @@ class StrategyBase(ABC):
             return None
 
         image_path = f"data/{self.dataset_name}/problems/{problem_id}/question.png"
-        # return self.get_image_from_path(image_path)
         return image_path
 
     def get_blackout_image(self, problem_id: str, image_index: Union[str, int]) -> Optional[PIL.Image.Image]:
@@ -94,13 +95,11 @@ class StrategyBase(ABC):
             return None
 
         image_path = f"data/{self.dataset_name}/problems/{problem_id}/blackout/{image_index}.png"
-        # return self.get_image_from_path(image_path)
         return image_path
 
     def get_classification_panel(self, problem_id: str) -> Optional[PIL.Image.Image]:
         # applicable to all datasets
         image_path = f"data/{self.dataset_name}/problems/{problem_id}/classification_panel.png"
-        # return self.get_image_from_path(image_path)
         return image_path
 
     def get_list_of_choice_images(self, problem_id: str, image_indices: List[Union[str, int]]) -> List[Optional[PIL.Image.Image]]:

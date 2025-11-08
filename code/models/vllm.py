@@ -23,7 +23,7 @@ class VLLM():
         api_key: str,
         model_name: str,
         temperature: float = 1.0,
-        max_output_tokens: int = 1536
+        max_output_tokens: int = 1024
     ):
 
         self.model_name = model_name
@@ -84,10 +84,10 @@ class VLLMFactory:
     def __init__(
         self,
         model_name: str,
-        max_tokens: int = 2048,
-        limit_mm_per_prompt: int = 8,
+        max_tokens: int = 1536,
+        limit_mm_per_prompt: int = 2,
         custom_args: List[str] = [],
-        force_multi_modal: bool = False, # <--- DODANY ARGUMENT
+        force_multi_modal: bool = False, 
     ):
         
         model_info = get_model_architecture(model_name)
@@ -134,7 +134,7 @@ class VLLMFactory:
         self.process = launch_vllm_server(
             model_name,
             self.base_url,
-            timeout=120,
+            timeout=600,
             api_key=self.api_key,
             other_args=(
                 "--port",
@@ -143,7 +143,7 @@ class VLLMFactory:
                 str(max_tokens),
                 "--trust-remote-code",
                 *(
-                    ("--limit-mm-per-prompt", f"image={limit_mm_per_prompt}")
+                    ("--limit-mm-per-prompt", f'{{"image": {limit_mm_per_prompt}}}')
                     if limit_mm_per_prompt > 0
                     else ()
                 ),
@@ -174,6 +174,16 @@ class VLLMFactory:
             )
             for index in range(n)
         ]
+    
+    def _stop_vllm_server(self):
+        """Stops the running vLLM server if active."""
+        try:
+            if self.process and self.process.poll() is None:
+                self.process.terminate()
+                self.process.wait(timeout=5)
+                self.logger.info("vLLM server stopped successfully.")
+        except Exception as e:
+            self.logger.warning(f"Error while stopping vLLM server: {e}")
 
 
 def launch_vllm_server(
