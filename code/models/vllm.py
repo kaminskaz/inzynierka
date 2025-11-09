@@ -87,40 +87,40 @@ class VLLMFactory:
         max_tokens: int = 1536,
         limit_mm_per_prompt: int = 2,
         custom_args: List[str] = [],
-        force_multi_modal: bool = False, 
+        # force_multi_modal: bool = False, 
     ):
         
-        model_info = get_model_architecture(model_name)
+        # model_info = get_model_architecture(model_name)
         
-        if not model_info['supported']:
-            logger.critical(f"Model '{model_name}' is not supported or not found on Hugging Face Hub. Reason: {model_info['error']}")
-            raise ValueError(f"Model '{model_name}' is unsupported or not found.")
+        # if not model_info['supported']:
+        #     logger.critical(f"Model '{model_name}' is not supported or not found on Hugging Face Hub. Reason: {model_info['error']}")
+        #     raise ValueError(f"Model '{model_name}' is unsupported or not found.")
         
-        model_is_mmm = model_info['is_multi_modal']
+        # model_is_mmm = model_info['is_multi_modal']
         config_is_mmm_enabled = limit_mm_per_prompt > 0
         
-        if force_multi_modal and not model_is_mmm:
-            logger.critical(
-                f"Configuration Error: Multi-modal operation was FORCED (force_multi_modal=True), "
-                f"but model '{model_name}' is text-only (Architecture: {', '.join(model_info['architectures'])})."
-                "Operation aborted."
-            )
-            raise ValueError(f"Model '{model_name}' must be multimodal to proceed.")
+        # if force_multi_modal and not model_is_mmm:
+        #     logger.critical(
+        #         f"Configuration Error: Multi-modal operation was FORCED (force_multi_modal=True), "
+        #         f"but model '{model_name}' is text-only (Architecture: {', '.join(model_info['architectures'])})."
+        #         "Operation aborted."
+        #     )
+        #     raise ValueError(f"Model '{model_name}' must be multimodal to proceed.")
 
-        if config_is_mmm_enabled and not model_is_mmm:
-            logger.warning(
-                f"Configuration Mismatch: Attempting to run text-only model ('{model_name}') "
-                f"with multi-modal limits enabled (limit_mm_per_prompt={limit_mm_per_prompt}). "
-                "Image inputs will likely be ignored or cause errors."
-            )
+        # if config_is_mmm_enabled and not model_is_mmm:
+        #     logger.warning(
+        #         f"Configuration Mismatch: Attempting to run text-only model ('{model_name}') "
+        #         f"with multi-modal limits enabled (limit_mm_per_prompt={limit_mm_per_prompt}). "
+        #         "Image inputs will likely be ignored or cause errors."
+        #     )
             
-        elif not config_is_mmm_enabled and model_is_mmm:
-            logger.warning(
-                f"Configuration Warning: Model '{model_name}' is Multi-Modal, but "
-                "limit_mm_per_prompt is 0. Image processing capabilities are DISABLED."
-            )
+        # elif not config_is_mmm_enabled and model_is_mmm:
+        #     logger.warning(
+        #         f"Configuration Warning: Model '{model_name}' is Multi-Modal, but "
+        #         "limit_mm_per_prompt is 0. Image processing capabilities are DISABLED."
+        #     )
 
-        self.is_multi_modal_configured = model_is_mmm and config_is_mmm_enabled
+        # self.is_multi_modal_configured = model_is_mmm and config_is_mmm_enabled
         
         port = portpicker.pick_unused_port()
 
@@ -128,7 +128,7 @@ class VLLMFactory:
         self.base_url = f"http://localhost:{port}"
 
         self.model_name = model_name
-        self.has_reasoning_content = "--enable-reasoning" in custom_args
+        # self.has_reasoning_content = "--enable-reasoning" in custom_args
         self.max_tokens = max_tokens
 
         self.process = launch_vllm_server(
@@ -166,10 +166,10 @@ class VLLMFactory:
                 base_url=self.base_url,
                 api_key=self.api_key,
                 model_name=self.model_name,
-                has_reasoning_content=self.has_reasoning_content,
+                # has_reasoning_content=self.has_reasoning_content,
                 temperature=temperature,
                 max_output_tokens=max_output_tokens,
-                is_multi_modal=self.is_multi_modal_configured, 
+                # is_multi_modal=self.is_multi_modal_configured, 
                 log_suffix=f"-agent-{index}",
             )
             for index in range(n)
