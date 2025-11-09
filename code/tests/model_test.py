@@ -8,7 +8,8 @@ from code.models.vllm import stop_vllm_server
 
 async def main():
     print("Preparing VLLM", flush=True)
-    vllm = VLLMFactory(model_name="Qwen/Qwen2.5-VL-7B-Instruct")
+    vllm_factory = VLLMFactory(model_name="Qwen/Qwen2.5-VL-7B-Instruct")
+    vllm = vllm_factory.make_vllm_messengers()[0]
 
     text_content = TextContent("What is the capital of Norway?")
     response1 = await vllm.ask([text_content])
