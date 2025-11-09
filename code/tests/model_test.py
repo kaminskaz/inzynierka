@@ -1,8 +1,10 @@
 import asyncio
-from code.models.vllm import VLLMFactory
-from code.technical.content import ImageContent, TextContent
 import os
 import sys
+
+from code.models.vllm import VLLMFactory
+from code.technical.content import ImageContent, TextContent
+from code.models.vllm import stop_vllm_server
 
 async def main():
     print("Preparing VLLM", flush=True)
@@ -24,7 +26,7 @@ async def main():
     response2 = await vllm.ask([text_content, image_content])
     print("Response (multimodal):", response2, flush=True)
 
-    vllm._stop_vllm_server()
+    stop_vllm_server()
 
 if __name__ == "__main__":
     asyncio.run(main())

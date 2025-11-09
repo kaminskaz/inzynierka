@@ -1,6 +1,6 @@
 import subprocess
 import time
-from typing import List, Optional, Dict, Type
+from typing import List, Optional, Dict, Type, Any
 import openai
 import portpicker
 import requests
@@ -9,7 +9,7 @@ import datetime
 import os
 import logging
 from transformers import AutoConfig, PretrainedConfig
-from typing import Dict, Any
+import sys
 
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
@@ -186,6 +186,76 @@ def stop_vllm_server(process):
         logger.warning(f"Error while stopping vLLM server: {e}")
 
 
+# def launch_vllm_server(
+#     model: str,
+#     base_url: str,
+#     timeout: float,
+#     api_key: str,
+#     other_args: tuple = (),
+#     env: Optional[Dict[str, str]] = None,
+# ):
+#     command = ["vllm", "serve", model, "--api-key", api_key, *other_args]
+
+#     process = subprocess.Popen(
+#         command,
+#         stdout=subprocess.PIPE,
+#         stderr=subprocess.STDOUT,  
+#         text=True,
+#         env=env,
+#     )
+
+#     start_time = time.time()
+#     stdout_lines = []
+
+#     while time.time() - start_time < timeout:
+#         if process.stdout:
+#             for line in iter(process.stdout.readline, ''):
+#                 if line:
+#                     stdout_lines.append(line)
+#                     logger.info(line.strip())  
+
+#         try:
+#             headers = {
+#                 "Content-Type": "application/json; charset=utf-8",
+#                 "Authorization": f"Bearer {api_key}",
+#             }
+#             response = requests.get(f"{base_url}/v1/models", headers=headers)
+#             if response.status_code == 200:
+#                 logger.info(f"VLLM server for '{model}' is ready on {base_url}.")
+#                 return process
+#         except requests.RequestException:
+#             pass
+
+#         if process.poll() is not None:
+#             break
+
+#         time.sleep(1)
+
+#     if process.poll() is None:
+#         process.terminate()
+#         time.sleep(1)
+
+#     try:
+#         remaining_output, _ = process.communicate(timeout=5)
+#         if remaining_output:
+#             stdout_lines.append(remaining_output)
+#             logger.info(remaining_output)
+#     except subprocess.TimeoutExpired:
+#         logger.warning("Could not read remaining stdout from vLLM process.")
+
+#     full_output = "".join(stdout_lines).lower()
+#     error_detail = "Could not determine exact cause from vLLM output. Check full logs."
+
+#     if "out of memory" in full_output or "oom" in full_output or "cuda memory" in full_output:
+#         error_detail = "GPU OUT OF MEMORY (OOM) Error. Try reducing max-model-len or using a smaller model."
+#     elif "architecture" in full_output and "not supported" in full_output:
+#         error_detail = "MODEL ARCHITECTURE NOT SUPPORTED by this vLLM version."
+#     elif "error" in full_output or "exception" in full_output or "traceback" in full_output:
+#         error_detail = f"VLLM internal error/dependency issue. Full log excerpt:\n{full_output[:500]}..."
+
+#     logger.critical(f"VLLM Server launch FAILED for '{model}'. Reason: {error_detail}")
+#     raise TimeoutError(f"Server failed to start within the timeout period. Reason: {error_detail}")
+
 def launch_vllm_server(
     model: str,
     base_url: str,
@@ -198,22 +268,15 @@ def launch_vllm_server(
 
     process = subprocess.Popen(
         command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,  
+        stdout=sys.stdout,
+        stderr=sys.stderr,
         text=True,
+        bufsize=1,
         env=env,
     )
 
     start_time = time.time()
-    stdout_lines = []
-
     while time.time() - start_time < timeout:
-        if process.stdout:
-            for line in iter(process.stdout.readline, ''):
-                if line:
-                    stdout_lines.append(line)
-                    logger.info(line.strip())  
-
         try:
             headers = {
                 "Content-Type": "application/json; charset=utf-8",
@@ -221,7 +284,7 @@ def launch_vllm_server(
             }
             response = requests.get(f"{base_url}/v1/models", headers=headers)
             if response.status_code == 200:
-                logger.info(f"VLLM server for '{model}' is ready on {base_url}.")
+                print(f"VLLM server for '{model}' is ready on {base_url}.", flush=True)
                 return process
         except requests.RequestException:
             pass
@@ -235,26 +298,8 @@ def launch_vllm_server(
         process.terminate()
         time.sleep(1)
 
-    try:
-        remaining_output, _ = process.communicate(timeout=5)
-        if remaining_output:
-            stdout_lines.append(remaining_output)
-            logger.info(remaining_output)
-    except subprocess.TimeoutExpired:
-        logger.warning("Could not read remaining stdout from vLLM process.")
+    raise TimeoutError(f"Server failed to start within {timeout} seconds. Check SLURM logs for details.")
 
-    full_output = "".join(stdout_lines).lower()
-    error_detail = "Could not determine exact cause from vLLM output. Check full logs."
-
-    if "out of memory" in full_output or "oom" in full_output or "cuda memory" in full_output:
-        error_detail = "GPU OUT OF MEMORY (OOM) Error. Try reducing max-model-len or using a smaller model."
-    elif "architecture" in full_output and "not supported" in full_output:
-        error_detail = "MODEL ARCHITECTURE NOT SUPPORTED by this vLLM version."
-    elif "error" in full_output or "exception" in full_output or "traceback" in full_output:
-        error_detail = f"VLLM internal error/dependency issue. Full log excerpt:\n{full_output[:500]}..."
-
-    logger.critical(f"VLLM Server launch FAILED for '{model}'. Reason: {error_detail}")
-    raise TimeoutError(f"Server failed to start within the timeout period. Reason: {error_detail}")
 
 
 def get_model_architecture(model_name: str) -> Dict[str, Any]:
