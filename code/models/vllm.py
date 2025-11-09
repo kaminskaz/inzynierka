@@ -156,7 +156,7 @@ class VLLMFactory:
     def make_vllm_messengers(
         self,
         temperature: float = 1.0,
-        max_output_tokens: int = 1536,
+        max_output_tokens: int = 1024,
         n: int = 1
     ) -> List[VLLM]:
         assert max_output_tokens < self.max_tokens
