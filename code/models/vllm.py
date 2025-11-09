@@ -134,7 +134,7 @@ class VLLMFactory:
         self.process = launch_vllm_server(
             model_name,
             self.base_url,
-            timeout=600,
+            timeout=1800,
             api_key=self.api_key,
             other_args=(
                 "--port",
