@@ -2,7 +2,7 @@ import base64
 import os
 from typing import Dict, List
 
-from code.technical.content import Content, ImageContent, TextContent
+from code.technical.content import Content, ImageContent, TextContent, is_image_supported
 
 
 class PromptFormatter:
@@ -15,7 +15,7 @@ class PromptFormatter:
             elif isinstance(content, ImageContent):
                 _, ext = os.path.splitext(content.image_path)
                 raw_ext = ext.replace(".", "")
-                if ImageContent.is_image_supported(content.image_path):
+                if is_image_supported(content.image_path):
                     with open(content.image_path, "rb") as f:
                         img_b64 = base64.b64encode(f.read()).decode("utf-8")
                     combined_content.append(f"[Image: data:image/{raw_ext};base64,{img_b64}]")
