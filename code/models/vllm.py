@@ -170,7 +170,7 @@ class VLLMFactory:
                 temperature=temperature,
                 max_output_tokens=max_output_tokens,
                 # is_multi_modal=self.is_multi_modal_configured, 
-                log_suffix=f"-agent-{index}",
+                # log_suffix=f"-agent-{index}",
             )
             for index in range(n)
         ]

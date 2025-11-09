@@ -7,13 +7,33 @@ from code.technical.content import Content, ImageContent, TextContent
 
 class PromptFormatter:
     def user_message(self, contents: List[Content]) -> Dict:
-        messages = []
+        combined_content = []
+
         for content in contents:
-            if isinstance(content, ImageContent):
-                messages.append(self._format_image_content(content))
-            elif isinstance(content, TextContent):
-                messages.append(self._format_text_content(content))
-        return {"role": "user", "content": messages}
+            if isinstance(content, TextContent):
+                combined_content.append(content.text)
+            elif isinstance(content, ImageContent):
+                _, ext = os.path.splitext(content.image_path)
+                raw_ext = ext.replace(".", "")
+                if ImageContent.is_image_supported(content.image_path):
+                    with open(content.image_path, "rb") as f:
+                        img_b64 = base64.b64encode(f.read()).decode("utf-8")
+                    combined_content.append(f"[Image: data:image/{raw_ext};base64,{img_b64}]")
+                else:
+                    combined_content.append("Image format not supported.")
+
+        # Join everything into a single string
+        final_content = "\n".join(combined_content)
+
+        return [{"role": "user", "content": final_content}]
+
+        # messages = []
+        # for content in contents:
+        #     if isinstance(content, ImageContent):
+        #         messages.append(self._format_image_content(content))
+        #     elif isinstance(content, TextContent):
+        #         messages.append(self._format_text_content(content))
+        # return {"role": "user", "content": messages}
 
     def assistant_message(self, model_response: str) -> Dict:
         return {"role": "assistant", "content": model_response}
