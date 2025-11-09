@@ -175,15 +175,15 @@ class VLLMFactory:
             for index in range(n)
         ]
     
-    def _stop_vllm_server(self):
-        """Stops the running vLLM server if active."""
-        try:
-            if self.process and self.process.poll() is None:
-                self.process.terminate()
-                self.process.wait(timeout=5)
-                self.logger.info("vLLM server stopped successfully.")
-        except Exception as e:
-            self.logger.warning(f"Error while stopping vLLM server: {e}")
+def stop_vllm_server(process):
+    """Stops the running vLLM server if active."""
+    try:
+        if process and process.poll() is None:
+            process.terminate()
+            process.wait(timeout=5)
+            logger.info("vLLM server stopped successfully.")
+    except Exception as e:
+        logger.warning(f"Error while stopping vLLM server: {e}")
 
 
 def launch_vllm_server(
