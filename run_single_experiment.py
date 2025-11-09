@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Any
 from code.strategies.strategyfactory import StrategyFactory
-from code.models.vllm import VLLM, VLLMFactory, stop_vllm_server
+from code.models.vllm import VLLM
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,48 +28,36 @@ def _load_model(
         custom_args: list = []
     ) -> Any:
     """
-    Loads and returns a tuple: (model_instance, factory_process)
+    Loads a VLLM model based on the provided model name and parameters.
     Currently supports VLLM models via VLLMFactory.
     """
     logger.info(f"Attempting to load model: '{model_name}'")
 
     try:
-        vllm_factory = VLLMFactory(
+        vllm_model = VLLM(
             model_name=model_name,
+            temperature=temperature,
             max_tokens=max_tokens,
+            max_output_tokens=max_output_tokens,
             limit_mm_per_prompt=limit_mm_per_prompt,
             custom_args=custom_args
         )
 
-        vllm_models = vllm_factory.make_vllm_messengers(temperature=temperature, max_output_tokens=max_output_tokens, n=1)
-
-        logger.info(f"Successfully loaded {len(vllm_models)} instance(s) of model: '{model_name}'")
-
-        # in our project we implement usage of only one model instance at a time but the factory supports multiple instances if needed,
-        # rest of the code would need to be adapted accordingly
-        if vllm_models and vllm_factory.process:
-            return vllm_models[0], vllm_factory.process
+        if vllm_model:
+            return vllm_model
         else:
-            return None, None
+            return None
 
     except TimeoutError as e:
         logger.critical(
             f"Failed to start VLLM server for model '{model_name}'. "
             f"Pipeline execution cannot continue. Error: {e}"
         )
-        return None, None
+        return None
 
     except Exception as e:
         logger.error(f"An unexpected error occurred during VLLM setup for '{model_name}'. Error: {e}")
-        return None, None
-        
-def _stop_model(process):
-    """Stops the running vLLM server if active."""
-    try:
-        stop_vllm_server(process)
-        logger.info("vLLM server stopped successfully.")
-    except Exception as e:
-        logger.warning(f"Error while stopping vLLM server: {e}")
+        return None
 
 
 def check_data_preprocessed(dataset_name: str) -> bool:
@@ -154,7 +142,7 @@ def run_single_experiment(
 
         strategy_factory = StrategyFactory()
 
-        model, process = _load_model(
+        model = _load_model(
             model_name=model_name,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -173,7 +161,7 @@ def run_single_experiment(
         strategy.run()
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
-        _stop_model(process)
+        model.stop()
 
     except ImportError as e:
         logger.error(f"Failed to create strategy. Does '{strategy_name}' exist and is it importable? Error: {e}", exc_info=True)
