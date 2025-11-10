@@ -34,7 +34,7 @@ class PromptFormatter:
         _, ext = os.path.splitext(content.image_path)
         raw_ext = ext.replace(".", "")
 
-        if ImageContent.is_image_supported(content.image_path):
+        if is_image_supported(content.image_path):
             with open(content.image_path, "rb") as f:
                 image_b64 = base64.b64encode(f.read()).decode("utf-8")
             return {

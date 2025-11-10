@@ -29,13 +29,21 @@ class StrategyBase(ABC):
         try:
             repo_root = os.path.dirname(os.path.abspath(__file__))  
 
-            prompt_path = os.path.join(
-                repo_root,
-                "prompts",
-                self.strategy_name,
-                self.dataset_name,
-                f"{prompt_type}.txt"
-            )
+            if prompt_type == "problem_description_main":
+                prompt_path = os.path.join(
+                    repo_root,
+                    "prompts",
+                    self.dataset_name,
+                    f"{prompt_type}.txt"
+                )
+            else:
+                prompt_path = os.path.join(
+                    repo_root,
+                    "prompts",
+                    self.dataset_name,
+                    self.strategy_name,
+                    f"{prompt_type}.txt"
+                )
             
             with open(prompt_path, 'r', encoding='utf-8') as f:
                 prompt = f.read()

@@ -18,8 +18,8 @@ class ClassificationStrategy(StrategyBase):
         self.logger.info(f"Direct strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.name}") 
 
     def run(self):
-        problem_descr = self.get_prompt("problem_description_main", self.strategy_name, self.dataset_name)
-        question_prompt = self.get_prompt("question_main", self.strategy_name, self.dataset_name)
+        problem_descr = self.get_prompt("problem_description_main")
+        question_prompt = self.get_prompt("question_main")
         prompt = f"{problem_descr}\n{question_prompt}"
 
         output_csv = os.path.join("results", self.strategy_name, self.dataset_name, "results.csv")

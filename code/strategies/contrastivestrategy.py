@@ -62,9 +62,9 @@ class ContrastiveStrategy(StrategyBase):
         output_csv = os.path.join("results", self.strategy_name, self.dataset_name, "results.csv")
         dataset_dir = os.path.join("data", self.dataset_name, "problems")
 
-        descriptions_prompt = self.get_prompt("describe_main", self.strategy_name, self.dataset_name)
-        problem_description = self.get_prompt("problem_description_main", self.strategy_name, self.dataset_name)
-        question_prompt = self.get_prompt("question_main", self.strategy_name, self.dataset_name)
+        descriptions_prompt = self.get_prompt("describe_main")
+        problem_description = self.get_prompt("problem_description_main")
+        question_prompt = self.get_prompt("question_main")
         main_prompt = f'{problem_description}\n{question_prompt}'
 
         results = []

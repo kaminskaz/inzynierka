@@ -16,8 +16,8 @@ class DirectStrategy(StrategyBase):
         return response
 
     def run(self):
-        problem_descr = self.get_prompt("problem_description_main", self.strategy_name, self.dataset_name)
-        question_prompt = self.get_prompt("question_main", self.strategy_name, self.dataset_name)
+        problem_descr = self.get_prompt("problem_description_main")
+        question_prompt = self.get_prompt("question_main")
         prompt = f"{problem_descr}\n{question_prompt}"
 
         output_csv = os.path.join("results", self.strategy_name, self.dataset_name, "results.csv")
