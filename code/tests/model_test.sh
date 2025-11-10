@@ -12,6 +12,7 @@
 
 # Debugging flags (optional)
 export PYTHONFAULTHANDLER=1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
 

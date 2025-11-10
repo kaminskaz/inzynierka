@@ -110,7 +110,7 @@ class VLLM:
         try:
             if self.process and self.process.poll() is None:
                 self.process.terminate()
-                self.process.wait(timeout=5)
+                self.process.wait(timeout=120)
                 logger.info(f"vLLM server for '{self.model_name}' stopped.")
         except Exception as e:
             logger.warning(f"Error while stopping vLLM server: {e}")

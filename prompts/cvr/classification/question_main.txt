@@ -1,4 +1,4 @@
-You are presented wit descriptions of four possible sets of images. 
+You are presented with four possible sets of images. 
 Your task is to:
 - dentify the set (A, B, C, or D) in which all images follow the described idea and none is an odd one out.
 - Explain briefly why it does not follow the same pattern as the other three.

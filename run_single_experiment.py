@@ -103,6 +103,7 @@ def make_dir_for_results(dataset_name: str, strategy_name: str) -> str:
     base_results_dir = "results"
     os.makedirs(base_results_dir, exist_ok=True)
 
+    # TODO: add model name
     prefix = f"{strategy_name}_{dataset_name}"
     version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
 

@@ -18,6 +18,7 @@ class DescriptiveStrategy(StrategyBase):
             descriptions.append(description_response)
 
         # self.save_descriptions_to_textfile(descriptions) 
+        # TODO: add letter image to description 
         all_descriptions_text = "\n\n".join([r.description for r in descriptions if r is not None])
 
         prompt = f'{main_prompt}\nDescriptions:\n{all_descriptions_text}'
