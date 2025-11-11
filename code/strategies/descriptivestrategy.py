@@ -1,6 +1,5 @@
 from traitlets import List
 import os
-import json
 
 from code.technical.content import ImageContent, TextContent
 from code.strategies.strategybase import StrategyBase
@@ -100,29 +99,3 @@ class DescriptiveStrategy(StrategyBase):
         self.save_metadata()
         self.save_descriptions_to_json(descriptions_path, all_descriptions_data)
         self.logger.info(f"Descriptive strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.name}")
-
-    def save_descriptions_to_json(self, descriptions_path: str, all_descriptions_data: dict):
-        """
-        Saves the collected descriptions dictionary to a JSON file.
-
-        Args:
-            descriptions_path (str): The full file path to save the JSON to.
-            all_descriptions_data (dict): The dictionary containing problem IDs
-                                          and their corresponding descriptions.
-        """
-        try:
-            # Ensure the directory exists
-            directory = os.path.dirname(descriptions_path)
-            if directory:
-                os.makedirs(directory, exist_ok=True)
-
-            # Write the data to the JSON file
-            with open(descriptions_path, 'w', encoding='utf-8') as f:
-                json.dump(all_descriptions_data, f, indent=4)
-                
-        except (IOError, OSError) as e:
-            self.logger.error(f"Failed to create directory or write to file {descriptions_path}: {e}")
-        except TypeError as e:
-            self.logger.error(f"Error serializing descriptions to JSON: {e}")
-        except Exception as e:
-            self.logger.error(f"An unexpected error occurred in save_descriptions_to_json: {e}")

@@ -3,11 +3,14 @@ import os
 
 from code.strategies.strategybase import StrategyBase
 from code.technical.content import ImageContent, TextContent
-from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema
+from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema, BPDescriptionResponseSchemaContrastive
 
 class ContrastiveStrategy(StrategyBase):
 
     def run_single_problem(self, problem_id: str, descriptions_prompt: str, main_prompt: str) -> ResponseSchema:
+        
+        problem_descriptions_dict = {}
+
         if self.config.category == 'BP' or self.config.category == 'choice_only': 
             descriptions = []
             
@@ -22,17 +25,24 @@ class ContrastiveStrategy(StrategyBase):
                         ImageContent(choice_image_input_1),
                         ImageContent(choice_image_input_2)
                     ]
-                else:
+                    description_response = self.model.ask_structured(contents_to_send_descriptions, schema=BPDescriptionResponseSchemaContrastive)
+
+                    if description_response and description_response.description:
+                        key = f"{i}"
+                        problem_descriptions_dict[key] = description_response.description
+
+                else: 
                     choice_image_input = self.get_blackout_image(problem_id, index=i)
                     contents_to_send_descriptions = [
                         TextContent(descriptions_prompt),
                         ImageContent(choice_image_input)
                     ]
-
-                description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
+                    description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema)
+         
+                    if description_response and description_response.description:
+                        problem_descriptions_dict[i] = description_response.description
+ 
                 descriptions.append(description_response)
-
-                # self.save_descriptions_to_textfile(descriptions)
         
             all_descriptions_text = "\n\n".join([r.description for r in descriptions if r is not None])
 
@@ -51,7 +61,12 @@ class ContrastiveStrategy(StrategyBase):
             ]
 
             description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
-            self.save_descriptions_to_textfile([description_response])
+            
+            if description_response and description_response.description:
+                problem_descriptions_dict["question_panel"] = description_response.description
+                all_descriptions_text = description_response.description
+            else:
+                all_descriptions_text = ""
 
             prompt = f'{main_prompt}\nDescriptions:\n{all_descriptions_text}'
             choice_panel_input = self.get_choice_panel(problem_id)
@@ -62,12 +77,15 @@ class ContrastiveStrategy(StrategyBase):
             ]
 
         response = self.model.ask_structured(contents_to_send, schema=ResponseSchema)
-        return response
+        
+        return response, problem_descriptions_dict
     
 
     def run(self):
         output_csv = os.path.join("results", self.strategy_name, self.dataset_name, "results.csv")
         dataset_dir = os.path.join("data", self.dataset_name, "problems")
+        descriptions_path = os.path.join("results", self.strategy_name, self.dataset_name, "descriptions.json")
+        all_descriptions_data = {}
 
         descriptions_prompt = self.get_prompt("describe_main")
         problem_description = self.get_prompt("problem_description_main")
@@ -82,7 +100,11 @@ class ContrastiveStrategy(StrategyBase):
                     continue
                 problem_id = problem_entry.name
                 image_path = self.get_choice_panel(problem_id)
-                response = self.run_single_problem(problem_id, descriptions_prompt, main_prompt)
+            
+                response, problem_descriptions = self.run_single_problem(problem_id, descriptions_prompt, main_prompt)
+
+                if problem_descriptions:
+                    all_descriptions_data[problem_id] = problem_descriptions
 
                 if response:
                     result = {
@@ -106,12 +128,5 @@ class ContrastiveStrategy(StrategyBase):
 
         self.save_raw_answers_to_csv(results, output_csv)
         self.save_metadata()
+        self.save_descriptions_to_json(descriptions_path, all_descriptions_data) # <-- ADDED
         self.logger.info(f"Descriptive strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.name}")
-
-
-    # TODO: adjust path and saving mechanism
-    def save_descriptions_to_textfile(self, descriptions: List[str]):
-        with open(f"data/{self.dataset_name}/descriptions.txt", "w") as f:
-            for desc in descriptions:
-                if desc and hasattr(desc, "description"):
-                    f.write(desc.description.strip() + "\n\n")
