@@ -31,4 +31,7 @@ __pycache__/
 *__pycache__/
 *.pyc
 
+# slurm out files
+*.out
+
 
