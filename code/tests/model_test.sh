@@ -22,8 +22,6 @@ mkdir -p ${JOB_HF_HOME}
 export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/tmp/${SLURM_JOB_ID}"
 mkdir -p ${JOB_TMPDIR}
 
-# -----------------------------------------------------------------------------
-
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
