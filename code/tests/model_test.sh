@@ -28,8 +28,8 @@ source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 cd inzynierka
-which vllm
+
 python -m code.tests.model_test
 
-rm -r ${JOB_HF_HOME}
-rm -r ${JOB_TMPDIR}
+rm -rf ${JOB_HF_HOME}
+rm -rf ${JOB_TMPDIR}
