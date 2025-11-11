@@ -7,10 +7,12 @@ import logging
 import sys
 import os
 from sklearn.metrics.pairwise import cosine_similarity
+from pydantic import BaseModel
 
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
 from code.models.vllm import VLLM
+from code.technical.response_schema import SimilarityResponseSchema
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,7 @@ logger = logging.getLogger(__name__)
 class LLMJudge(VLLM):
     def __init__(
         self,
-        model_name: str = "intfloat/e5-small",
+        model_name: str = "mistralai/Mistral-7B-v0.3",
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
@@ -39,17 +41,23 @@ class LLMJudge(VLLM):
         self.judge_mode = "text_only"
         logger.info(f"Initialized LLMJudge for text-only evaluation with model {model_name}")
 
-    async def evaluate_similarity(self, text_a: str, text_b: str) -> float:
+    async def evaluate_similarity(self, answer: str, key: str, response_schema: Optional[Type[BaseModel]]) -> float:
         try:
-            embeddings = self.client.embeddings.create(
-                model=self.model_name,
-                input=[text_a, text_b]
-            )
-            sim = cosine_similarity(
-                [embeddings.data[0].embedding],
-                [embeddings.data[1].embedding]
-            )[0][0]
-            return float(sim)
+            prompt =  (
+            f"On a scale from 0 to 1, how similar is the following answer to the key answer?\n"
+            f"Answer: {answer}\n"
+            f"Key Answer: {key}\n"
+        )
+
+            if response_schema:
+                response = await self.ask_structured([TextContent(prompt)], response_schema)
+                similarity_score = response.similarity_score
+                return similarity_score
+            else:
+                response = await self.ask([TextContent(prompt)])
+                similarity_score = float(response[0].text.strip())
+                return similarity_score
+            
         except Exception as e:
             logger.error(f"Similarity evaluation failed: {e}")
-            return 0.0
+            return -1.0

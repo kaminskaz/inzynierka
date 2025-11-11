@@ -12,3 +12,6 @@ class DescriptionResponseSchema(BaseModel):
 class BPDescriptionResponseSchemaContrastive(BaseModel):
     description_left: str = Field(..., description="A detailed description of the left provided image content.")
     description_right: str = Field(..., description="A detailed description of the right provided image content.")
+
+class SimilarityResponseSchema(BaseModel):
+    similarity_score: float = Field(..., description="A similarity score between 0.0 and 1.0 indicating how similar the two inputs are.")
