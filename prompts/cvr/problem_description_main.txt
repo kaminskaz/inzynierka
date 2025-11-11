@@ -1,0 +1,2 @@
+You are shown four labeled images: A, B, C, and D. Three of these images follow the same visual pattern or rule based on relationships between shapes, colors, sizes, or positions. 
+One image does not follow the same rule — it is the odd one out.

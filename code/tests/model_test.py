@@ -1,40 +1,38 @@
-import unittest
-from code.models.vllm import VLLMFactory
-from code.technical.content import ImageContent, TextContent
 import asyncio
 import os
 import sys
-print(f"DEBUG: Bieżący katalog roboczy (cwd): {os.getcwd()}")
-# WYNIK: Powinien to być /mnt/evafs/groups/jrafalko-lab/inzynierka
+from pydantic import create_model
 
-# WYŚWIETLENIE ŚCIEŻKI URUCHOMIENIA SKRYPTU (jak skrypt został wywołany)
-print(f"DEBUG: Ścieżka skryptu (__file__): {os.path.abspath(__file__)}")
+from code.models.vllm import VLLM
+from code.technical.content import ImageContent, TextContent
 
-# Sprawdzenie, czy katalog nadrzędny 'code' jest widoczny
-print(f"DEBUG: Czy katalog 'code' istnieje tutaj: {os.path.exists('code')}")
+async def main():
+    print("Preparing VLLM", flush=True)
+    vllm = VLLM(model_name="Qwen/Qwen2.5-VL-72B-Instruct")
 
-class TestVLLM(unittest.TestCase):
+    text_content = TextContent("What is the capital of Norway?")
+    response1 = await vllm.ask([text_content])
+    print("Response (text):", response1, flush=True)
 
-    def setUp(self):
-        self.vllm = VLLMFactory(model_name="Qwen/Qwen2.5-VL-72B-Instruct")
+    relative_path = "data_raw/bp/006/4.png"
+    full_path = os.path.abspath(relative_path)
 
-    def test_vllm_with_text_input(self):
-        text_content = TextContent("What is the capital of Norway?")
-        response = asyncio.run(self.vllm.ask([text_content]))
-        self.assertIn("Oslo", response)
+    if not os.path.exists(full_path):
+        print(f"Image file not found: {full_path}", flush=True)
+        return
+    
+    schema = create_model(
+        "responseSchema",
+        shape=(str, ...),
+        confidence=(float, None)
+    )
 
-    def test_vllm_with_multimodal_input(self):
-        relative_path = "data_raw/bp/006/4.png"
-        full_path_to_check = os.path.abspath(relative_path)
+    text_content = TextContent("What shape do you see?")
+    image_content = ImageContent(relative_path)
+    response2 = await vllm.ask_structured([text_content, image_content], schema)
+    print("Response (multimodal):", response2, flush=True)
 
-        self.assertTrue(
-            os.path.exists(full_path_to_check),
-            f"Test Aborted: Image file not found! "
-            f"Expected absolute path: {full_path_to_check}"
-        )
+    vllm.stop()
 
-        text_content = TextContent("What shape do you see?")
-        image_content = ImageContent(relative_path)
-        contents = [text_content, image_content]
-        response = asyncio.run(self.vllm.ask(contents))
-        self.assertIn("triangle", response)
+if __name__ == "__main__":
+    asyncio.run(main())

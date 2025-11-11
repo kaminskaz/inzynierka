@@ -1,0 +1,5 @@
+Your task is to:
+- Identify the odd image by its letter (A, B, C, or D).
+- Explain briefly why it does not follow the same pattern as the other three.
+
+Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.

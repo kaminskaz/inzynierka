@@ -3,7 +3,7 @@
 #SBATCH --job-name=vllm_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
 #SBATCH --time=1-00:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że nie dajesz maksa bo wtedy do dupy się kolejkują taski a też dajesz takie +2h takiemu maksowi który sprawdziłeś)
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
-#SBATCH --gpus=2 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
+#SBATCH --gpus=4 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
 #SBATCH --cpus-per-gpu=8 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze minimum 6-8 bo inaczej kolejkowanie się psuje
 #SBATCH --mem=64gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
 #SBATCH --partition=short # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma A100 short max 1d long dłużej a experimental gorsze GPU  
@@ -12,43 +12,24 @@
 
 # Debugging flags (optional)
 export PYTHONFAULTHANDLER=1
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
-PROJEKT_DIR="/mnt/evafs/groups/jrafalko-lab/inzynierka"
-# Używamy ścieżki do TWOJEGO katalogu użytkownika (kdunal), aby uniknąć błędów mkdir
-# Musimy założyć, że folder 'kdunal' istnieje w katalogu jrafalko-lab.
-USER_DIR="/mnt/evafs/groups/jrafalko-lab/kdunal" 
+echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
 
+export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/huggingface/tmp/${SLURM_JOB_ID}"
+mkdir -p ${JOB_HF_HOME}
 
-# --- 1. POPRAWKA KATALOGÓW TYMCZASOWYCH (MUSI BYĆ W FOLDERZE UŻYTKOWNIKA) ---
-
-# Używamy mkdir -p na katalogach nadrzędnych, aby mieć pewność, że istnieją:
-mkdir -p "${USER_DIR}/huggingface/tmp"
-mkdir -p "${USER_DIR}/tmp"
-
-export JOB_HF_HOME="${USER_DIR}/huggingface/tmp/${SLURM_JOB_ID}"
-mkdir ${JOB_HF_HOME}
-echo "JOB_HF_HOME: ${JOB_HF_HOME}"
-
-export JOB_TMPDIR="${USER_DIR}/tmp/${SLURM_JOB_ID}"
-mkdir ${JOB_TMPDIR}
-echo "JOB_TMPDIR: ${JOB_TMPDIR}"
+export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/tmp/${SLURM_JOB_ID}"
+mkdir -p ${JOB_TMPDIR}
 
 # -----------------------------------------------------------------------------
 
-# 2. Przejście do katalogu projektu
-cd ${PROJEKT_DIR}
+source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
+export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
-# 3. WYMUSZENIE ŚCIEŻKI DLA PYTHONA (NAPRAWIA MODULE NOT FOUND ERROR)
-# Dodaje folder 'inzynierka' do PYTHONPATH, aby Python znalazł moduł 'code'.
-export PYTHONPATH="${PYTHONPATH}:${PROJEKT_DIR}"
+cd inzynierka
 
-# 4. Aktywacja środowiska wirtualnego
-# Musimy użyć ścieżki względnej, bo jesteśmy już w katalogu projektu
-source .venv/bin/activate
+python -m code.tests.model_test
 
-# 5. Uruchomienie skryptu
-python code/tests/model_test.py slurm_id=${SLURM_JOB_ID} "$@" 
-
-# 6. Czyszczenie (używamy '-r' dla usunięcia katalogu, nawet jeśli jest pusty)
-rm -r ${JOB_HF_HOME}
-rm -r ${JOB_TMPDIR}
+rm -rf ${JOB_HF_HOME}
+rm -rf ${JOB_TMPDIR}
