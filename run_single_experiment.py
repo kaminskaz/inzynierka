@@ -95,7 +95,7 @@ def check_data_preprocessed(dataset_name: str) -> bool:
     logger.info(f"Found preprocessed data at: {base_data_path}")
     return True
 
-def make_dir_for_results(dataset_name: str, strategy_name: str) -> str:
+def make_dir_for_results(dataset_name: str, strategy_name: str, model_name: str) -> str:
     """
     Creates a new versioned results directory for the given dataset and strategy.
     If previous versions exist, increments the version number.
@@ -103,8 +103,17 @@ def make_dir_for_results(dataset_name: str, strategy_name: str) -> str:
     base_results_dir = "results"
     os.makedirs(base_results_dir, exist_ok=True)
 
-    # TODO: add model name
-    prefix = f"{strategy_name}_{dataset_name}"
+    #shorten model name
+    parts = model_name.split('/')
+    if len(parts) >= 3:
+        short_model_name = parts[1]
+    elif len(parts) == 2:
+        short_model_name = parts[1]
+    else:
+        short_model_name = model_name
+    short_model_name = short_model_name.replace('/', '_')
+
+    prefix = f"{strategy_name}_{dataset_name}_{short_model_name}"
     version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
 
     existing_versions = []
@@ -139,7 +148,7 @@ def run_single_experiment(
     logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
     try:
         # TODO: adapt rest of the logic to use results_dir for all artefacts saving
-        results_dir = make_dir_for_results(dataset_name, strategy_name)
+        results_dir = make_dir_for_results(dataset_name, strategy_name, model_name)
 
         strategy_factory = StrategyFactory()
 
@@ -155,7 +164,8 @@ def run_single_experiment(
         strategy = strategy_factory.create_strategy(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
-            model_name=model
+            model_name=model,
+            results_dir
         )
         
         logger.info("Strategy created successfully. Running experiment...")

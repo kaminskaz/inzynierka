@@ -6,16 +6,18 @@ import os
 import csv
 
 from code.preprocessing.processorconfig import ProcessorConfig 
+from code.models.vllm import VLLM
 
 class StrategyBase(ABC):
-    def __init__(self, dataset_name: str, model: Any, dataset_config: ProcessorConfig):
+    def __init__(self, dataset_name: str, model: VLLM, dataset_config: ProcessorConfig, results_dir: str):
         self.dataset_name: str = dataset_name
-        self.model: Any = model
+        self.model: VLLM = model
         self.config: ProcessorConfig = dataset_config
         self.strategy_name: str = self.__class__.__name__
         
         self.logger = logging.getLogger(self.__class__.__name__)
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
+        self.results_dir = results_dir
 
     @abstractmethod
     def run_single_problem(self) -> None:
@@ -47,6 +49,9 @@ class StrategyBase(ABC):
             
             with open(prompt_path, 'r', encoding='utf-8') as f:
                 prompt = f.read()
+
+            if save:
+                self.prompt_list.append(prompt)
             return prompt
         
         except Exception as e:
@@ -55,34 +60,39 @@ class StrategyBase(ABC):
             )
             return ""
 
-    def save_metadata(self) -> None:
-        pass
-        # TODO: adjust commented code below; how to version results?
-        # with open(f"results/{self.dataset_name}/{self.strategy_name}/{version}/metadata.txt", 'w', encoding='utf-8') as f:
-        #     f.write(f"Dataset: {self.dataset_name}\n")
-        #     f.write(f"Strategy: {self.strategy_name}\n")
-        #     f.write(f"Model: {self.model}\n")
-        #     f.write(f"Config: {self.config}\n")
-        #     f.write(f"Prompt Type: {prompt_type}\n")
-        #     f.write(f"Prompt: {self.get_prompt(prompt_type)}\n")
+    def save_metadata(self, question_prompt:str, problem_description_prompt:str, describe_prompt:Optional[str]=None) -> None:
+        """Save dataset, strategy, model, and config info into a metadata file."""
+        try:
+            metadata_path = os.path.join(self.results_dir, "metadata.txt")
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                f.write(f"Dataset: {self.dataset_name}\n")
+                f.write(f"Strategy: {self.strategy_name}\n")
+                f.write(f"Model: {self.model}\n")
+                f.write(f"Config: {self.config}\n")
+                f.write(f"Problem description prompt: {problem_description_prompt}\n")
+                f.write(f"Question prompt: {question_prompt}\n")
+                f.write(f"Describe prompt: {describe_prompt}\n")
+            self.logger.info(f"Saved metadata to {metadata_path}")
 
-    def save_raw_answers_to_csv(self, results: List[dict], output_path) -> None:
-        pass
-        # TODO: adjust commented code below; how to version results?
-        # if not results:
-        #     self.logger.warning("No results to save.")
-        #     return
+        except Exception as e:
+            self.logger.exception(f"Failed to save metadata: {e}")
 
-        # fieldnames = list(results[0].keys())
+    def save_raw_answers_to_csv(self, results: List[dict]) -> None:
+        if not results:
+            self.logger.warning("No results to save.")
+            return
+        
+        output_path = self.results_dir
+        fieldnames = list(results[0].keys())
 
-        # write_header = not output_path.exists()
-        # with open(output_path, mode='a', newline='', encoding='utf-8') as f:
-        #     writer = csv.DictWriter(f, fieldnames=fieldnames)
-        #     if write_header:
-        #         writer.writeheader()
-        #     writer.writerows(results)
+        write_header = not output_path.exists()
+        with open(output_path, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            if write_header:
+                writer.writeheader()
+            writer.writerows(results)
 
-        # self.logger.info(f"Saved {len(results)} results to {output_path}")
+        self.logger.info(f"Saved {len(results)} results to {output_path}")
 
     # FUNCTIONS FOR GETTING IMAGES AND PANELS
 
