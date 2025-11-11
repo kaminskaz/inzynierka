@@ -50,9 +50,6 @@ class StrategyBase(ABC):
             
             with open(prompt_path, 'r', encoding='utf-8') as f:
                 prompt = f.read()
-
-            if save:
-                self.prompt_list.append(prompt)
             return prompt
         
         except Exception as e:
