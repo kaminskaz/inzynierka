@@ -1,0 +1,8 @@
+Your task is to:
+- Compare the two groups of images and infer the underlying concept or rule that separates them.
+- On a scale of 0 to 1, indicate how confident you are in your answer.
+- Explain briefly how each group conforms (or does not conform) to it.
+
+Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+
+Image descriptions labeled 0–5 correspond to the left panel, and 6–11 correspond to the right panel.

@@ -1,0 +1,3 @@
+Your task is to describe the provided 3×3 grid with one missing image.
+List the visible objects and their attributes (size, color, shape, number, orientation, etc.) for each cell. Describe the differences and relationships across rows and columns, highlighting any patterns, repetitions, or transformations.
+Only use information visible in the image. Do not assume hidden rules or patterns that aren't clearly shown.

@@ -11,16 +11,23 @@ class ContrastiveStrategy(StrategyBase):
         if self.config.category == 'BP' or self.config.category == 'choice_only': 
             descriptions = []
             
-            for i in range(self.config.num_questions):
+            for i in range(self.config.num_choices):
                 if self.config.category == 'BP':
-                    choice_image_input = self.get_choice_image(problem_id, index=i)
+                    if i >= self.config.num_choices // 2:
+                        break
+                    choice_image_input_1 = self.get_choice_image(problem_id, index=i)
+                    choice_image_input_2 = self.get_choice_image(problem_id, index=i+6)
+                    contents_to_send_descriptions = [
+                        TextContent(descriptions_prompt),
+                        ImageContent(choice_image_input_1),
+                        ImageContent(choice_image_input_2)
+                    ]
                 else:
                     choice_image_input = self.get_blackout_image(problem_id, index=i)
-
-                contents_to_send_descriptions = [
-                    TextContent(descriptions_prompt),
-                    ImageContent(choice_image_input)
-                ]
+                    contents_to_send_descriptions = [
+                        TextContent(descriptions_prompt),
+                        ImageContent(choice_image_input)
+                    ]
 
                 description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
                 descriptions.append(description_response)

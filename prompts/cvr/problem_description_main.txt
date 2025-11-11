@@ -1,2 +1,2 @@
-You are shown four labeled images: A, B, C, and D. Three of these images follow the same visual pattern or rule based on relationships between shapes, colors, sizes, or positions. 
-One image does not follow the same rule — it is the odd one out.
+This puzzle is an odd one out problem. It tests the ability to identify which element doesn’t fit a shared visual rule. Most items follow the same pattern or relationship (in shape, color, size, position, etc.), while one item violates that rule. 
+The task is to infer the underlying pattern and find the element that breaks it.

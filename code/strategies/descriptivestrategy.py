@@ -11,7 +11,7 @@ class DescriptiveStrategy(StrategyBase):
         descriptions = []
         problem_descriptions_dict = {}
 
-        for i in range(self.config.num_questions):
+        for i in range(self.config.num_choices):
             letter=chr(65 + i)
 
             if self.config.category != 'BP':

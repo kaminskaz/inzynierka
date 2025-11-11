@@ -1,0 +1,8 @@
+You are given four fully filled 3×3 image grids, each representing a candidate solution to the described puzzle.
+
+Your task is to:
+- Compare the grids and identify the one (A, B, C or D) that correctly follows the visual pattern or rule governing the arrangement.
+- On a scale of 0 to 1, indicate how confident you are in your answer.
+- Explain briefly why the selected grid follows the pattern, and why the others do not.
+
+Only use information visible in the images. Do not assume hidden rules or patterns that are not explicitly shown.
