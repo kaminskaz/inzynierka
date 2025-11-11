@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 
 def _load_model(
-        self, 
         model_name: str, 
         temperature: float = 1.0, 
         max_tokens: int = 2048, 
@@ -147,7 +146,6 @@ def run_single_experiment(
     """
     logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
     try:
-        # TODO: adapt rest of the logic to use results_dir for all artefacts saving
         results_dir = make_dir_for_results(dataset_name, strategy_name, model_name)
 
         strategy_factory = StrategyFactory()
@@ -164,8 +162,8 @@ def run_single_experiment(
         strategy = strategy_factory.create_strategy(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
-            model_name=model,
-            results_dir
+            model_object=model,
+            results_dir=results_dir
         )
         
         logger.info("Strategy created successfully. Running experiment...")

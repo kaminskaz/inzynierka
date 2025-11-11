@@ -21,7 +21,7 @@ class StrategyBase(ABC):
         self.results_dir = results_dir
 
     @abstractmethod
-    def run_single_problem(self) -> None:
+    def run_single_problem(self, *args, **kwargs) -> Any:
         pass
 
     @abstractmethod
@@ -80,7 +80,7 @@ class StrategyBase(ABC):
             self.logger.warning("No results to save.")
             return
         
-        output_path = self.results_dir
+        output_path = os.path.join(self.results_dir, "results.csv")
         fieldnames = list(results[0].keys())
 
         write_header = not output_path.exists()

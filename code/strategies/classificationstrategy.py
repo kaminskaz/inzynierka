@@ -13,9 +13,7 @@ class ClassificationStrategy(StrategyBase):
         ]
 
         response = self.model.ask_structured(contents=contents_to_send, schema=ResponseSchema)
-        self.save_raw_answers_to_csv(response)
-        self.save_metadata()
-        self.logger.info(f"Direct strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.name}") 
+        return response
 
     def run(self):
         problem_descr = self.get_prompt("problem_description_main")
@@ -55,6 +53,6 @@ class ClassificationStrategy(StrategyBase):
             except Exception as e:
                 self.logger.error(f"Error processing {image_path.name}: {e}")
 
-        self.save_raw_answers_to_csv(results, output_csv)
-        self.save_metadata()
-        self.logger.info(f"Classification strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.name}")   
+        self.save_raw_answers_to_csv(results)
+        self.save_metadata(question_prompt=question_prompt, problem_description_prompt=problem_descr)
+        self.logger.info(f"Classification strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.get_model_name()}")   

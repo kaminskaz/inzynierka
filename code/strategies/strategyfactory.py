@@ -56,10 +56,16 @@ class StrategyFactory:
             return None
 
 
-    def create_strategy(self, dataset_name: str, strategy_name: str, model_object: Any) -> StrategyBase:
+    def create_strategy(self, dataset_name: str, strategy_name: str, model_object: Any, results_dir: str) -> StrategyBase:
         """
         Method to create, configure, and return a strategy instance.
         This is called by `run_single_experiment.py`.
+
+        Args:
+            dataset_name (str): The name of the dataset.
+            strategy_name (str): The name of the strategy to use.
+            model_object (Any): The instantiated model object (e.g., VLLM).
+            results_dir (str): The path to the directory for saving results.
         """
         self.logger.info(f"Attempting to create strategy: '{strategy_name}' for dataset: '{dataset_name}' using model: '{model_object.get_model_name()}'")
 
@@ -80,7 +86,8 @@ class StrategyFactory:
             strategy_instance = strategy_class(
                 dataset_name=dataset_name,
                 model=model_object,
-                dataset_config=dataset_config
+                dataset_config=dataset_config,
+                results_dir=results_dir
             )
             self.logger.info(f"Successfully created: {strategy_class.__name__}")
             return strategy_instance

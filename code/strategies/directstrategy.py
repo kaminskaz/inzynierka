@@ -53,6 +53,6 @@ class DirectStrategy(StrategyBase):
             except Exception as e:
                 self.logger.error(f"Error processing {image_path.name}: {e}")
 
-        self.save_raw_answers_to_csv(results, output_csv)
-        self.save_metadata()
-        self.logger.info(f"Direct strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.name}") 
+        self.save_raw_answers_to_csv(results)
+        self.save_metadata(question_prompt=question_prompt, problem_description_prompt=problem_descr)
+        self.logger.info(f"Direct strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.get_model_name()}") 

@@ -52,9 +52,8 @@ class DescriptiveStrategy(StrategyBase):
         return response, problem_descriptions_dict
     
     def run(self):
-        output_csv = os.path.join("results", self.strategy_name, self.dataset_name, "results.csv")
         dataset_dir = os.path.join("data", self.dataset_name, "problems")
-        descriptions_path = os.path.join("results", self.strategy_name, self.dataset_name, "descriptions.json")
+        descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
         descriptions_prompt = self.get_prompt("describe_main")
         problem_description = self.get_prompt("problem_description_main")
@@ -95,7 +94,7 @@ class DescriptiveStrategy(StrategyBase):
             except Exception as e:
                 self.logger.error(f"Error processing {image_path.name}: {e}")
 
-        self.save_raw_answers_to_csv(results, output_csv)
-        self.save_metadata()
+        self.save_raw_answers_to_csv(results)
+        self.save_metadata(question_prompt=question_prompt, problem_description_prompt=problem_description, describe_prompt=descriptions_prompt)
         self.save_descriptions_to_json(descriptions_path, all_descriptions_data)
-        self.logger.info(f"Descriptive strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.name}")
+        self.logger.info(f"Descriptive strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.get_model_name()}")
