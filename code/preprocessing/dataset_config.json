@@ -2,7 +2,7 @@
   "raven": {
     "image_format": ".jpeg",
     "category": "standard",
-    "data_folder": "~/.cache/huggingface/download/raven",
+    "data_folder": "data_raw/vcog-bench/raven",
     "hf_repo_id": "vcog/vcog-bench",
     "hf_repo_type": "dataset",
     "num_choices": 8,
@@ -19,7 +19,7 @@
   "cvr": {
     "image_format": ".png",
     "category": "choice_only",
-    "data_folder": "~/.cache/huggingface/download/cvr",
+    "data_folder": "data_raw/vcog-bench/cvr",
     "hf_repo_id": "vcog/vcog-bench",
     "hf_repo_type": "dataset",
     "num_choices": 4,
@@ -36,7 +36,7 @@
   "marsvqa": {
     "image_format": ".jpeg",
     "category": "standard",
-    "data_folder": "~/.cache/huggingface/download/marsvqa",
+    "data_folder": "data_raw/vcog-bench/marsvqa",
     "hf_repo_id": "vcog/vcog-bench",
     "hf_repo_type": "dataset",
     "num_choices": 4,
