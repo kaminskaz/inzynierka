@@ -1,6 +1,6 @@
 Your task is to:
-- Identify the odd image by its letter (A, B, C, or D).
+- Compare the two groups of images and infer the underlying concept or rule that separates them
 - On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly why it does not follow the same pattern as the other three.
+- Explain briefly how each group conforms (or does not conform) to it.
 
 Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown.

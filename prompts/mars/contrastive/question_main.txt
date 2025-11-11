@@ -1,0 +1,7 @@
+Your task is to:
+- Analyze the provided images of all candidate options (A, B, C, and D) together with the text description of the grid panel.
+- Identify which candidate image correctly completes the grid according to the visual pattern or rule described in the text.
+- On a scale of 0 to 1, indicate how confident you are in your answer.
+- Briefly explain why the selected candidate follows the described pattern and why the others do not.
+
+Only use information visible in the candidate images and provided in the grid description. Do not infer any hidden rules, patterns, or details not explicitly stated.

@@ -11,3 +11,4 @@ portpicker==1.6.0
 requests==2.31.0
 transformers==4.55.2
 python-dotenv
+scikit-learn==1.7.2
