@@ -14,7 +14,7 @@ async def main():
             "--tensor-parallel-size", "4",
             "--gpu-memory-utilization", "0.9",
             "--max-num-seqs", "128",
-            "--max-model-len", "8192",
+            "--max-model-len", "16384",
         )
     )
 
