@@ -8,13 +8,6 @@ from typing import Any
 from code.strategies.strategyfactory import StrategyFactory
 from code.models.vllm import VLLM
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
 logger = logging.getLogger(__name__)
 
 
@@ -188,9 +181,18 @@ if __name__ == "__main__":
     parser.add_argument('--max_tokens', type=int, default=2048, help='Maximum tokens for the model (if applicable)')
     parser.add_argument('--max_output_tokens', type=int, default=1536, help='Maximum output tokens for the model (if applicable)')
     parser.add_argument('--limit_mm_per_prompt', type=int, default=2, help='Limit of multimodal inputs per prompt (if applicable)')
+    parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
     args = parser.parse_args()
 
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    
     if not check_data_preprocessed(args.dataset_name):
         logger.error(f"Data for '{args.dataset_name}' is not preprocessed or is missing.")
         logger.error("Please run the data preprocessing pipeline first.")

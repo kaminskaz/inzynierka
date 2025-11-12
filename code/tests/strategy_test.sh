@@ -39,6 +39,7 @@ python run_single_experiment.py \
     --max_tokens 2048 \
     --max_output_tokens 1536 \
     --limit_mm_per_prompt 2 \
+    --debug \
     --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128 --max-model-len 16384
 
 # Clean up temporary directories
