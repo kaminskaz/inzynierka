@@ -39,7 +39,7 @@ class StrategyBase(ABC):
         pass
 
     @abstractmethod
-    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]: # type: ignore
+    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]: # type: ignore
         """
         The core logic for processing a single problem.
 
@@ -68,7 +68,7 @@ class StrategyBase(ABC):
             "describe_prompt": None 
         }
 
-    def run(self) -> None:
+    async def run(self) -> None:
         """
         Main execution loop (Template Method).
         Common to all strategies.

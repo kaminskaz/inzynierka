@@ -16,7 +16,7 @@ class ClassificationStrategy(StrategyBase):
         response = await self.model.ask_structured(contents=contents_to_send, schema=ResponseSchema)
         return response
 
-    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
+    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
         """
         Executes the logic for a single classification problem.
         """

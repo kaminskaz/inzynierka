@@ -65,7 +65,7 @@ class DescriptiveStrategy(StrategyBase):
     
         return response, problem_descriptions_dict
     
-    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
+    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
         """
         Executes the logic for a single descriptive problem.
         """

@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 from code.strategies.strategyfactory import StrategyFactory
 from code.models.vllm import VLLM
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -160,7 +161,7 @@ def run_single_experiment(
         )
         
         logger.info("Strategy created successfully. Running experiment...")
-        strategy.run()
+        asyncio.run(strategy.run())
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
         model.stop()

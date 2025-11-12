@@ -16,11 +16,11 @@ class DirectStrategy(StrategyBase):
 
         return response
 
-    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
+    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
         """
         Executes the logic for a single direct problem.
         """
-        image_path = self.get_question_image(problem_id)
+        image_path = self.get_question_panel(problem_id)
         
         # Use self.main_prompt from the base class
         response = self.run_single_problem(image_path, self.main_prompt)

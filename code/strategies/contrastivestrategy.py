@@ -64,11 +64,11 @@ class ContrastiveStrategy(StrategyBase):
             ]
 
         else: # 'standard' category
-            question_panel_input = self.get_question_panel(problem_id)
+            question_image_input = self.get_question_image(problem_id)
 
             contents_to_send_descriptions = [
                     TextContent(descriptions_prompt),
-                    ImageContent(question_panel_input)
+                    ImageContent(question_image_input)
             ]
 
             description_response = await self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
@@ -96,7 +96,7 @@ class ContrastiveStrategy(StrategyBase):
         return response, problem_descriptions_dict
     
 
-    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
+    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
         """
         Executes the logic for a single contrastive problem.
         """
