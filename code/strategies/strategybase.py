@@ -26,8 +26,8 @@ class StrategyBase(ABC):
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.results_dir = results_dir
-
-        self.dataset_dir = os.path.join("data_test", self.dataset_name, "problems")
+        self.data_dir = "data_test"
+        self.dataset_dir = os.path.join(self.data_dir, self.dataset_name, "problems")
         self.problem_description_prompt = self.get_prompt("problem_description_main")
         self.question_prompt = self.get_prompt("question_main")
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
@@ -221,7 +221,7 @@ class StrategyBase(ABC):
             )
             return None
 
-        image_path = f"data/{self.dataset_name}/problems/{problem_id}/choice_panel.png"
+        image_path = f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/choice_panel.png"
         return image_path
 
     def get_choice_image(self, problem_id: str, image_index: Union[str, int]) -> str:
@@ -231,14 +231,14 @@ class StrategyBase(ABC):
             return ""
 
         image_path = (
-            f"data/{self.dataset_name}/problems/{problem_id}/choices/{image_index}.png"
+            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/choices/{image_index}.png"
         )
         return image_path
 
     def get_question_panel(self, problem_id: str) -> str:
         # applicable to all datasets
         image_path = (
-            f"data/{self.dataset_name}/problems/{problem_id}/question_panel.png"
+            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/question_panel.png"
         )
         return image_path
 
@@ -255,7 +255,7 @@ class StrategyBase(ABC):
             )
             return ""
 
-        image_path = f"data/{self.dataset_name}/problems/{problem_id}/question.png"
+        image_path = f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/question.png"
         return image_path
 
     def get_blackout_image(self, problem_id: str, image_index: Union[str, int]) -> str:
@@ -271,14 +271,14 @@ class StrategyBase(ABC):
             return ""
 
         image_path = (
-            f"data/{self.dataset_name}/problems/{problem_id}/blackout/{image_index}.png"
+            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/blackout/{image_index}.png"
         )
         return image_path
 
     def get_classification_panel(self, problem_id: str) -> str:
         # applicable to all datasets
         image_path = (
-            f"data/{self.dataset_name}/problems/{problem_id}/classification_panel.png"
+            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/classification_panel.png"
         )
         return image_path
 
