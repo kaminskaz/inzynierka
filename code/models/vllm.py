@@ -26,7 +26,7 @@ class VLLM:
         limit_mm_per_prompt: int = 2,
         custom_args: List[str] = [],
     ):
-        
+
         self.model_name = model_name
         self.max_tokens = max_tokens
         self.temperature = temperature
@@ -65,19 +65,25 @@ class VLLM:
                 "--guided-decoding-backend",
                 "outlines",
                 *custom_args,
-                "--chat-template", "{% for message in messages %}{{message['role']}}: {{message['content']}}\n{% endfor %}"
-
+                "--chat-template",
+                "{% for message in messages %}{{message['role']}}: {{message['content']}}\n{% endfor %}",
             ),
         )
 
-        self.client = openai.AsyncClient(base_url=f"{self.base_url}/v1", api_key=self.api_key)
+        self.client = openai.AsyncClient(
+            base_url=f"{self.base_url}/v1", api_key=self.api_key
+        )
         self.formatter = PromptFormatter()
-        logger.info(f"vLLM client initialized for '{self.model_name}' at {self.base_url}")
-    
+        logger.info(
+            f"vLLM client initialized for '{self.model_name}' at {self.base_url}"
+        )
+
     def get_model_name(self) -> str:
         return self.model_name
 
-    async def ask(self, contents: List[Content], schema: Optional[Type[BaseModel]] = None) -> str:
+    async def ask(
+        self, contents: List[Content], schema: Optional[Type[BaseModel]] = None
+    ) -> str:
         message = self.formatter.user_message(contents)
 
         response = await self.client.chat.completions.create(
@@ -91,7 +97,9 @@ class VLLM:
         model_response = response.choices[0].message.content
         return model_response.strip() if model_response else ""
 
-    async def ask_structured(self, contents: List[Content], schema: Type[BaseModel]) -> Optional[BaseModel]:
+    async def ask_structured(
+        self, contents: List[Content], schema: Type[BaseModel]
+    ) -> Optional[BaseModel]:
         message = self.formatter.user_message(contents)
 
         response = await self.client.beta.chat.completions.parse(
@@ -151,7 +159,10 @@ def launch_vllm_server(
             line = process.stdout.readline()
             if line:
                 stdout_buffer.append(line.strip())
-                if any(k in line.lower() for k in ["error", "exception", "oom", "cuda", "fatal"]):
+                if any(
+                    k in line.lower()
+                    for k in ["error", "exception", "oom", "cuda", "fatal"]
+                ):
                     logger.error(line.strip())
 
         try:
@@ -197,14 +208,27 @@ def launch_vllm_server(
 
     logger.critical(f"Failed to start vLLM server for '{model}'. Reason: {reason}")
     logger.debug(f"vLLM log excerpt (last 500 chars): {full_log[-500:]}")
-    raise TimeoutError(f"vLLM server failed to start within {timeout}s. Reason: {reason}")
+    raise TimeoutError(
+        f"vLLM server failed to start within {timeout}s. Reason: {reason}"
+    )
 
 
 def get_model_architecture(model_name: str) -> Dict[str, Any]:
-    MMM_KEYWORDS = ('vision', 'vl', 'llava', 'fuyu', 'qwen2vl', 'paligemma', 'internvl', 'gemma')
+    MMM_KEYWORDS = (
+        "vision",
+        "vl",
+        "llava",
+        "fuyu",
+        "qwen2vl",
+        "paligemma",
+        "internvl",
+        "gemma",
+    )
 
     try:
-        config: PretrainedConfig = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
+        config: PretrainedConfig = AutoConfig.from_pretrained(
+            model_name, trust_remote_code=True
+        )
         arch_names = getattr(config, "architectures", None)
         if not arch_names and hasattr(config, "model_type"):
             arch_names = [config.model_type]
@@ -213,13 +237,11 @@ def get_model_architecture(model_name: str) -> Dict[str, Any]:
             return {
                 "supported": False,
                 "is_multi_modal": False,
-                "error": "Missing 'architectures' or 'model_type' in config.json."
+                "error": "Missing 'architectures' or 'model_type' in config.json.",
             }
 
         is_multi_modal = any(
-            keyword in arch.lower()
-            for arch in arch_names
-            for keyword in MMM_KEYWORDS
+            keyword in arch.lower() for arch in arch_names for keyword in MMM_KEYWORDS
         )
 
         return {

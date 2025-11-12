@@ -5,17 +5,25 @@ import os
 import csv
 import json
 
-from code.preprocessing.processorconfig import ProcessorConfig 
+from code.preprocessing.processorconfig import ProcessorConfig
 from code.models.vllm import VLLM
 from code.technical.response_schema import ResponseSchema
 
+
 class StrategyBase(ABC):
-    def __init__(self, dataset_name: str, model: VLLM, dataset_config: ProcessorConfig, results_dir: str, strategy_name: str):
+    def __init__(
+        self,
+        dataset_name: str,
+        model: VLLM,
+        dataset_config: ProcessorConfig,
+        results_dir: str,
+        strategy_name: str,
+    ):
         self.dataset_name: str = dataset_name
         self.model: VLLM = model
         self.config: ProcessorConfig = dataset_config
         self.strategy_name: str = strategy_name
-        
+
         self.logger = logging.getLogger(self.__class__.__name__)
         self.results_dir = results_dir
 
@@ -23,12 +31,11 @@ class StrategyBase(ABC):
         self.problem_description_prompt = self.get_prompt("problem_description_main")
         self.question_prompt = self.get_prompt("question_main")
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
-        
+
         # path for descriptions, to be set by subclasses if needed - for contrastive and descriptive
         self.descriptions_path: Optional[str] = None
 
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
-
 
     @abstractmethod
     async def run_single_problem(self, *args, **kwargs) -> Any:
@@ -39,15 +46,15 @@ class StrategyBase(ABC):
         pass
 
     @abstractmethod
-    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]: # type: ignore
+    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:  # type: ignore
         """
         The core logic for processing a single problem.
 
         Args:
             problem_id (str): The ID of the problem to process.
 
-        Calls: 
-            run_single_problem(problem_id) 
+        Calls:
+            run_single_problem(problem_id)
 
         Returns:
             A tuple containing:
@@ -65,7 +72,7 @@ class StrategyBase(ABC):
         return {
             "question_prompt": self.question_prompt,
             "problem_description_prompt": self.problem_description_prompt,
-            "describe_prompt": None 
+            "describe_prompt": None,
         }
 
     async def run(self) -> None:
@@ -75,16 +82,18 @@ class StrategyBase(ABC):
         """
         results = []
         all_descriptions_data = {}
-        
+
         for problem_entry in os.scandir(self.dataset_dir):
-            image_name_for_log = problem_entry.name  
+            image_name_for_log = problem_entry.name
             try:
                 if not problem_entry.is_dir():
                     continue
                 problem_id = problem_entry.name
 
-                response, image_name, problem_descriptions = self._execute_problem(problem_id)
-                
+                response, image_name, problem_descriptions = await self._execute_problem(
+                    problem_id
+                )
+
                 image_name_for_log = image_name
 
                 if problem_descriptions:
@@ -95,14 +104,14 @@ class StrategyBase(ABC):
                         "image": image_name,
                         "answer": response.answer,
                         "confidence": response.confidence,
-                        "rationale": response.rationale
+                        "rationale": response.rationale,
                     }
                 else:
                     result = {
                         "image": image_name,
                         "answer": "",
                         "confidence": "",
-                        "rationale": ""
+                        "rationale": "",
                     }
                 results.append(result)
 
@@ -110,34 +119,35 @@ class StrategyBase(ABC):
                 self.logger.error(f"Error processing {image_name_for_log}: {e}")
 
         self.save_raw_answers_to_csv(results)
-        
+
         metadata_prompts = self._get_metadata_prompts()
         self.save_metadata(
             question_prompt=metadata_prompts["question_prompt"],
             problem_description_prompt=metadata_prompts["problem_description_prompt"],
-            describe_prompt=metadata_prompts.get("describe_prompt") # used .get() for safety
+            describe_prompt=metadata_prompts.get(
+                "describe_prompt"
+            ),  # used .get() for safety
         )
 
         if all_descriptions_data and self.descriptions_path:
-            self.save_descriptions_to_json(self.descriptions_path, all_descriptions_data)
-            
+            self.save_descriptions_to_json(
+                self.descriptions_path, all_descriptions_data
+            )
+
         self.logger.info(
             f"{self.strategy_name} run completed for dataset: {self.dataset_name} "
-            f"using model: {self.model.get_model_name()}" # Corrected to use get_model_name()
+            f"using model: {self.model.get_model_name()}"  # Corrected to use get_model_name()
         )
 
     def get_prompt(self, prompt_type: str) -> str:
         try:
-            current_dir = os.path.dirname(os.path.abspath(__file__)) 
+            current_dir = os.path.dirname(os.path.abspath(__file__))
 
             repo_root = os.path.dirname(os.path.dirname(current_dir))
 
             if prompt_type == "problem_description_main":
                 prompt_path = os.path.join(
-                    repo_root,
-                    "prompts",
-                    self.dataset_name,
-                    f"{prompt_type}.txt"
+                    repo_root, "prompts", self.dataset_name, f"{prompt_type}.txt"
                 )
             else:
                 prompt_path = os.path.join(
@@ -145,27 +155,32 @@ class StrategyBase(ABC):
                     "prompts",
                     self.dataset_name,
                     self.strategy_name,
-                    f"{prompt_type}.txt"
+                    f"{prompt_type}.txt",
                 )
-            
-            with open(prompt_path, 'r', encoding='utf-8') as f:
+
+            with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt = f.read()
             return prompt
-        
+
         except Exception as e:
             self.logger.exception(
                 f"Error reading prompt for strategy '{self.strategy_name}' and dataset '{self.dataset_name}': {e}"
             )
             return ""
 
-    def save_metadata(self, question_prompt:str, problem_description_prompt:str, describe_prompt:Optional[str]=None) -> None:
+    def save_metadata(
+        self,
+        question_prompt: str,
+        problem_description_prompt: str,
+        describe_prompt: Optional[str] = None,
+    ) -> None:
         """Save dataset, strategy, model, and config info into a metadata file."""
         try:
             metadata_path = os.path.join(self.results_dir, "metadata.txt")
-            with open(metadata_path, 'w', encoding='utf-8') as f:
+            with open(metadata_path, "w", encoding="utf-8") as f:
                 f.write(f"Dataset: {self.dataset_name}\n")
                 f.write(f"Strategy: {self.strategy_name}\n")
-                f.write(f"Model: {self.model.get_model_name}\n") 
+                f.write(f"Model: {self.model.get_model_name}\n")
                 f.write(f"Config: {self.config}\n")
                 f.write(f"Problem description prompt: {problem_description_prompt}\n")
                 f.write(f"Question prompt: {question_prompt}\n")
@@ -180,14 +195,14 @@ class StrategyBase(ABC):
         if not results:
             self.logger.warning("No results to save.")
             return
-        
+
         output_path = os.path.join(self.results_dir, "results.csv")
-        os.makedirs(os.path.dirname(output_path), exist_ok=True) 
-        
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
         fieldnames = list(results[0].keys())
 
-        write_header = not os.path.exists(output_path) 
-        with open(output_path, mode='a', newline='', encoding='utf-8') as f:
+        write_header = not os.path.exists(output_path)
+        with open(output_path, mode="a", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             if write_header:
                 writer.writeheader()
@@ -199,13 +214,13 @@ class StrategyBase(ABC):
 
     def get_choice_panel(self, problem_id: str) -> Optional[str]:
         # applicable only to "standard" datasets
-        if hasattr(self.config, 'category') and self.config.category != 'standard':
+        if hasattr(self.config, "category") and self.config.category != "standard":
             self.logger.warning(
                 f"get_choice_panel called for non-standard dataset "
                 f"(category: '{self.config.category}'). Returning None."
             )
             return None
-        
+
         image_path = f"data/{self.dataset_name}/problems/{problem_id}/choice_panel.png"
         return image_path
 
@@ -215,17 +230,25 @@ class StrategyBase(ABC):
         if not self.verify_choice_index(image_index):
             return ""
 
-        image_path = f"data/{self.dataset_name}/problems/{problem_id}/choices/{image_index}.png"
+        image_path = (
+            f"data/{self.dataset_name}/problems/{problem_id}/choices/{image_index}.png"
+        )
         return image_path
 
     def get_question_panel(self, problem_id: str) -> str:
         # applicable to all datasets
-        image_path = f"data/{self.dataset_name}/problems/{problem_id}/question_panel.png"
+        image_path = (
+            f"data/{self.dataset_name}/problems/{problem_id}/question_panel.png"
+        )
         return image_path
 
     def get_question_image(self, problem_id: str) -> str:
         # applicable only to "standard" datasets
-        if hasattr(self, 'config') and hasattr(self.config, 'category') and self.config.category != 'standard':
+        if (
+            hasattr(self, "config")
+            and hasattr(self.config, "category")
+            and self.config.category != "standard"
+        ):
             self.logger.warning(
                 f"get_question_image called for non-standard dataset "
                 f"(category: '{self.config.category}'). Returning None."
@@ -237,7 +260,7 @@ class StrategyBase(ABC):
 
     def get_blackout_image(self, problem_id: str, image_index: Union[str, int]) -> str:
         # applicable only to "choice_only" datasets
-        if hasattr(self.config, 'category') and self.config.category != 'choice_only':
+        if hasattr(self.config, "category") and self.config.category != "choice_only":
             self.logger.warning(
                 f"get_blackout_image called for non-choice_only dataset "
                 f"(category: '{self.config.category}'). Returning None."
@@ -247,15 +270,21 @@ class StrategyBase(ABC):
         if not self.verify_choice_index(image_index):
             return ""
 
-        image_path = f"data/{self.dataset_name}/problems/{problem_id}/blackout/{image_index}.png"
+        image_path = (
+            f"data/{self.dataset_name}/problems/{problem_id}/blackout/{image_index}.png"
+        )
         return image_path
 
     def get_classification_panel(self, problem_id: str) -> str:
         # applicable to all datasets
-        image_path = f"data/{self.dataset_name}/problems/{problem_id}/classification_panel.png"
+        image_path = (
+            f"data/{self.dataset_name}/problems/{problem_id}/classification_panel.png"
+        )
         return image_path
 
-    def get_list_of_choice_images(self, problem_id: str, image_indices: List[Union[str, int]]) -> List[str]:
+    def get_list_of_choice_images(
+        self, problem_id: str, image_indices: List[Union[str, int]]
+    ) -> List[str]:
         # applicable to all datasets, used for BPs
         # verify if all indices are the same format
         if not all(isinstance(index, (str, int)) for index in image_indices):
@@ -264,48 +293,61 @@ class StrategyBase(ABC):
                 f"All indices must be str or int. Returning empty list."
             )
             return []
-            
+
         images = []
         for index in image_indices:
             images.append(self.get_choice_image(problem_id, index))
         return images
-    
+
     def verify_choice_index(self, image_index: Union[str, int]) -> bool:
-        if not hasattr(self.config, 'category'):
-             self.logger.error("Config object has no 'category' attribute. Cannot verify index.")
-             return False
+        if not hasattr(self.config, "category"):
+            self.logger.error(
+                "Config object has no 'category' attribute. Cannot verify index."
+            )
+            return False
 
         try:
-            if self.config.category == 'standard' or self.config.category == 'choice_only':
-                valid_indices = [chr(i) for i in range(ord('A'), ord('A') + self.config.num_choices)]
+            if (
+                self.config.category == "standard"
+                or self.config.category == "choice_only"
+            ):
+                valid_indices = [
+                    chr(i) for i in range(ord("A"), ord("A") + self.config.num_choices)
+                ]
                 # Check type consistency
                 if not isinstance(image_index, str):
-                    self.logger.warning(f"Index '{image_index}' is not a string, but category is '{self.config.category}'.")
+                    self.logger.warning(
+                        f"Index '{image_index}' is not a string, but category is '{self.config.category}'."
+                    )
                     return False
-            elif self.config.category == 'BP':
+            elif self.config.category == "BP":
                 valid_indices = [i for i in range(self.config.num_choices)]
                 # Check type consistency
                 if not isinstance(image_index, int):
-                    self.logger.warning(f"Index '{image_index}' is not an int, but category is 'BP'.")
+                    self.logger.warning(
+                        f"Index '{image_index}' is not an int, but category is 'BP'."
+                    )
                     return False
             else:
                 self.logger.error(f"Unknown dataset category '{self.config.category}'.")
                 return False
-            
+
             if image_index not in valid_indices:
                 self.logger.warning(
                     f"image_index '{image_index}' is not in the list of valid indices "
                     f"for dataset category '{self.config.category}'. Valid: {valid_indices}"
                 )
                 return False
-                
+
         except AttributeError as e:
             self.logger.exception(f"Config is missing an attribute: {e}")
             return False
-            
+
         return True
 
-    def save_descriptions_to_json(self, descriptions_path: str, all_descriptions_data: dict):
+    def save_descriptions_to_json(
+        self, descriptions_path: str, all_descriptions_data: dict
+    ):
         """
         Saves the collected descriptions dictionary to a JSON file.
 
@@ -321,14 +363,18 @@ class StrategyBase(ABC):
                 os.makedirs(directory, exist_ok=True)
 
             # Write the data to the JSON file
-            with open(descriptions_path, 'w', encoding='utf-8') as f:
+            with open(descriptions_path, "w", encoding="utf-8") as f:
                 json.dump(all_descriptions_data, f, indent=4)
-                
+
             self.logger.info(f"Saved descriptions to {descriptions_path}")
 
         except (IOError, OSError) as e:
-            self.logger.error(f"Failed to create directory or write to file {descriptions_path}: {e}")
+            self.logger.error(
+                f"Failed to create directory or write to file {descriptions_path}: {e}"
+            )
         except TypeError as e:
             self.logger.error(f"Error serializing descriptions to JSON: {e}")
         except Exception as e:
-            self.logger.error(f"An unexpected error occurred in save_descriptions_to_json: {e}")
+            self.logger.error(
+                f"An unexpected error occurred in save_descriptions_to_json: {e}"
+            )

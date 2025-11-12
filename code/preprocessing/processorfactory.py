@@ -3,14 +3,13 @@ from code.preprocessing.processorconfig import ProcessorConfig
 from code.preprocessing.standardprocessor import StandardProcessor
 from code.preprocessing.bongardprocessor import BongardProcessor
 
+
 class ProcessorFactory:
     """Factory for creating appropriate processor instances."""
-    
+
     @staticmethod
     def create_processor(
-        dataset_name: str, 
-        config: ProcessorConfig, 
-        sheet_maker=None
+        dataset_name: str, config: ProcessorConfig, sheet_maker=None
     ) -> BaseProcessor:
         """Create the appropriate processor based on dataset category."""
         if config.category == "BP":

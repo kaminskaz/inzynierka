@@ -37,18 +37,24 @@ class LLMJudge(VLLM):
         )
 
         self.judge_mode = "text_only"
-        logger.info(f"Initialized LLMJudge for text-only evaluation with model {model_name}")
-
-    async def evaluate_similarity(self, answer: str, key: str, response_schema: Optional[Type[BaseModel]]) -> float:
-        try:
-            prompt =  (
-            f"On a scale from 0 to 1, how similar is the following answer to the key answer?\n"
-            f"Answer: {answer}\n"
-            f"Key Answer: {key}\n"
+        logger.info(
+            f"Initialized LLMJudge for text-only evaluation with model {model_name}"
         )
 
+    async def evaluate_similarity(
+        self, answer: str, key: str, response_schema: Optional[Type[BaseModel]]
+    ) -> float:
+        try:
+            prompt = (
+                f"On a scale from 0 to 1, how similar is the following answer to the key answer?\n"
+                f"Answer: {answer}\n"
+                f"Key Answer: {key}\n"
+            )
+
             if response_schema:
-                response = await self.ask_structured([TextContent(prompt)], response_schema)
+                response = await self.ask_structured(
+                    [TextContent(prompt)], response_schema
+                )
                 similarity_score = response.similarity_score
                 if isinstance(similarity_score, str):
                     similarity_score = float(similarity_score.strip())
@@ -57,7 +63,7 @@ class LLMJudge(VLLM):
                 response = await self.ask([TextContent(prompt)])
                 similarity_score = float(response[0].text.strip())
                 return similarity_score
-            
+
         except Exception as e:
             logger.error(f"Similarity evaluation failed: {e}")
             return -1.0

@@ -29,6 +29,5 @@ class ImageContent(Content):
 
 def is_image_supported(filename: str) -> bool:
     _, ext = os.path.splitext(filename)
-    ext = ext[1:] 
+    ext = ext[1:]
     return ext in SUPPORTED_IMAGE_EXTENSIONS
-

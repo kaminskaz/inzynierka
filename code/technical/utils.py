@@ -8,15 +8,14 @@ import torch
 #  bo na ten moment to takie wsm krotkie funkcje mozna rownie dobrze w glownym pliku napisac
 #  ale zostawiam na razie
 
+
 def read_json(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return data
 
+
 def read_txt(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         data = f.read().strip()
     return data
-
-
-

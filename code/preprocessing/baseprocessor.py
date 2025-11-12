@@ -11,9 +11,10 @@ from typing import List, Optional, Dict
 from PIL import Image
 from code.preprocessing.processorconfig import ProcessorConfig
 
+
 class BaseProcessor(ABC):
     """Abstract base class for all dataset processors."""
-    
+
     def __init__(self, config: ProcessorConfig, output_base_path: str = "data"):
         self.config = config
         self.raw_data_path = Path(config.data_folder)
@@ -21,20 +22,26 @@ class BaseProcessor(ABC):
         self.dataset_name = self.raw_data_path.name
         self.logger = logging.getLogger(f"DataProcessor.{self.dataset_name}")
         random.seed(42)  # For reproducible shuffling
-    
+
     @abstractmethod
     def process(self) -> None:
         """Process all problems in the dataset."""
         pass
-    
+
     @abstractmethod
     def load_choice_images(self, problem_id: str) -> List[Optional[Image.Image]]:
         """Load all choice images for a problem."""
         pass
-    
+
     def is_already_processed(self, problem_id: str) -> bool:
         """Check if a problem has already been processed."""
-        output_path = self.output_base_path / self.dataset_name / "problems" / problem_id / "question_panel.png"
+        output_path = (
+            self.output_base_path
+            / self.dataset_name
+            / "problems"
+            / problem_id
+            / "question_panel.png"
+        )
         return output_path.exists()
 
     def get_output_dir(self, subfolder: str) -> Path:
@@ -43,7 +50,14 @@ class BaseProcessor(ABC):
         path.mkdir(parents=True, exist_ok=True)
         return path
 
-    def save_sheet(self, problem_id: str, sheet: Image.Image, switched: bool = False, choice_panel: bool = False, classification_panel: bool = False) -> None:
+    def save_sheet(
+        self,
+        problem_id: str,
+        sheet: Image.Image,
+        switched: bool = False,
+        choice_panel: bool = False,
+        classification_panel: bool = False,
+    ) -> None:
         """Save the generated question panel image."""
         # Directory structure: data/<dataset_name>/<problem_id>/
         output_dir = self.output_base_path / self.dataset_name / "problems" / problem_id
@@ -57,54 +71,70 @@ class BaseProcessor(ABC):
         else:
             save_path = output_dir / "question_panel.png"
         sheet.save(save_path)
-        self.logger.debug(f"Saved question panel for problem {problem_id} to {save_path}")
+        self.logger.debug(
+            f"Saved question panel for problem {problem_id} to {save_path}"
+        )
 
-    
     def save_json(self, data: Dict, filename: str) -> None:
         """Save dataset-level JSON metadata inside jsons/ folder."""
         json_dir = self.output_base_path / self.dataset_name / "jsons"
         json_dir.mkdir(parents=True, exist_ok=True)
 
         file_path = json_dir / filename
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
-        
+
         self.logger.info(f"Saved JSON metadata to {file_path}")
 
-
-    def load_image_by_pattern(self, directory: Path, pattern: str) -> Optional[Image.Image]:
+    def load_image_by_pattern(
+        self, directory: Path, pattern: str
+    ) -> Optional[Image.Image]:
         """Load image matching a pattern in the directory."""
         try:
             if not directory.exists():
                 return None
-            
+
             for fname in os.listdir(directory):
                 if pattern in fname or fname.endswith(pattern):
                     return Image.open(directory / fname).convert("RGB")
-            
+
             return None
         except Exception as e:
-            self.logger.error(f"Error loading image from {directory} with pattern {pattern}: {e}")
+            self.logger.error(
+                f"Error loading image from {directory} with pattern {pattern}: {e}"
+            )
             return None
-    
+
     def standardize_problem_id(self, problem_id: str, digits: int = 3) -> str:
         """Standardize problem ID to fixed number of digits."""
         return problem_id.zfill(digits)
-    
+
     def evaluate_regex(self, regex_template: str, image_index: int) -> str:
         """Evaluate regex template with image_index."""
         # Replace {image_index} and {image_index+1} patterns
         result = regex_template.replace("{image_index}", str(image_index))
-        result = re.sub(r'\{image_index\+(\d+)\}', 
-                       lambda m: str(image_index + int(m.group(1))), 
-                       result)
+        result = re.sub(
+            r"\{image_index\+(\d+)\}",
+            lambda m: str(image_index + int(m.group(1))),
+            result,
+        )
         return result
 
-    def save_refactored_images(self, problem_id_standardized: str, choice_images: List[Image.Image], letters: bool, 
-                               question_image: Optional[Image.Image]=None) -> None:
+    def save_refactored_images(
+        self,
+        problem_id_standardized: str,
+        choice_images: List[Image.Image],
+        letters: bool,
+        question_image: Optional[Image.Image] = None,
+    ) -> None:
         """Save labeled choice and question images into data/<dataset>/problems/<problem_id>/"""
 
-        base_dir = self.output_base_path / self.dataset_name / "problems" / problem_id_standardized
+        base_dir = (
+            self.output_base_path
+            / self.dataset_name
+            / "problems"
+            / problem_id_standardized
+        )
         base_dir.mkdir(parents=True, exist_ok=True)
 
         choices_dir = base_dir / "choices"

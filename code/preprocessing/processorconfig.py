@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
 
+
 @dataclass
 class ProcessorConfig:
     """Configuration for a dataset processor."""
+
     image_format: str
     category: str
     data_folder: str
@@ -22,6 +24,6 @@ class ProcessorConfig:
     expected_num_samples: Optional[int] = None
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> 'ProcessorConfig':
+    def from_dict(cls, config_dict: Dict[str, Any]) -> "ProcessorConfig":
         """Create config from dictionary."""
         return cls(**config_dict)

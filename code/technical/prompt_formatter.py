@@ -3,9 +3,15 @@ import os
 from typing import Dict, List, Optional
 import logging
 
-from code.technical.content import Content, ImageContent, TextContent, is_image_supported
+from code.technical.content import (
+    Content,
+    ImageContent,
+    TextContent,
+    is_image_supported,
+)
 
 logger = logging.getLogger(__name__)
+
 
 class PromptFormatter:
 
@@ -20,7 +26,9 @@ class PromptFormatter:
                 if formatted is not None:
                     formatted_contents.append(formatted)
                 else:
-                    logger.warning(f"Unsupported image format skipped: {content.image_path}")
+                    logger.warning(
+                        f"Unsupported image format skipped: {content.image_path}"
+                    )
 
         return [{"role": "user", "content": formatted_contents}]
 
