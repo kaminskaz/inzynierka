@@ -17,7 +17,7 @@ class ContrastiveStrategy(StrategyBase):
         self.descriptions_prompt = self.get_prompt("describe_main")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
-    def run_single_problem(self, problem_id: str, descriptions_prompt: str, main_prompt: str) -> list[Optional[ResponseSchema], Dict[str, str]]:
+    async def run_single_problem(self, problem_id: str, descriptions_prompt: str, main_prompt: str) -> list[Optional[ResponseSchema], Dict[str, str]]:
         
         problem_descriptions_dict = {}
 
@@ -35,7 +35,7 @@ class ContrastiveStrategy(StrategyBase):
                         ImageContent(choice_image_input_1),
                         ImageContent(choice_image_input_2)
                     ]
-                    description_response = self.model.ask_structured(contents_to_send_descriptions, schema=BPDescriptionResponseSchemaContrastive)
+                    description_response = await self.model.ask_structured(contents_to_send_descriptions, schema=BPDescriptionResponseSchemaContrastive)
 
                     if description_response and description_response.description:
                         key = f"{i}"
@@ -48,7 +48,7 @@ class ContrastiveStrategy(StrategyBase):
                         TextContent(descriptions_prompt),
                         ImageContent(choice_image_input)
                     ]
-                    description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema)
+                    description_response = await self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema)
          
                     if description_response and description_response.description:
                         problem_descriptions_dict[letter_index] = description_response.description
@@ -71,7 +71,7 @@ class ContrastiveStrategy(StrategyBase):
                     ImageContent(question_panel_input)
             ]
 
-            description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
+            description_response = await self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
             
             if description_response and description_response.description:
                 problem_descriptions_dict["question_panel"] = description_response.description
@@ -91,7 +91,7 @@ class ContrastiveStrategy(StrategyBase):
                         ImageContent(choice_panel_input)
                 ]
 
-        response = self.model.ask_structured(contents_to_send, schema=ResponseSchema)
+        response = await self.model.ask_structured(contents_to_send, schema=ResponseSchema)
         
         return response, problem_descriptions_dict
     

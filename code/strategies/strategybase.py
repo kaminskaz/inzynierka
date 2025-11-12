@@ -31,7 +31,7 @@ class StrategyBase(ABC):
 
 
     @abstractmethod
-    def run_single_problem(self, *args, **kwargs) -> Any:
+    async def run_single_problem(self, *args, **kwargs) -> Any:
         """
         This method's signature will vary by strategy, so it remains abstract
         but will be called by the subclass's _execute_problem, not by the base run().

@@ -16,7 +16,7 @@ class DescriptiveStrategy(StrategyBase):
         self.descriptions_prompt = self.get_prompt("describe_main")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
-    def run_single_problem(self, problem_id: str, descriptions_prompt: str, main_prompt: str) -> list[Optional[ResponseSchema], Dict[str, str]]:
+    async def run_single_problem(self, problem_id: str, descriptions_prompt: str, main_prompt: str) -> list[Optional[ResponseSchema], Dict[str, str]]:
         descriptions = []
         problem_descriptions_dict = {}
 
@@ -34,7 +34,7 @@ class DescriptiveStrategy(StrategyBase):
                 TextContent(descriptions_prompt),
                 ImageContent(choice_image_input)
             ]
-            description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
+            description_response = await self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema) 
             raw_description = description_response.description
             if raw_description is not None and description_response.description is not None:
                 description_response.description = f"{index_key}: {raw_description}"
@@ -61,7 +61,7 @@ class DescriptiveStrategy(StrategyBase):
                         ImageContent(image_input)
                 ]
             
-        response = self.model.ask_structured(contents_to_send, schema=ResponseSchema)
+        response = await self.model.ask_structured(contents_to_send, schema=ResponseSchema)
     
         return response, problem_descriptions_dict
     

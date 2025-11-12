@@ -7,12 +7,12 @@ from code.technical.response_schema import ResponseSchema
 
 class DirectStrategy(StrategyBase):
 
-    def run_single_problem(self, image_path: str, prompt: str) -> ResponseSchema:
+    async def run_single_problem(self, image_path: str, prompt: str) -> ResponseSchema:
         contents = [
             TextContent(prompt),
             ImageContent(image_path)
         ]
-        response = self.model.ask_structured(contents, schema=ResponseSchema)
+        response = await self.model.ask_structured(contents, schema=ResponseSchema)
 
         return response
 
