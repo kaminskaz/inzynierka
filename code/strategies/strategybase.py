@@ -14,7 +14,7 @@ class StrategyBase(ABC):
         self.dataset_name: str = dataset_name
         self.model: VLLM = model
         self.config: ProcessorConfig = dataset_config
-        self.strategy_name: str = self.strategy_name
+        self.strategy_name: str = strategy_name
         
         self.logger = logging.getLogger(self.__class__.__name__)
         self.results_dir = results_dir
