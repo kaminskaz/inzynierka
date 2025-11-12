@@ -21,8 +21,9 @@ class ContrastiveStrategy(StrategyBase):
         model: VLLM,
         dataset_config: ProcessorConfig,
         results_dir: str,
+        strategy_name:str,
     ):
-        super().__init__(dataset_name, model, dataset_config, results_dir)
+        super().__init__(dataset_name, model, dataset_config, results_dir,strategy_name)
 
         self.descriptions_prompt = self.get_prompt("describe_main")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
