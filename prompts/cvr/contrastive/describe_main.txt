@@ -1,0 +1,3 @@
+Your task is to describe differences between presented images.
+List all visible objects, their attributes (size, color, shape, etc.), and spatial or functional relationships between them.
+Only use information visible in the image. Do not assume hidden rules or patterns that aren't clearly shown.

@@ -23,13 +23,11 @@ class ImageContent(Content):
         super().__init__()
         self.image_path = image_path
 
-
     def __str__(self) -> str:
         return f"{self.__class__.__name__} - image_path: {self.image_path}"
 
 
 def is_image_supported(filename: str) -> bool:
     _, ext = os.path.splitext(filename)
-    ext = ext[1:] 
+    ext = ext[1:]
     return ext in SUPPORTED_IMAGE_EXTENSIONS
-

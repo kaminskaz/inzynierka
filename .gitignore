@@ -24,10 +24,14 @@ env/
 # Folder z danymi
 data/
 data_raw/vcog-bench/
+results/
 
 # cache
 __pycache__/
 *__pycache__/
 *.pyc
+
+# slurm out files
+*.out
 
 
