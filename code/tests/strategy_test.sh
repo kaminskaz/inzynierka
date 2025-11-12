@@ -35,9 +35,9 @@ python run_single_experiment.py \
     --dataset_name bp \
     --strategy direct \
     --model_name "Qwen/Qwen2.5-VL-7B-Instruct" \
-    --temperature 1.0 \
+    --temperature 0.5 \
     --max_tokens 4096 \
-    --max_output_tokens 1536 \
+    --max_output_tokens 4096 \
     --limit_mm_per_prompt 2 \
     --debug \
     --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128 --max-model-len 24000
