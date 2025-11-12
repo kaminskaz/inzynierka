@@ -7,6 +7,7 @@ import json
 
 from code.preprocessing.processorconfig import ProcessorConfig 
 from code.models.vllm import VLLM
+from code.technical.response_schema import ResponseSchema
 
 class StrategyBase(ABC):
     def __init__(self, dataset_name: str, model: VLLM, dataset_config: ProcessorConfig, results_dir: str):
@@ -38,7 +39,7 @@ class StrategyBase(ABC):
         pass
 
     @abstractmethod
-    def _execute_problem(self, problem_id: str) -> (Optional[ResponseSchema], str, Optional[Dict[str, str]]): # type: ignore
+    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]: # type: ignore
         """
         The core logic for processing a single problem.
 
