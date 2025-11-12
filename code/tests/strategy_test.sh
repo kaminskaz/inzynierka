@@ -34,7 +34,7 @@ cd /mnt/evafs/groups/jrafalko-lab/inzynierka/
 python run_single_experiment.py \
     --dataset_name bp \
     --strategy direct \
-    --model_name "Qwen/Qwen2.5-VL-72B-Instruct" \
+    --model_name "Qwen/Qwen2.5-VL-7B-Instruct" \
     --temperature 1.0 \
     --max_tokens 2048 \
     --max_output_tokens 1536 \

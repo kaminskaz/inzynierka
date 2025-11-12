@@ -7,7 +7,7 @@ from code.models.llm_judge import LLMJudge
 class EvaluationBase(ABC):
 
     @abstractmethod
-    def evaluate_single_answer(self, answer: str, key: str, model: Optional[LLMJudge], response_schema: Optional[Type[BaseModel]]) -> float:
+    def evaluate_single_answer(self, *args, **kwargs) -> float:
         pass
 
     @abstractmethod
