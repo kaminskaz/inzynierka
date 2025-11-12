@@ -10,11 +10,11 @@ from code.models.vllm import VLLM
 from code.technical.response_schema import ResponseSchema
 
 class StrategyBase(ABC):
-    def __init__(self, dataset_name: str, model: VLLM, dataset_config: ProcessorConfig, results_dir: str):
+    def __init__(self, dataset_name: str, model: VLLM, dataset_config: ProcessorConfig, results_dir: str, strategy_name: str):
         self.dataset_name: str = dataset_name
         self.model: VLLM = model
         self.config: ProcessorConfig = dataset_config
-        self.strategy_name: str = self.__class__.__name__
+        self.strategy_name: str = self.strategy_name
         
         self.logger = logging.getLogger(self.__class__.__name__)
         self.results_dir = results_dir
@@ -128,7 +128,9 @@ class StrategyBase(ABC):
 
     def get_prompt(self, prompt_type: str) -> str:
         try:
-            repo_root = os.path.dirname(os.path.abspath(__file__))  
+            current_dir = os.path.dirname(os.path.abspath(__file__)) 
+
+            repo_root = os.path.dirname(os.path.dirname(current_dir))
 
             if prompt_type == "problem_description_main":
                 prompt_path = os.path.join(

@@ -12,7 +12,7 @@ class DirectStrategy(StrategyBase):
             TextContent(prompt),
             ImageContent(image_path)
         ]
-        response = self.model.ask_structured(contents, response_schema=ResponseSchema)
+        response = self.model.ask_structured(contents, schema=ResponseSchema)
 
         return response
 

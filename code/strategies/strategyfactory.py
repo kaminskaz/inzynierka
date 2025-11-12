@@ -86,7 +86,8 @@ class StrategyFactory:
                 dataset_name=dataset_name,
                 model=model_object,
                 dataset_config=dataset_config,
-                results_dir=results_dir
+                results_dir=results_dir,
+                strategy_name=strategy_name.lower()
             )
             self.logger.info(f"Successfully created: {strategy_class.__name__}")
             return strategy_instance
