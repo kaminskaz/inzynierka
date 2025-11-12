@@ -65,12 +65,17 @@ class VLLM:
                 "--guided-decoding-backend",
                 "outlines",
                 *custom_args,
+                "--chat-template", "{% for message in messages %}{{message['role']}}: {{message['content']}}\n{% endfor %}"
+
             ),
         )
 
         self.client = openai.AsyncClient(base_url=f"{self.base_url}/v1", api_key=self.api_key)
         self.formatter = PromptFormatter()
         logger.info(f"vLLM client initialized for '{self.model_name}' at {self.base_url}")
+    
+    def get_model_name(self) -> str:
+        return self.model_name
 
     async def ask(self, contents: List[Content], schema: Optional[Type[BaseModel]] = None) -> str:
         message = self.formatter.user_message(contents)

@@ -6,13 +6,11 @@ import requests
 import logging
 import sys
 import os
-from sklearn.metrics.pairwise import cosine_similarity
 from pydantic import BaseModel
 
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
 from code.models.vllm import VLLM
-from code.technical.response_schema import SimilarityResponseSchema
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +50,8 @@ class LLMJudge(VLLM):
             if response_schema:
                 response = await self.ask_structured([TextContent(prompt)], response_schema)
                 similarity_score = response.similarity_score
+                if isinstance(similarity_score, str):
+                    similarity_score = float(similarity_score.strip())
                 return similarity_score
             else:
                 response = await self.ask([TextContent(prompt)])
