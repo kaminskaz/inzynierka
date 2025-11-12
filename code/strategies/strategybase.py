@@ -90,8 +90,8 @@ class StrategyBase(ABC):
                     continue
                 problem_id = problem_entry.name
 
-                response, image_name, problem_descriptions = await self._execute_problem(
-                    problem_id
+                response, image_name, problem_descriptions = (
+                    await self._execute_problem(problem_id)
                 )
 
                 image_name_for_log = image_name
