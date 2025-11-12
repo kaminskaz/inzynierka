@@ -17,7 +17,7 @@ class StrategyFactory:
     Factory to create and configure a specific strategy based on its name.
     """
     
-    def __init__(self, config_path: str = "code/preprocessing/dataset_config.json"):
+    def __init__(self, config_path: str = "code/preprocessing/dataset_config_test.json"):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config_path = Path(config_path)
         
@@ -79,7 +79,6 @@ class StrategyFactory:
         dataset_config = self._get_dataset_config(dataset_name)
         if not dataset_config:
             raise ValueError(f"Failed to load config for dataset: '{dataset_name}'")
-            
         
         # initialize and return the strategy
         try:

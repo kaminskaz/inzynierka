@@ -1,13 +1,23 @@
 from traitlets import List
 import os
+from typing import Optional, Dict, Any
 
 from code.strategies.strategybase import StrategyBase
 from code.technical.content import ImageContent, TextContent
 from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema, BPDescriptionResponseSchemaContrastive
+from code.models.vllm import VLLM
+from code.preprocessing.processorconfig import ProcessorConfig
+
 
 class ContrastiveStrategy(StrategyBase):
 
-    def run_single_problem(self, problem_id: str, descriptions_prompt: str, main_prompt: str) -> ResponseSchema:
+    def __init__(self, dataset_name: str, model: VLLM, dataset_config: ProcessorConfig, results_dir: str):
+        super().__init__(dataset_name, model, dataset_config, results_dir)
+        
+        self.descriptions_prompt = self.get_prompt("describe_main")
+        self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
+
+    def run_single_problem(self, problem_id: str, descriptions_prompt: str, main_prompt: str) -> list[Optional[ResponseSchema], Dict[str, str]]:
         
         problem_descriptions_dict = {}
 
@@ -31,8 +41,9 @@ class ContrastiveStrategy(StrategyBase):
                         key = f"{i}"
                         problem_descriptions_dict[key] = description_response.description
 
-                else: 
-                    choice_image_input = self.get_blackout_image(problem_id, index=i)
+                else: # 'choice_only'
+                    letter_index = chr(65 + i) # Assuming choice_only uses letters
+                    choice_image_input = self.get_blackout_image(problem_id, index=letter_index)
                     contents_to_send_descriptions = [
                         TextContent(descriptions_prompt),
                         ImageContent(choice_image_input)
@@ -40,11 +51,11 @@ class ContrastiveStrategy(StrategyBase):
                     description_response = self.model.ask_structured(contents_to_send_descriptions, schema=DescriptionResponseSchema)
          
                     if description_response and description_response.description:
-                        problem_descriptions_dict[i] = description_response.description
+                        problem_descriptions_dict[letter_index] = description_response.description
  
                 descriptions.append(description_response)
         
-            all_descriptions_text = "\n\n".join([r.description for r in descriptions if r is not None])
+            all_descriptions_text = "\n\n".join([r.description for r in descriptions if r is not None and r.description is not None])
 
             prompt = f'{main_prompt}\nDescriptions:\n{all_descriptions_text}'
             
@@ -52,7 +63,7 @@ class ContrastiveStrategy(StrategyBase):
                     TextContent(prompt)
             ]
 
-        else:
+        else: # 'standard' category
             question_panel_input = self.get_question_panel(problem_id)
 
             contents_to_send_descriptions = [
@@ -71,61 +82,42 @@ class ContrastiveStrategy(StrategyBase):
             prompt = f'{main_prompt}\nDescriptions:\n{all_descriptions_text}'
             choice_panel_input = self.get_choice_panel(problem_id)
 
-            contents_to_send = [
-                    TextContent(prompt),
-                    ImageContent(choice_panel_input)
-            ]
+            if choice_panel_input is None:
+                self.logger.error(f"Could not get choice panel for problem {problem_id}. Skipping image content.")
+                contents_to_send = [TextContent(prompt)]
+            else:
+                contents_to_send = [
+                        TextContent(prompt),
+                        ImageContent(choice_panel_input)
+                ]
 
         response = self.model.ask_structured(contents_to_send, schema=ResponseSchema)
         
         return response, problem_descriptions_dict
     
 
-    def run(self):
-        dataset_dir = os.path.join("data", self.dataset_name, "problems")
-        descriptions_path = os.path.join(self.results_dir, "descriptions.json")
-        all_descriptions_data = {}
+    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
+        """
+        Executes the logic for a single contrastive problem.
+        """
+        image_path = self.get_choice_panel(problem_id)
+        
+        response, problem_descriptions = self.run_single_problem(
+            problem_id, self.descriptions_prompt, self.main_prompt
+        )
+        
+        # handle potential None from get_choice_panel (e.g., for 'BP' category)
+        if image_path:
+            image_name = os.path.basename(image_path)
+        else:
+             image_name = "placeholder_name"
+        
+        return response, image_name, problem_descriptions
 
-        descriptions_prompt = self.get_prompt("describe_main")
-        problem_description = self.get_prompt("problem_description_main")
-        question_prompt = self.get_prompt("question_main")
-        main_prompt = f'{problem_description}\n{question_prompt}'
-
-        results = []
-
-        for problem_entry in os.scandir(dataset_dir):
-            try:
-                if not problem_entry.is_dir():
-                    continue
-                problem_id = problem_entry.name
-                image_path = self.get_choice_panel(problem_id)
-            
-                response, problem_descriptions = self.run_single_problem(problem_id, descriptions_prompt, main_prompt)
-
-                if problem_descriptions:
-                    all_descriptions_data[problem_id] = problem_descriptions
-
-                if response:
-                    result = {
-                        "image": image_path.name,
-                        "answer": response.answer,
-                        "confidence": response.confidence,
-                        "rationale": response.rationale
-                    }
-                else:
-                    result = {
-                    "image": image_path.name,
-                    "answer": "",
-                    "confidence": "",
-                    "rationale": ""
-                    }
-
-                results.append(result)
-
-            except Exception as e:
-                self.logger.error(f"Error processing {image_path.name}: {e}")
-
-        self.save_raw_answers_to_csv(results)
-        self.save_metadata(question_prompt=question_prompt, problem_description_prompt=problem_description, describe_prompt=descriptions_prompt)
-        self.save_descriptions_to_json(descriptions_path, all_descriptions_data)
-        self.logger.info(f"Descriptive strategy run completed for dataset: {self.dataset_name}, strategy: {self.strategy_name} using model: {self.model.get_model_name()}")
+    def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
+        """
+        Overrides the base method to add the 'describe_prompt'.
+        """
+        prompts = super()._get_metadata_prompts()
+        prompts["describe_prompt"] = self.descriptions_prompt
+        return prompts

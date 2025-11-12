@@ -71,7 +71,7 @@ def check_data_preprocessed(dataset_name: str) -> bool:
     - At least one .json file in the jsons/ directory.
     """
     logger.info(f"Checking for preprocessed data for dataset: {dataset_name}...")
-    base_data_path = Path("data") / dataset_name
+    base_data_path = Path("data_test") / dataset_name
     problems_path = base_data_path / "problems"
     jsons_path = base_data_path / "jsons"
 
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     parser.add_argument('--max_tokens', type=int, default=2048, help='Maximum tokens for the model (if applicable)')
     parser.add_argument('--max_output_tokens', type=int, default=1536, help='Maximum output tokens for the model (if applicable)')
     parser.add_argument('--limit_mm_per_prompt', type=int, default=2, help='Limit of multimodal inputs per prompt (if applicable)')
-    parser.add_argument('--custom_args', type=list, default=[], help='List of custom arguments for the model (if applicable)')
+    parser.add_argument('--custom_args', type=str, nargs='*', default=[], help='List of custom arguments for the model (if applicable)')
     args = parser.parse_args()
 
     if not check_data_preprocessed(args.dataset_name):

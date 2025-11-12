@@ -1,7 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, List, Union, Optional
-import PIL.Image
+from typing import Any, List, Union, Optional, Dict
 import os
 import csv
 import json
@@ -17,16 +16,114 @@ class StrategyBase(ABC):
         self.strategy_name: str = self.__class__.__name__
         
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
         self.results_dir = results_dir
+
+        self.dataset_dir = os.path.join("data_test", self.dataset_name, "problems")
+        self.problem_description_prompt = self.get_prompt("problem_description_main")
+        self.question_prompt = self.get_prompt("question_main")
+        self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
+        
+        # path for descriptions, to be set by subclasses if needed - for contrastive and descriptive
+        self.descriptions_path: Optional[str] = None
+
+        self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
+
 
     @abstractmethod
     def run_single_problem(self, *args, **kwargs) -> Any:
+        """
+        This method's signature will vary by strategy, so it remains abstract
+        but will be called by the subclass's _execute_problem, not by the base run().
+        """
         pass
 
     @abstractmethod
-    def run(self) -> None:
+    def _execute_problem(self, problem_id: str) -> (Optional[ResponseSchema], str, Optional[Dict[str, str]]): # type: ignore
+        """
+        The core logic for processing a single problem.
+
+        Args:
+            problem_id (str): The ID of the problem to process.
+
+        Calls: 
+            run_single_problem(problem_id) 
+
+        Returns:
+            A tuple containing:
+            - Optional[ResponseSchema]: The model's response.
+            - str: The name of the image file to save in the results.
+            - Optional[Dict[str, str]]: A dictionary of descriptions, if any.
+        """
         pass
+
+    def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
+        """
+        Returns a dictionary of prompts to be saved in the metadata file.
+        Subclasses can override this to add more prompts.
+        """
+        return {
+            "question_prompt": self.question_prompt,
+            "problem_description_prompt": self.problem_description_prompt,
+            "describe_prompt": None 
+        }
+
+    def run(self) -> None:
+        """
+        Main execution loop (Template Method).
+        Common to all strategies.
+        """
+        results = []
+        all_descriptions_data = {}
+        
+        for problem_entry in os.scandir(self.dataset_dir):
+            image_name_for_log = problem_entry.name  
+            try:
+                if not problem_entry.is_dir():
+                    continue
+                problem_id = problem_entry.name
+
+                response, image_name, problem_descriptions = self._execute_problem(problem_id)
+                
+                image_name_for_log = image_name
+
+                if problem_descriptions:
+                    all_descriptions_data[problem_id] = problem_descriptions
+
+                if response:
+                    result = {
+                        "image": image_name,
+                        "answer": response.answer,
+                        "confidence": response.confidence,
+                        "rationale": response.rationale
+                    }
+                else:
+                    result = {
+                        "image": image_name,
+                        "answer": "",
+                        "confidence": "",
+                        "rationale": ""
+                    }
+                results.append(result)
+
+            except Exception as e:
+                self.logger.error(f"Error processing {image_name_for_log}: {e}")
+
+        self.save_raw_answers_to_csv(results)
+        
+        metadata_prompts = self._get_metadata_prompts()
+        self.save_metadata(
+            question_prompt=metadata_prompts["question_prompt"],
+            problem_description_prompt=metadata_prompts["problem_description_prompt"],
+            describe_prompt=metadata_prompts.get("describe_prompt") # used .get() for safety
+        )
+
+        if all_descriptions_data and self.descriptions_path:
+            self.save_descriptions_to_json(self.descriptions_path, all_descriptions_data)
+            
+        self.logger.info(
+            f"{self.strategy_name} run completed for dataset: {self.dataset_name} "
+            f"using model: {self.model.get_model_name()}" # Corrected to use get_model_name()
+        )
 
     def get_prompt(self, prompt_type: str) -> str:
         try:
@@ -65,11 +162,12 @@ class StrategyBase(ABC):
             with open(metadata_path, 'w', encoding='utf-8') as f:
                 f.write(f"Dataset: {self.dataset_name}\n")
                 f.write(f"Strategy: {self.strategy_name}\n")
-                f.write(f"Model: {self.model}\n")
+                f.write(f"Model: {self.model.get_model_name}\n") 
                 f.write(f"Config: {self.config}\n")
                 f.write(f"Problem description prompt: {problem_description_prompt}\n")
                 f.write(f"Question prompt: {question_prompt}\n")
-                f.write(f"Describe prompt: {describe_prompt}\n")
+                if describe_prompt:
+                    f.write(f"Describe prompt: {describe_prompt}\n")
             self.logger.info(f"Saved metadata to {metadata_path}")
 
         except Exception as e:
@@ -81,9 +179,11 @@ class StrategyBase(ABC):
             return
         
         output_path = os.path.join(self.results_dir, "results.csv")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True) 
+        
         fieldnames = list(results[0].keys())
 
-        write_header = not output_path.exists()
+        write_header = not os.path.exists(output_path) 
         with open(output_path, mode='a', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             if write_header:
@@ -94,7 +194,7 @@ class StrategyBase(ABC):
 
     # FUNCTIONS FOR GETTING IMAGES AND PANELS
 
-    def get_choice_panel(self, problem_id: str) -> Optional[PIL.Image.Image]:
+    def get_choice_panel(self, problem_id: str) -> Optional[str]:
         # applicable only to "standard" datasets
         if hasattr(self.config, 'category') and self.config.category != 'standard':
             self.logger.warning(
@@ -122,7 +222,7 @@ class StrategyBase(ABC):
 
     def get_question_image(self, problem_id: str) -> str:
         # applicable only to "standard" datasets
-        if hasattr(self.config, 'category') and self.config.category != 'standard':
+        if hasattr(self, 'config') and hasattr(self.config, 'category') and self.config.category != 'standard':
             self.logger.warning(
                 f"get_question_image called for non-standard dataset "
                 f"(category: '{self.config.category}'). Returning None."
@@ -221,6 +321,8 @@ class StrategyBase(ABC):
             with open(descriptions_path, 'w', encoding='utf-8') as f:
                 json.dump(all_descriptions_data, f, indent=4)
                 
+            self.logger.info(f"Saved descriptions to {descriptions_path}")
+
         except (IOError, OSError) as e:
             self.logger.error(f"Failed to create directory or write to file {descriptions_path}: {e}")
         except TypeError as e:
