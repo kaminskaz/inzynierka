@@ -27,6 +27,10 @@ class VLLM:
         custom_args: List[str] = [],
     ):
 
+        assert max_tokens > max_output_tokens, (
+            "max_tokens must be greater than max_output_tokens."
+        )        
+
         self.model_name = model_name
         self.max_tokens = max_tokens
         self.temperature = temperature
