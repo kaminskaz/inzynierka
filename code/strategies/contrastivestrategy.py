@@ -41,9 +41,9 @@ class ContrastiveStrategy(StrategyBase):
                 if self.config.category == "BP":
                     if i >= self.config.num_choices // 2:
                         break
-                    choice_image_input_1 = self.get_choice_image(problem_id, index=i)
+                    choice_image_input_1 = self.get_choice_image(problem_id, image_index=i)
                     choice_image_input_2 = self.get_choice_image(
-                        problem_id, index=i + 6
+                        problem_id, image_index=i + 6
                     )
                     contents_to_send_descriptions = [
                         TextContent(descriptions_prompt),
@@ -64,7 +64,7 @@ class ContrastiveStrategy(StrategyBase):
                 else:  # 'choice_only'
                     letter_index = chr(65 + i)  # Assuming choice_only uses letters
                     choice_image_input = self.get_blackout_image(
-                        problem_id, index=letter_index
+                        problem_id, image_index=letter_index
                     )
                     contents_to_send_descriptions = [
                         TextContent(descriptions_prompt),

@@ -145,8 +145,6 @@ def run_single_experiment_on_model(dataset_name: str,
         asyncio.run(strategy.run())
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
-        model.stop()
-
     except ImportError as e:
         logger.error(f"Failed to create strategy. Does '{strategy_name}' exist and is it importable? Error: {e}", exc_info=True)
         sys.exit(1)
@@ -169,6 +167,8 @@ def run_strategy_tests(model_name: str,
     for d in datasets:
         for s in strategies:
             run_single_experiment_on_model(dataset_name=d, strategy_name=s, model=model)
+
+    model.stop()
 
 
 def run_single_experiment(

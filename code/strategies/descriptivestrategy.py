@@ -34,10 +34,10 @@ class DescriptiveStrategy(StrategyBase):
             letter = chr(65 + i)
 
             if self.config.category != "BP":
-                choice_image_input = self.get_choice_image(problem_id, index=letter)
+                choice_image_input = self.get_choice_image(problem_id, image_index=letter)
                 index_key = letter
             else:
-                choice_image_input = self.get_choice_image(problem_id, index=i)
+                choice_image_input = self.get_choice_image(problem_id, image_index=i)
                 index_key = i
 
             contents_to_send_descriptions = [
