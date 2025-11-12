@@ -20,7 +20,7 @@ class VLLM:
     def __init__(
         self,
         model_name: str,
-        temperature: float = 1.0,
+        temperature: float = 0.5,
         max_tokens: int = 2048,
         max_output_tokens: int = 1024,
         limit_mm_per_prompt: int = 2,
