@@ -36,11 +36,11 @@ python run_single_experiment.py \
     --strategy direct \
     --model_name "Qwen/Qwen2.5-VL-72B-Instruct" \
     --temperature 0.5 \
-    --max_tokens 32768 \
-    --max_output_tokens 16384 \
+    --max_tokens 16000 \
+    --max_output_tokens 8123 \
     --limit_mm_per_prompt 2 \
     --debug \
-    --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128 --max-model-len 16384
+    --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128 --max-model-len 8123
 
 # Clean up temporary directories
 rm -rf ${JOB_HF_HOME}
