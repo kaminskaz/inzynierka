@@ -8,7 +8,8 @@ from code.technical.content import ImageContent, TextContent
 
 async def main():
     print("Preparing VLLM", flush=True)
-    vllm = VLLM(model_name="Qwen/Qwen2.5-VL-7B-Instruct")
+    vllm = VLLM(model_name="Qwen/Qwen2.5-VL-7B-Instruct",
+                custom_args=("--tensor-parallel-size", "4"))
 
     text_content = TextContent("What is the capital of Norway?")
     response1 = await vllm.ask([text_content])

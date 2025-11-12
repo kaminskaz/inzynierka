@@ -11,6 +11,7 @@ async def main():
     vllm = VLLM(
         model_name="Qwen/Qwen2.5-VL-72B-Instruct",
         custom_args=(
+            "--tensor-parallel-size", "4",
             "--gpu-memory-utilization", "0.95",
             "--max-num-seqs", "128",
             "--max-model-len", "16384",
