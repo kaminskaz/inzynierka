@@ -125,6 +125,52 @@ def make_dir_for_results(dataset_name: str, strategy_name: str, model_name: str)
 
     return new_dir_path
 
+def run_single_experiment_on_model(dataset_name: str,
+        strategy_name: str, 
+        model: VLLM)-> None:
+    logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model.get_model_name()}'")
+    try:
+        results_dir = make_dir_for_results(dataset_name, strategy_name, model.get_model_name())
+
+        strategy_factory = StrategyFactory()
+        
+        strategy = strategy_factory.create_strategy(
+            dataset_name=dataset_name,
+            strategy_name=strategy_name,
+            model_object=model,
+            results_dir=results_dir
+        )
+        
+        logger.info("Strategy created successfully. Running experiment...")
+        asyncio.run(strategy.run())
+        logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
+
+        model.stop()
+
+    except ImportError as e:
+        logger.error(f"Failed to create strategy. Does '{strategy_name}' exist and is it importable? Error: {e}", exc_info=True)
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
+        sys.exit(1)
+
+def run_strategy_tests(model_name: str, 
+        temperature: float, 
+        max_tokens: int, 
+        max_output_tokens: int, 
+        limit_mm_per_prompt: int,
+        custom_args: list = []):
+    
+    model = initialize_model(model_name=model_name, temperature=temperature, max_tokens=max_tokens, max_output_tokens=max_output_tokens,
+                             limit_mm_per_prompt=limit_mm_per_prompt, custom_args=custom_args)
+    datasets = ['bp','cvr','raven','marsvqa']
+    strategies = ['direct','descriptive','contrastive','classification']
+
+    for d in datasets:
+        for s in strategies:
+            run_single_experiment_on_model(dataset_name=d, strategy_name=s, model=model)
+
+
 def run_single_experiment(
         dataset_name: str,
         strategy_name: str, 
@@ -173,6 +219,25 @@ def run_single_experiment(
         logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
         sys.exit(1)
 
+def initialize_model(model_name: str, 
+        temperature: float, 
+        max_tokens: int, 
+        max_output_tokens: int, 
+        limit_mm_per_prompt: int,
+        custom_args: list = []) -> None:
+    
+    model = _load_model(
+            model_name=model_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            max_output_tokens=max_output_tokens,
+            limit_mm_per_prompt=limit_mm_per_prompt,
+            custom_args=custom_args
+        )
+    
+    return model
+    
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run a single experiment')
     parser.add_argument('--dataset_name', type=str, required=True, help='Name of the dataset to use (same as in dataset_config.json)')
@@ -199,13 +264,20 @@ if __name__ == "__main__":
         logger.error("Please run the data preprocessing pipeline first.")
         sys.exit(1)
 
-    run_single_experiment(
-        dataset_name=args.dataset_name,
-        strategy_name=args.strategy,
-        model_name=args.model_name,
+    # run_single_experiment(
+    #     dataset_name=args.dataset_name,
+    #     strategy_name=args.strategy,
+    #     model_name=args.model_name,
+    #     temperature=args.temperature,
+    #     max_tokens=args.max_tokens,
+    #     max_output_tokens=args.max_output_tokens,
+    #     limit_mm_per_prompt=args.limit_mm_per_prompt,
+    #     custom_args=args.custom_args
+    # )
+
+    run_strategy_tests(model_name=args.model_name,
         temperature=args.temperature,
         max_tokens=args.max_tokens,
         max_output_tokens=args.max_output_tokens,
         limit_mm_per_prompt=args.limit_mm_per_prompt,
-        custom_args=args.custom_args
-    )
+        custom_args=args.custom_args)
