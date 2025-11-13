@@ -1,6 +1,7 @@
 from traitlets import List
 import os
 from typing import Optional, Dict, Any
+import asyncio
 
 from code.strategies.strategybase import StrategyBase
 from code.technical.content import ImageContent, TextContent
@@ -28,7 +29,7 @@ class ContrastiveStrategy(StrategyBase):
         self.descriptions_prompt = self.get_prompt("describe_main")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
-    async def run_single_problem(
+    def run_single_problem(
         self, problem_id: str, descriptions_prompt: str, main_prompt: str
     ) -> list[Optional[ResponseSchema], Dict[str, str]]:
 
@@ -50,10 +51,10 @@ class ContrastiveStrategy(StrategyBase):
                         ImageContent(choice_image_input_1),
                         ImageContent(choice_image_input_2),
                     ]
-                    description_response = await self.model.ask_structured(
+                    description_response = asyncio.run(self.model.ask_structured(
                         contents_to_send_descriptions,
                         schema=BPDescriptionResponseSchemaContrastive,
-                    )
+                    ))
 
                     if description_response and description_response.description:
                         key = f"{i}"
@@ -70,9 +71,9 @@ class ContrastiveStrategy(StrategyBase):
                         TextContent(descriptions_prompt),
                         ImageContent(choice_image_input),
                     ]
-                    description_response = await self.model.ask_structured(
+                    description_response = asyncio.run(self.model.ask_structured(
                         contents_to_send_descriptions, schema=DescriptionResponseSchema
-                    )
+                    ))
 
                     if description_response and description_response.description:
                         problem_descriptions_dict[letter_index] = (
@@ -101,9 +102,9 @@ class ContrastiveStrategy(StrategyBase):
                 ImageContent(question_image_input),
             ]
 
-            description_response = await self.model.ask_structured(
+            description_response = asyncio.run(self.model.ask_structured(
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
-            )
+            ))
 
             if description_response and description_response.description:
                 problem_descriptions_dict["question_panel"] = (
@@ -127,13 +128,13 @@ class ContrastiveStrategy(StrategyBase):
                     ImageContent(choice_panel_input),
                 ]
 
-        response = await self.model.ask_structured(
+        response = asyncio.run(self.model.ask_structured(
             contents_to_send, schema=ResponseSchema
-        )
+        ))
 
         return response, problem_descriptions_dict
 
-    async def _execute_problem(
+    def _execute_problem(
         self, problem_id: str
     ) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
         """
@@ -141,7 +142,7 @@ class ContrastiveStrategy(StrategyBase):
         """
         image_path = self.get_choice_panel(problem_id)
 
-        response, problem_descriptions = await self.run_single_problem(
+        response, problem_descriptions = self.run_single_problem(
             problem_id, self.descriptions_prompt, self.main_prompt
         )
 
