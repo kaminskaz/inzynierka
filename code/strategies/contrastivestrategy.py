@@ -9,6 +9,7 @@ from code.technical.response_schema import (
     DescriptionResponseSchema,
     ResponseSchema,
     BPDescriptionResponseSchemaContrastive,
+    BPResponseSchema
 )
 from code.models.vllm import VLLM
 from code.preprocessing.processorconfig import ProcessorConfig
@@ -40,6 +41,7 @@ class ContrastiveStrategy(StrategyBase):
 
             for i in range(self.config.num_choices):
                 if self.config.category == "BP":
+                    response_schema = BPResponseSchema
                     if i >= self.config.num_choices // 2:
                         break
                     choice_image_input_1 = self.get_choice_image(problem_id, image_index=i)
@@ -95,6 +97,7 @@ class ContrastiveStrategy(StrategyBase):
             contents_to_send = [TextContent(prompt)]
 
         else:  # 'standard' category
+            response_schema = ResponseSchema
             question_image_input = self.get_question_image(problem_id)
 
             contents_to_send_descriptions = [
@@ -128,8 +131,9 @@ class ContrastiveStrategy(StrategyBase):
                     ImageContent(choice_panel_input),
                 ]
 
+
         response = asyncio.run(self.model.ask_structured(
-            contents_to_send, schema=ResponseSchema
+            contents_to_send, schema=response_schema
         ))
 
         return response, problem_descriptions_dict
@@ -146,7 +150,6 @@ class ContrastiveStrategy(StrategyBase):
             problem_id, self.descriptions_prompt, self.main_prompt
         )
 
-        # handle potential None from get_choice_panel (e.g., for 'BP' category)
         if image_path:
             image_name = os.path.basename(image_path)
         else:

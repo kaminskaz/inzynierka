@@ -4,7 +4,7 @@ import asyncio
 
 from code.strategies.strategybase import StrategyBase
 from code.technical.content import ImageContent, TextContent
-from code.technical.response_schema import ResponseSchema
+from code.technical.response_schema import ResponseSchema, BPResponseSchema
 
 
 class ClassificationStrategy(StrategyBase):
@@ -12,17 +12,19 @@ class ClassificationStrategy(StrategyBase):
 
         contents_to_send = [TextContent(prompt), ImageContent(image_path)]
 
+        if self.config.category == "BP":
+            response_schema = BPResponseSchema
+        else:
+            response_schema = ResponseSchema
+
         response = asyncio.run(self.model.ask_structured(
-            contents=contents_to_send, schema=ResponseSchema
+            contents=contents_to_send, schema=response_schema
         ))
         return response
 
     def _execute_problem(
         self, problem_id: str
     ) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
-        """
-        Executes the logic for a single classification problem.
-        """
         image_path = self.get_classification_panel(problem_id)
 
         # Use self.main_prompt from the base class
