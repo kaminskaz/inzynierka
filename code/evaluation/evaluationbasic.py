@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class EvaluationBasic(EvaluationBase):
 
     def evaluate_single_answer(self, answer: str, key: str) -> float:
-        score = 1.0 if answer == key else 0.0
+        score = "Right" if answer == key else "Wrong"
         return score
 
     def evaluate(self, answers_path, key_path, output_dir):

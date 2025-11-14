@@ -13,24 +13,39 @@ class EvaluationWithJudge(EvaluationBase):
 
     def evaluate_single_answer(
         self,
+        prompt: str,
         answer: str,
         key: str,
         model: LLMJudge,
         response_schema: SimilarityResponseSchema,
     ) -> float:
-        return model.evaluate_similarity(answer, key, response_schema)
+        return model.evaluate_similarity(
+            prompt=prompt, 
+            answer=answer, 
+            key=key, 
+            response_schema=response_schema
+        )
 
-    def evaluate(self, answers_path, key_path, output_dir):
+    def evaluate(
+            self, 
+            prompt: str,
+            answers_path: str, 
+            key_path: str, 
+            output_dir: str
+        ):
+
         answers_df = pd.read_csv(answers_path)
         output_df = answers_df.copy()
-        output_df["score"] = 0.0
+        output_df["score"] = ""
 
         with open(key_path, "r") as f:
             key_dict = json.load(f)
 
         for index, row in answers_df.iterrows():
-            answer = row["answer"]
+            left_rule_answer = row["left_side_rule"]
+            right_rule_answer = row["right_side_rule"]
             id_ = str(row["id"])
+            answer = f"Left side rule: {left_rule_answer}\nRight side rule: {right_rule_answer}"
 
             if id_ not in key_dict:
                 logger.info(f"ID {id_} not found in key file.")
@@ -40,6 +55,7 @@ class EvaluationWithJudge(EvaluationBase):
             key = f"Left side rule: {left_rule}\nRight side rule: {right_rule}"
 
             score = self.evaluate_single_answer(
+                prompt=prompt,
                 answer=answer,
                 key=key,
                 judge=LLMJudge(),
