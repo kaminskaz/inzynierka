@@ -32,5 +32,5 @@ class BPDescriptionResponseSchemaContrastive(BaseModel):
 class SimilarityResponseSchema(BaseModel):
     similarity_score: float = Field(
         ...,
-        description="A similarity score between 0.0 and 1.0 indicating how similar the two inputs are.",
+        description="A similarity score indicating how similar the two inputs are.",
     )
