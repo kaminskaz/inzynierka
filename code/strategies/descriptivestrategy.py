@@ -104,12 +104,7 @@ class DescriptiveStrategy(StrategyBase):
             problem_id, self.descriptions_prompt, self.main_prompt
         )
 
-        if image_path:
-            image_name = os.path.basename(image_path)
-        else:
-            image_name = "placeholder_name"
-
-        return response, image_name, problem_descriptions
+        return response, problem_id, problem_descriptions
 
     def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
         """

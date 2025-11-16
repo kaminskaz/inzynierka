@@ -19,6 +19,9 @@ class EnsembleBase(ABC):
         self.config = Dict[str, Any]()
         self.run_missing = run_missing
         self.members_configuration = members_configuration
+        self.answers = pd.DataFrame()
+        self.dataset_config = get_dataset_config(dataset)
+        self.seed = 42
 
         self._build_ensemble()
 
@@ -29,32 +32,46 @@ class EnsembleBase(ABC):
             return ""
         return base_dir
 
-    def load_data_from_results_path(self, dataset: str, strategy: str, model: str, version: str = '1') -> pd.DataFrame:
+    def load_data_from_results_path(
+        self, 
+        dataset: str, 
+        strategy: str, 
+        model: str, 
+        version: str = "1"
+    ) -> tuple[pd.DataFrame, dict]:
+        
         results_dir = self.get_results_dir(dataset, strategy, model, version)
         path_to_csv = os.path.join(results_dir, "results.csv")
         path_to_metadata = os.path.join(results_dir, "metadata.json")
-        if not os.path.exists(path_to_csv):
-            self.logger.error(f"Results file {path_to_csv} does not exist.")
-            return pd.DataFrame()
-        if not os.path.exists(path_to_metadata):
-            self.logger.error(f"Metadata file {path_to_metadata} does not exist.")
-            return Dict[str, Any]()
+
         try:
-            results_df = pd.read_csv(path_to_csv)
-            with open(path_to_metadata, "r", encoding="utf-8") as f:
-                metadata = json.load(f)
-            self.logger.info(f"Loaded results from {path_to_csv} with {len(results_df)} entries.")
-            self.logger.info(f"Loaded metadata from {path_to_metadata}.")
-            return results_df, metadata
-        
+                results_df = pd.read_csv(path_to_csv)
+
+                with open(path_to_metadata, "r", encoding="utf-8") as f:
+                    metadata = json.load(f)
+
+                self.logger.info(
+                    f"Loaded results from {path_to_csv} with {len(results_df)} entries."
+                )
+                self.logger.info(f"Loaded metadata from {path_to_metadata}.")
+                return results_df, metadata
+
+        except FileNotFoundError as e:
+            self.logger.error(f"Missing file in {results_dir}: {e}")
         except Exception as e:
-            self.logger.error(f"Error loading results from {results_dir}: {e}")
-            return pd.DataFrame()
+            self.logger.error(f"Error loading results or metadata from {results_dir}: {e}")
+
+        return pd.DataFrame(), {}
 
     def _build_ensemble(self) -> pd.DataFrame:
         for idx, mem in enumerate(self.members_configuration):
             strategy, model, version = mem
             df, meta = self.load_data_from_results_path(self.dataset, strategy, model, version)
+
+            if meta is None:
+                self.logger.warning(f"No metadata found for member {idx} with strategy {strategy}, model {model}.")
+                meta = {}
+
             if df.empty:
                 self.logger.warning(f"No data loaded for member {idx} with strategy {strategy}, model {model}.")
                 if self.run_missing:
@@ -64,6 +81,13 @@ class EnsembleBase(ABC):
             
             self.config[f"member_{idx}"] = meta
 
+            df = df.copy()
+            df["member_idx"] = idx
+            ensemble_df = pd.concat([ensemble_df, df], ignore_index=True)
+
+        self.answers = ensemble_df
+        return ensemble_df
+
     @abstractmethod
     def evaluate_single_problem(self):
         pass
@@ -71,5 +95,7 @@ class EnsembleBase(ABC):
     @abstractmethod
     def evaluate(self):
         pass
+        
+
             
         

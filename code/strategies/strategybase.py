@@ -84,31 +84,29 @@ class StrategyBase(ABC):
         all_descriptions_data = {}
 
         for problem_entry in os.scandir(self.dataset_dir):
-            image_name_for_log = problem_entry.name
+            problem_id = problem_entry.name
             try:
                 if not problem_entry.is_dir():
                     continue
                 problem_id = problem_entry.name
 
-                response, image_name, problem_descriptions = (
+                response, problem_id, problem_descriptions = (
                     await self._execute_problem(problem_id)
                 )
-
-                image_name_for_log = image_name
 
                 if problem_descriptions:
                     all_descriptions_data[problem_id] = problem_descriptions
 
                 if response:
                     result = {
-                        "image": image_name,
+                        "problem_id": problem_id,
                         "answer": response.answer,
                         "confidence": response.confidence,
                         "rationale": response.rationale,
                     }
                 else:
                     result = {
-                        "image": image_name,
+                        "problem_id": problem_id,
                         "answer": "",
                         "confidence": "",
                         "rationale": "",
@@ -116,7 +114,7 @@ class StrategyBase(ABC):
                 results.append(result)
 
             except Exception as e:
-                self.logger.error(f"Error processing {image_name_for_log}: {e}")
+                self.logger.error(f"Error processing {problem_id}: {e}")
 
         self.save_raw_answers_to_csv(results)
 

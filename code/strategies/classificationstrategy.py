@@ -30,11 +30,5 @@ class ClassificationStrategy(StrategyBase):
         # Use self.main_prompt from the base class
         response = self.run_single_problem(image_path, self.main_prompt)
 
-        image_name = (
-            os.path.basename(image_path)
-            if image_path
-            else f"{problem_id}_classification_panel.png"
-        )
-
         # Return response, image name, and None for descriptions
-        return response, image_name, None
+        return response, problem_id, None
