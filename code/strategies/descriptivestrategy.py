@@ -5,7 +5,7 @@ import asyncio
 
 from code.technical.content import ImageContent, TextContent
 from code.strategies.strategybase import StrategyBase
-from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema
+from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema, BPResponseSchema
 from code.models.vllm import VLLM
 from code.preprocessing.processorconfig import ProcessorConfig
 
@@ -80,8 +80,14 @@ class DescriptiveStrategy(StrategyBase):
             else:
                 contents_to_send = [TextContent(prompt), ImageContent(image_input)]
 
+        if self.config.category == 'BP':
+            response_schema = BPResponseSchema
+        
+        else:
+            response_schema = ResponseSchema
+            
         response = asyncio.run(self.model.ask_structured(
-            contents_to_send, schema=ResponseSchema
+            contents_to_send, schema=response_schema
         ))
 
         return response, problem_descriptions_dict
@@ -98,12 +104,7 @@ class DescriptiveStrategy(StrategyBase):
             problem_id, self.descriptions_prompt, self.main_prompt
         )
 
-        if image_path:
-            image_name = os.path.basename(image_path)
-        else:
-            image_name = "placeholder_name"
-
-        return response, image_name, problem_descriptions
+        return response, problem_id, problem_descriptions
 
     def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
         """

@@ -84,31 +84,29 @@ class StrategyBase(ABC):
         all_descriptions_data = {}
 
         for problem_entry in os.scandir(self.dataset_dir):
-            image_name_for_log = problem_entry.name
+            problem_id = problem_entry.name
             try:
                 if not problem_entry.is_dir():
                     continue
                 problem_id = problem_entry.name
 
-                response, image_name, problem_descriptions = (
+                response, problem_id, problem_descriptions = (
                     await self._execute_problem(problem_id)
                 )
-
-                image_name_for_log = image_name
 
                 if problem_descriptions:
                     all_descriptions_data[problem_id] = problem_descriptions
 
                 if response:
                     result = {
-                        "image": image_name,
+                        "problem_id": problem_id,
                         "answer": response.answer,
                         "confidence": response.confidence,
                         "rationale": response.rationale,
                     }
                 else:
                     result = {
-                        "image": image_name,
+                        "problem_id": problem_id,
                         "answer": "",
                         "confidence": "",
                         "rationale": "",
@@ -116,7 +114,7 @@ class StrategyBase(ABC):
                 results.append(result)
 
             except Exception as e:
-                self.logger.error(f"Error processing {image_name_for_log}: {e}")
+                self.logger.error(f"Error processing {problem_id}: {e}")
 
         self.save_raw_answers_to_csv(results)
 
@@ -175,17 +173,20 @@ class StrategyBase(ABC):
         describe_prompt: Optional[str] = None,
     ) -> None:
         """Save dataset, strategy, model, and config info into a metadata file."""
+
+        metadata = {
+            "dataset": self.dataset_name,
+            "strategy": self.strategy_name,
+            "model": self.model.get_model_name(),
+            "config": self.config,
+            "problem_description_prompt": problem_description_prompt,
+            "question_prompt": question_prompt,
+            "describe_prompt": describe_prompt,
+        }
         try:
-            metadata_path = os.path.join(self.results_dir, "metadata.txt")
+            metadata_path = os.path.join(self.results_dir, "metadata.json")
             with open(metadata_path, "w", encoding="utf-8") as f:
-                f.write(f"Dataset: {self.dataset_name}\n")
-                f.write(f"Strategy: {self.strategy_name}\n")
-                f.write(f"Model: {self.model.get_model_name}\n")
-                f.write(f"Config: {self.config}\n")
-                f.write(f"Problem description prompt: {problem_description_prompt}\n")
-                f.write(f"Question prompt: {question_prompt}\n")
-                if describe_prompt:
-                    f.write(f"Describe prompt: {describe_prompt}\n")
+                json.dump(metadata, f, ensure_ascii=False, indent=4)
             self.logger.info(f"Saved metadata to {metadata_path}")
 
         except Exception as e:

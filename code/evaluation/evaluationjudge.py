@@ -59,7 +59,7 @@ class EvaluationWithJudge(EvaluationBase):
                 answer=answer,
                 key=key,
                 judge=LLMJudge(),
-                schema=SimilarityResponseSchema(),
+                schema=SimilarityResponseSchema,
             )
 
             output_df.at[index, "score"] = score

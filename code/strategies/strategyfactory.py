@@ -10,7 +10,7 @@ from code.strategies.contrastivestrategy import ContrastiveStrategy
 from code.strategies.directstrategy import DirectStrategy
 from code.strategies.descriptivestrategy import DescriptiveStrategy
 from code.preprocessing.processorconfig import ProcessorConfig
-
+from code.technical.utils import load_all_dataset_configs, get_dataset_config
 
 class StrategyFactory:
     """
@@ -22,8 +22,6 @@ class StrategyFactory:
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config_path = Path(config_path)
-
-        self.dataset_configs_raw: Dict[str, Any] = self._load_all_dataset_configs()
 
         # Map strategy names (as used in the command line) to their classes
         self.strategy_map: Dict[str, type[StrategyBase]] = {
@@ -37,31 +35,6 @@ class StrategyFactory:
             f"StrategyFactory initialized. {len(self.strategy_map)} strategies available."
         )
 
-    def _load_all_dataset_configs(self) -> Dict[str, Any]:
-        """Loads the main dataset_config.json file."""
-        try:
-            with open(self.config_path, "r") as f:
-                return json.load(f)
-        except Exception as e:
-            self.logger.error(
-                f"Failed to load dataset config file at {self.config_path}: {e}"
-            )
-            raise
-
-    def _get_dataset_config(self, dataset_name: str) -> Optional[ProcessorConfig]:
-        """Gets the ProcessorConfig for a specific dataset."""
-        raw_config = self.dataset_configs_raw.get(dataset_name)
-        if not raw_config:
-            self.logger.error(
-                f"No config found for dataset: '{dataset_name}' in {self.config_path}"
-            )
-            return None
-
-        try:
-            return ProcessorConfig.from_dict(raw_config)
-        except Exception as e:
-            self.logger.error(f"Error creating ProcessorConfig for {dataset_name}: {e}")
-            return None
 
     def create_strategy(
         self, dataset_name: str, strategy_name: str, model_object: Any, results_dir: str
@@ -89,7 +62,7 @@ class StrategyFactory:
             raise ValueError(f"Unknown strategy: '{strategy_name}'")
 
         # get the Dataset Config
-        dataset_config = self._get_dataset_config(dataset_name)
+        dataset_config = get_dataset_config(dataset_name, self.config_path)
         if not dataset_config:
             raise ValueError(f"Failed to load config for dataset: '{dataset_name}'")
 
