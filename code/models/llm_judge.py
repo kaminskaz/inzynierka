@@ -42,11 +42,15 @@ class LLMJudge(VLLM):
         )
 
     async def evaluate_similarity(
-        self, answer: str, key: str, response_schema: Optional[Type[BaseModel]]
+        self, 
+        prompt: str, 
+        answer: str, 
+        key: str, 
+        response_schema: Optional[Type[BaseModel]]
     ) -> float:
         try:
             prompt = (
-                f"On a scale from 0 to 1, how similar is the following answer to the key answer?\n"
+                f"{prompt}\n"
                 f"Answer: {answer}\n"
                 f"Key Answer: {key}\n"
             )
