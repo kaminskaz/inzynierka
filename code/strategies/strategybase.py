@@ -38,7 +38,7 @@ class StrategyBase(ABC):
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
 
     @abstractmethod
-    async def run_single_problem(self, *args, **kwargs) -> Any:
+    def run_single_problem(self, *args, **kwargs) -> Any:
         """
         This method's signature will vary by strategy, so it remains abstract
         but will be called by the subclass's _execute_problem, not by the base run().
@@ -46,7 +46,7 @@ class StrategyBase(ABC):
         pass
 
     @abstractmethod
-    async def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:  # type: ignore
+    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:  # type: ignore
         """
         The core logic for processing a single problem.
 
@@ -75,7 +75,7 @@ class StrategyBase(ABC):
             "describe_prompt": None,
         }
 
-    async def run(self) -> None:
+    def run(self) -> None:
         """
         Main execution loop (Template Method).
         Common to all strategies.
@@ -91,7 +91,7 @@ class StrategyBase(ABC):
                 problem_id = problem_entry.name
 
                 response, problem_id, problem_descriptions = (
-                    await self._execute_problem(problem_id)
+                    self._execute_problem(problem_id)
                 )
 
                 if problem_descriptions:

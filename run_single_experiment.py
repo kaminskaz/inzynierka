@@ -142,7 +142,7 @@ def run_single_experiment_on_model(dataset_name: str,
         )
         
         logger.info("Strategy created successfully. Running experiment...")
-        asyncio.run(strategy.run())
+        strategy.run()
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
     except ImportError as e:
@@ -207,7 +207,7 @@ def run_single_experiment(
         )
         
         logger.info("Strategy created successfully. Running experiment...")
-        asyncio.run(strategy.run())
+        strategy.run()
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
         model.stop()
