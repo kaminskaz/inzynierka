@@ -18,7 +18,7 @@ class StrategyFactory:
     """
 
     def __init__(
-        self, config_path: str = "code/preprocessing/dataset_config_test.json"
+        self, config_path: str = "code/preprocessing/dataset_config.json"
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config_path = Path(config_path)

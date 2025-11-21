@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -A jrafalko-lab
-#SBATCH --job-name=vllm_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
+#SBATCH -A kazmierczak-group
+#SBATCH --job-name=strat_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
 #SBATCH --time=01:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=1 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
@@ -34,13 +34,13 @@ cd /mnt/evafs/groups/jrafalko-lab/inzynierka/
 python run_single_experiment.py \
     --dataset_name bp \
     --strategy direct \
-    --model_name "Qwen/Qwen2.5-VL-72B-Instruct" \
+    --model_name "Qwen/Qwen2.5-VL-7B-Instruct" \
     --temperature 0.5 \
     --max_tokens 4096 \
     --max_output_tokens 2048 \
     --limit_mm_per_prompt 2 \
     --debug \
-    --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128 --max-model-len 8123
+    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9 --max-num-seqs 128 --max-model-len 8123
 
 # Clean up temporary directories
 rm -rf ${JOB_HF_HOME}
