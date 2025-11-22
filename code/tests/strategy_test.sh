@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A kazmierczak-group
+#SBATCH -A jrafalko-lab
 #SBATCH --job-name=strat_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
 #SBATCH --time=01:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
