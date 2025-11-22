@@ -4,6 +4,7 @@ from typing import Any, List, Union, Optional, Dict
 import os
 import csv
 import json
+from dataclasses import asdict, is_dataclass
 
 from code.preprocessing.processorconfig import ProcessorConfig
 from code.models.vllm import VLLM
@@ -49,25 +50,12 @@ class StrategyBase(ABC):
     def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:  # type: ignore
         """
         The core logic for processing a single problem.
-
-        Args:
-            problem_id (str): The ID of the problem to process.
-
-        Calls:
-            run_single_problem(problem_id)
-
-        Returns:
-            A tuple containing:
-            - Optional[ResponseSchema]: The model's response.
-            - str: The name of the image file to save in the results.
-            - Optional[Dict[str, str]]: A dictionary of descriptions, if any.
         """
         pass
 
     def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
         """
         Returns a dictionary of prompts to be saved in the metadata file.
-        Subclasses can override this to add more prompts.
         """
         return {
             "question_prompt": self.question_prompt,
@@ -84,7 +72,6 @@ class StrategyBase(ABC):
         all_descriptions_data = {}
 
         for problem_entry in os.scandir(self.dataset_dir):
-            problem_id = problem_entry.name
             try:
                 if not problem_entry.is_dir():
                     continue
@@ -98,11 +85,23 @@ class StrategyBase(ABC):
                     all_descriptions_data[problem_id] = problem_descriptions
 
                 if response:
+                    # SAFE ACCESS: BPResponseSchema does not have an 'answer' field.
+                    answer = getattr(response, "answer", "")
+                    confidence = getattr(response, "confidence", "")
+                    rationale = getattr(response, "rationale", "")
+
+                    # If BP, capture the rules in the rationale
+                    left_rule = getattr(response, "left_side_rule", None)
+                    right_rule = getattr(response, "right_side_rule", None)
+                    
+                    if left_rule and right_rule:
+                        answer = f"{left_rule} vs. {right_rule}"
+
                     result = {
                         "problem_id": problem_id,
-                        "answer": response.answer,
-                        "confidence": response.confidence,
-                        "rationale": response.rationale,
+                        "answer": answer,
+                        "confidence": confidence,
+                        "rationale": rationale,
                     }
                 else:
                     result = {
@@ -114,7 +113,7 @@ class StrategyBase(ABC):
                 results.append(result)
 
             except Exception as e:
-                self.logger.error(f"Error processing {problem_id}: {e}")
+                self.logger.error(f"Error processing {problem_entry.name}: {e}")
 
         self.save_raw_answers_to_csv(results)
 
@@ -124,7 +123,7 @@ class StrategyBase(ABC):
             problem_description_prompt=metadata_prompts["problem_description_prompt"],
             describe_prompt=metadata_prompts.get(
                 "describe_prompt"
-            ),  # used .get() for safety
+            ),
         )
 
         if all_descriptions_data and self.descriptions_path:
@@ -134,13 +133,12 @@ class StrategyBase(ABC):
 
         self.logger.info(
             f"{self.strategy_name} run completed for dataset: {self.dataset_name} "
-            f"using model: {self.model.get_model_name()}"  # Corrected to use get_model_name()
+            f"using model: {self.model.get_model_name()}"
         )
 
     def get_prompt(self, prompt_type: str) -> str:
         try:
             current_dir = os.path.dirname(os.path.abspath(__file__))
-
             repo_root = os.path.dirname(os.path.dirname(current_dir))
 
             if prompt_type == "problem_description_main":
@@ -155,6 +153,10 @@ class StrategyBase(ABC):
                     self.strategy_name,
                     f"{prompt_type}.txt",
                 )
+            
+            if not os.path.exists(prompt_path):
+                self.logger.warning(f"Prompt file not found: {prompt_path}")
+                return ""
 
             with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt = f.read()
@@ -174,11 +176,21 @@ class StrategyBase(ABC):
     ) -> None:
         """Save dataset, strategy, model, and config info into a metadata file."""
 
+        # FIX: CLEAN SERIALIZATION FOR DATACLASS
+        if is_dataclass(self.config):
+            config_data = asdict(self.config)
+        else:
+            # Fallback for non-dataclass objects
+            try:
+                config_data = vars(self.config)
+            except Exception:
+                config_data = str(self.config)
+
         metadata = {
             "dataset": self.dataset_name,
             "strategy": self.strategy_name,
             "model": self.model.get_model_name(),
-            "config": self.config,
+            "config": config_data,
             "problem_description_prompt": problem_description_prompt,
             "question_prompt": question_prompt,
             "describe_prompt": describe_prompt,
@@ -214,37 +226,30 @@ class StrategyBase(ABC):
     # FUNCTIONS FOR GETTING IMAGES AND PANELS
 
     def get_choice_panel(self, problem_id: str) -> Optional[str]:
-        # applicable only to "standard" datasets
         if hasattr(self.config, "category") and self.config.category != "standard":
             self.logger.warning(
                 f"get_choice_panel called for non-standard dataset "
                 f"(category: '{self.config.category}'). Returning None."
             )
             return None
-
         image_path = f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/choice_panel.png"
         return image_path
 
     def get_choice_image(self, problem_id: str, image_index: Union[str, int]) -> str:
-        # image index is either string A-D, A-H or integer 0-11 (for BPs)
-        # applicable to all datasets
         if not self.verify_choice_index(image_index):
             return ""
-
         image_path = (
             f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/choices/{image_index}.png"
         )
         return image_path
 
     def get_question_panel(self, problem_id: str) -> str:
-        # applicable to all datasets
         image_path = (
             f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/question_panel.png"
         )
         return image_path
 
     def get_question_image(self, problem_id: str) -> str:
-        # applicable only to "standard" datasets
         if (
             hasattr(self, "config")
             and hasattr(self.config, "category")
@@ -255,29 +260,24 @@ class StrategyBase(ABC):
                 f"(category: '{self.config.category}'). Returning None."
             )
             return ""
-
         image_path = f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/question.png"
         return image_path
 
     def get_blackout_image(self, problem_id: str, image_index: Union[str, int]) -> str:
-        # applicable only to "choice_only" datasets
         if hasattr(self.config, "category") and self.config.category != "choice_only":
             self.logger.warning(
                 f"get_blackout_image called for non-choice_only dataset "
                 f"(category: '{self.config.category}'). Returning None."
             )
             return ""
-
         if not self.verify_choice_index(image_index):
             return ""
-
         image_path = (
             f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/blackout/{image_index}.png"
         )
         return image_path
 
     def get_classification_panel(self, problem_id: str) -> str:
-        # applicable to all datasets
         image_path = (
             f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/classification_panel.png"
         )
@@ -286,15 +286,12 @@ class StrategyBase(ABC):
     def get_list_of_choice_images(
         self, problem_id: str, image_indices: List[Union[str, int]]
     ) -> List[str]:
-        # applicable to all datasets, used for BPs
-        # verify if all indices are the same format
         if not all(isinstance(index, (str, int)) for index in image_indices):
             self.logger.error(
                 f"Image indices list contained mixed types: {image_indices}. "
                 f"All indices must be str or int. Returning empty list."
             )
             return []
-
         images = []
         for index in image_indices:
             images.append(self.get_choice_image(problem_id, index))
@@ -306,7 +303,6 @@ class StrategyBase(ABC):
                 "Config object has no 'category' attribute. Cannot verify index."
             )
             return False
-
         try:
             if (
                 self.config.category == "standard"
@@ -315,67 +311,31 @@ class StrategyBase(ABC):
                 valid_indices = [
                     chr(i) for i in range(ord("A"), ord("A") + self.config.num_choices)
                 ]
-                # Check type consistency
                 if not isinstance(image_index, str):
-                    self.logger.warning(
-                        f"Index '{image_index}' is not a string, but category is '{self.config.category}'."
-                    )
                     return False
             elif self.config.category == "BP":
                 valid_indices = [i for i in range(self.config.num_choices)]
-                # Check type consistency
                 if not isinstance(image_index, int):
-                    self.logger.warning(
-                        f"Index '{image_index}' is not an int, but category is 'BP'."
-                    )
                     return False
             else:
-                self.logger.error(f"Unknown dataset category '{self.config.category}'.")
                 return False
 
             if image_index not in valid_indices:
-                self.logger.warning(
-                    f"image_index '{image_index}' is not in the list of valid indices "
-                    f"for dataset category '{self.config.category}'. Valid: {valid_indices}"
-                )
                 return False
-
         except AttributeError as e:
             self.logger.exception(f"Config is missing an attribute: {e}")
             return False
-
         return True
 
     def save_descriptions_to_json(
         self, descriptions_path: str, all_descriptions_data: dict
     ):
-        """
-        Saves the collected descriptions dictionary to a JSON file.
-
-        Args:
-            descriptions_path (str): The full file path to save the JSON to.
-            all_descriptions_data (dict): The dictionary containing problem IDs
-                                          and their corresponding descriptions.
-        """
         try:
-            # Ensure the directory exists
             directory = os.path.dirname(descriptions_path)
             if directory:
                 os.makedirs(directory, exist_ok=True)
-
-            # Write the data to the JSON file
             with open(descriptions_path, "w", encoding="utf-8") as f:
                 json.dump(all_descriptions_data, f, indent=4)
-
             self.logger.info(f"Saved descriptions to {descriptions_path}")
-
-        except (IOError, OSError) as e:
-            self.logger.error(
-                f"Failed to create directory or write to file {descriptions_path}: {e}"
-            )
-        except TypeError as e:
-            self.logger.error(f"Error serializing descriptions to JSON: {e}")
         except Exception as e:
-            self.logger.error(
-                f"An unexpected error occurred in save_descriptions_to_json: {e}"
-            )
+            self.logger.error(f"Error in save_descriptions_to_json: {e}")

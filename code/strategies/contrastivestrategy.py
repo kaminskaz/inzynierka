@@ -38,10 +38,15 @@ class ContrastiveStrategy(StrategyBase):
 
         if self.config.category == "BP" or self.config.category == "choice_only":
             descriptions = []
+            
+            # FIX: Define response_schema early to avoid UnboundLocalError
+            if self.config.category == "BP":
+                response_schema = BPResponseSchema
+            else:
+                response_schema = ResponseSchema
 
             for i in range(self.config.num_choices):
                 if self.config.category == "BP":
-                    response_schema = BPResponseSchema
                     if i >= self.config.num_choices // 2:
                         break
                     choice_image_input_1 = self.get_choice_image(problem_id, image_index=i)
@@ -58,14 +63,20 @@ class ContrastiveStrategy(StrategyBase):
                         schema=BPDescriptionResponseSchemaContrastive,
                     ))
 
-                    if description_response and description_response.description:
+                    # FIX: Handle Left/Right split in schema
+                    if description_response:
+                        desc_left = getattr(description_response, 'description_left', '')
+                        desc_right = getattr(description_response, 'description_right', '')
+                        combined_desc = f"Left: {desc_left} | Right: {desc_right}"
+                        
+                        # Patch the object so the list comprehension below works uniformly
+                        description_response.description = combined_desc
+                        
                         key = f"{i}"
-                        problem_descriptions_dict[key] = (
-                            description_response.description
-                        )
+                        problem_descriptions_dict[key] = combined_desc
 
                 else:  # 'choice_only'
-                    letter_index = chr(65 + i)  # Assuming choice_only uses letters
+                    letter_index = chr(65 + i)
                     choice_image_input = self.get_blackout_image(
                         problem_id, image_index=letter_index
                     )
@@ -77,23 +88,21 @@ class ContrastiveStrategy(StrategyBase):
                         contents_to_send_descriptions, schema=DescriptionResponseSchema
                     ))
 
-                    if description_response and description_response.description:
-                        problem_descriptions_dict[letter_index] = (
-                            description_response.description
-                        )
+                    desc_text = getattr(description_response, 'description', None)
+                    if description_response and desc_text:
+                        problem_descriptions_dict[letter_index] = desc_text
 
                 descriptions.append(description_response)
 
             all_descriptions_text = "\n\n".join(
                 [
-                    r.description
+                    getattr(r, 'description', '')
                     for r in descriptions
-                    if r is not None and r.description is not None
+                    if r is not None
                 ]
             )
 
             prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}"
-
             contents_to_send = [TextContent(prompt)]
 
         else:  # 'standard' category
@@ -109,11 +118,10 @@ class ContrastiveStrategy(StrategyBase):
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
             ))
 
-            if description_response and description_response.description:
-                problem_descriptions_dict["question_panel"] = (
-                    description_response.description
-                )
-                all_descriptions_text = description_response.description
+            desc_text = getattr(description_response, 'description', None)
+            if description_response and desc_text:
+                problem_descriptions_dict["question_panel"] = desc_text
+                all_descriptions_text = desc_text
             else:
                 all_descriptions_text = ""
 
@@ -130,7 +138,6 @@ class ContrastiveStrategy(StrategyBase):
                     TextContent(prompt),
                     ImageContent(choice_panel_input),
                 ]
-
 
         response = asyncio.run(self.model.ask_structured(
             contents_to_send, schema=response_schema
@@ -153,9 +160,6 @@ class ContrastiveStrategy(StrategyBase):
         return response, problem_id, problem_descriptions
 
     def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
-        """
-        Overrides the base method to add the 'describe_prompt'.
-        """
         prompts = super()._get_metadata_prompts()
         prompts["describe_prompt"] = self.descriptions_prompt
         return prompts
