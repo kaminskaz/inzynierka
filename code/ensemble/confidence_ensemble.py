@@ -2,10 +2,10 @@ import pandas as pd
 import random
 
 from code.ensemble.ensemble_base import EnsembleBase
-from code.technical.content import TextContent
 from code.technical.response_schema import GeneralEnsembleSchema
+from code.technical.content import TextContent
 
-class MajorityEnsemble(EnsembleBase):
+class ConfidenceEnsemble(EnsembleBase):
     def evaluate_single_problem(self, problem_id):
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()
 
@@ -15,8 +15,9 @@ class MajorityEnsemble(EnsembleBase):
 
         if self.dataset_config.category == "BP":
             answer_list = single_problem_df["answer"].tolist()
+            confidence_list = single_problem_df["confidence"].tolist()
 
-            final_answer = self.evaluate_majority_using_llm(answer_list)
+            final_answer = self.evaluate_confidence_using_llm(answer_list, confidence_list)
             return final_answer
         
         else:
@@ -24,32 +25,31 @@ class MajorityEnsemble(EnsembleBase):
                 self.logger.error(f"'answer' column missing for problem {problem_id}")
                 return None
             
-            counts = single_problem_df["answer"].value_counts()
-
-            max_count = counts.max()
-            tied_answers = counts[counts == max_count].index.tolist()
+            # calculate average confidence for each value
+            avg_confidence = single_problem_df.groupby("answer")["confidence"].mean()
+            max_avg_confidence = avg_confidence.max()
+            tied_answers = avg_confidence[avg_confidence == max_avg_confidence].index.tolist()
             most_popular_answer = random.choice(tied_answers)
             return most_popular_answer
         
-    def evaluate_majority_using_llm(self, answer_list):
+    def evaluate_confidence_using_llm(self, answer_list, confidence_list):
         problem_description = self.config.get("problem_description_prompt", "")
-        majority_prompt_path = "prompts/ensemble/ensemble_majority_main.txt"
-        with open(majority_prompt_path, "r", encoding="utf-8") as file:
-            majority_prompt = file.read()
-        
-        all_answers_str = "\n".join(f"- {ans}" for ans in answer_list)
+        confidence_prompt_path = "prompts/ensemble/ensemble_confidence_main.txt"
+        with open(confidence_prompt_path, "r", encoding="utf-8") as file:
+            confidence_prompt = file.read()
+   
+        all_answers_str = "\n".join(f"- {ans} (confidence: {conf})" for ans, conf in zip(answer_list, confidence_list))
 
         schema = GeneralEnsembleSchema
-        prompt_filled = majority_prompt.format(
+
+        prompt_filled = confidence_prompt.format(
             problem_description=problem_description,
             all_answers=all_answers_str
         )
+
         response = self.llm.ask_structured(
             [TextContent(prompt_filled)],
             response_schema=schema,
         )
 
         return response.final_answer
-
-
-        

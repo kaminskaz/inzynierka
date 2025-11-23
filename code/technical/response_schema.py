@@ -21,7 +21,6 @@ class DescriptionResponseSchema(BaseModel):
         ..., description="A detailed description of the provided image content."
     )
 
-
 class BPDescriptionResponseSchemaContrastive(BaseModel):
     description_left: str = Field(
         ..., description="A detailed description of the left provided image content."
@@ -55,4 +54,12 @@ class BongardEvaluationSchema(BaseModel):
     similarity_label: EvaluationLabel = Field(
         ...,
         description="The specific categorical label representing the similarity."
+    )
+
+class GeneralEnsembleSchema(BaseModel):
+    final_answer: str = Field(
+        ..., description="The final answer chosen by the ensemble method."
+    )
+    rationale: str = Field(
+        ..., description="The rationale behind the ensemble's final answer."
     )

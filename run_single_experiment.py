@@ -175,10 +175,10 @@ def run_single_experiment(
         dataset_name: str,
         strategy_name: str, 
         model_name: str, 
-        temperature: float, 
-        max_tokens: int, 
-        max_output_tokens: int, 
-        limit_mm_per_prompt: int,
+        temperature: float=0.5, 
+        max_tokens: int=2048, 
+        max_output_tokens: int=1024, 
+        limit_mm_per_prompt: int=2,
         custom_args: list = []
     ) -> None:
     """

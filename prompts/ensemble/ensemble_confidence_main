@@ -1,0 +1,6 @@
+main prompt for confidence
+Problem:
+{problem_description}
+
+Answers with confidence:
+{all_answers}

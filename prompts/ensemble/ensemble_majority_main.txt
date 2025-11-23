@@ -1,0 +1,6 @@
+main prompt for majority
+Problem:
+{problem_description}
+
+Answers:
+{all_answers}
