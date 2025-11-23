@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List
+from enum import Enum
+
 
 
 class ResponseSchema(BaseModel):
@@ -28,9 +30,29 @@ class BPDescriptionResponseSchemaContrastive(BaseModel):
         ..., description="A detailed description of the right provided image content."
     )
 
-
+# for now not in use
 class SimilarityResponseSchema(BaseModel):
-    similarity_score: float = Field(
+    similarity_label: str = Field(
         ...,
         description="A similarity score indicating how similar the two inputs are.",
+    )
+
+# strictly constrain the LLM's output choices
+class EvaluationLabel(str, Enum):
+    RIGHT = "Right"
+    SOMEWHAT_RIGHT = "Somewhat right"
+    UNCLEAR = "Unclear"
+    SOMEWHAT_WRONG = "Somewhat wrong"
+    WRONG = "Wrong"
+
+# bongard similarity evaluation schema
+class BongardEvaluationSchema(BaseModel):
+    reasoning: str = Field(
+        ...,
+        description="A one-sentence reasoning explaining the decision based on the rubric."
+    )
+    
+    similarity_label: EvaluationLabel = Field(
+        ...,
+        description="The specific categorical label representing the similarity."
     )

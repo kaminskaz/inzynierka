@@ -49,19 +49,17 @@ class EvaluationWithJudge(EvaluationBase):
             key_dict = json.load(f)
 
         for index, row in answers_df.iterrows():
-            left_rule_answer = row["left_side_rule"]
-            right_rule_answer = row["right_side_rule"]
+            answer = row["answer"]
             id_ = str(row["id"])
-            answer = f"Left side rule: {left_rule_answer}\nRight side rule: {right_rule_answer}"
 
             if id_ not in key_dict:
                 logger.info(f"ID {id_} not found in key file.")
                 continue
 
             left_rule, right_rule = key_dict[id_]
-            key = f"Left side rule: {left_rule}\nRight side rule: {right_rule}"
+            key = f"{left_rule} vs. {right_rule}"
 
-            score = self.evaluate_single_answer(
+            score, reasoning = self.evaluate_single_answer(
                 prompt=prompt,
                 answer=answer,
                 key=key,
@@ -70,6 +68,7 @@ class EvaluationWithJudge(EvaluationBase):
             )
 
             output_df.at[index, "score"] = score
+            output_df.at[index, "reasoning"] = reasoning
 
         output_path = f"{output_dir}/evaluation_results.csv"
         output_df.to_csv(output_path, index=False)

@@ -59,15 +59,17 @@ class LLMJudge(VLLM):
                 response = await self.ask_structured(
                     [TextContent(prompt)], response_schema
                 )
-                similarity_score = response.similarity_score
-                if isinstance(similarity_score, str):
-                    similarity_score = float(similarity_score.strip())
-                return similarity_score
+                similarity_label = response.similarity_label
+                reasoning = response.reasoning
+                if isinstance(similarity_label, str):
+                    similarity_label = similarity_label.strip()
+                    reasoning = reasoning.strip()
+                return similarity_label, reasoning
             else:
                 response = await self.ask([TextContent(prompt)])
-                similarity_score = float(response[0].text.strip())
-                return similarity_score
+                similarity_label = response[0].text.strip()
+                return similarity_label
 
         except Exception as e:
             logger.error(f"Similarity evaluation failed: {e}")
-            return -1.0
+            return "None"

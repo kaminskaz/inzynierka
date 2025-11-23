@@ -113,6 +113,7 @@ class VLLM:
             max_tokens=self.max_output_tokens,
             response_format=schema,
             extra_body=dict(guided_decoding_backend="outlines"),
+            timeout=600.0
         )
 
         model_response = response.choices[0].message
