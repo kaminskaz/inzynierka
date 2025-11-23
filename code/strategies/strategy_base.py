@@ -6,7 +6,7 @@ import csv
 import json
 from dataclasses import asdict, is_dataclass
 
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.processor_config import ProcessorConfig
 from code.models.vllm import VLLM
 from code.technical.response_schema import ResponseSchema
 

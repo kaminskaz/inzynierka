@@ -4,8 +4,8 @@ import json
 import string
 from typing import List, Optional, Dict, Any
 from PIL import Image
-from code.preprocessing.baseprocessor import BaseProcessor
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.base_processor import BaseProcessor
+from code.preprocessing.processor_config import ProcessorConfig
 from PIL import Image, ImageDraw, ImageFont
 import random
 

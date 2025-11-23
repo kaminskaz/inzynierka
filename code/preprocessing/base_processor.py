@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional, Dict
 from PIL import Image
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.processor_config import ProcessorConfig
 
 
 class BaseProcessor(ABC):

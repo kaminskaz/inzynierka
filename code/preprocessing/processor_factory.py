@@ -1,7 +1,7 @@
-from code.preprocessing.baseprocessor import BaseProcessor
-from code.preprocessing.processorconfig import ProcessorConfig
-from code.preprocessing.standardprocessor import StandardProcessor
-from code.preprocessing.bongardprocessor import BongardProcessor
+from code.preprocessing.base_processor import BaseProcessor
+from code.preprocessing.processor_config import ProcessorConfig
+from code.preprocessing.standard_processor import StandardProcessor
+from code.preprocessing.bongard_processor import BongardProcessor
 
 
 class ProcessorFactory:

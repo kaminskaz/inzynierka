@@ -4,10 +4,10 @@ from typing import Optional, Dict, Any
 import asyncio
 
 from code.technical.content import ImageContent, TextContent
-from code.strategies.strategybase import StrategyBase
+from code.strategies.strategy_base import StrategyBase
 from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema, BPResponseSchema
 from code.models.vllm import VLLM
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.processor_config import ProcessorConfig
 
 
 class DescriptiveStrategy(StrategyBase):

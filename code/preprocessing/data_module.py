@@ -7,8 +7,8 @@ import PIL
 from dotenv import load_dotenv
 from huggingface_hub import snapshot_download, login
 from code.preprocessing.logging_configuration import setup_logging
-from code.preprocessing.processorconfig import ProcessorConfig
-from code.preprocessing.processorfactory import ProcessorFactory
+from code.preprocessing.processor_config import ProcessorConfig
+from code.preprocessing.processor_factory import ProcessorFactory
 import logging
 import shutil
 
@@ -58,7 +58,7 @@ class DataModule:
     def setup(self) -> None:
         """Set up all processors."""
         # Import sheet maker (avoiding circular imports)
-        from code.preprocessing.standardsheetmaker import StandardSheetMaker
+        from code.preprocessing.standard_sheetmaker import StandardSheetMaker
 
         sheet_maker = StandardSheetMaker()
 

@@ -2,9 +2,9 @@ import os
 import json
 from typing import List, Optional, Dict, Any
 from PIL import Image, ImageDraw
-from code.preprocessing.baseprocessor import BaseProcessor
-from code.preprocessing.standardsheetmaker import StandardSheetMaker
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.base_processor import BaseProcessor
+from code.preprocessing.standard_sheetmaker import StandardSheetMaker
+from code.preprocessing.processor_config import ProcessorConfig
 
 
 class BongardProcessor(BaseProcessor):

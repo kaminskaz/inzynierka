@@ -3,13 +3,13 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-from code.strategies.strategybase import StrategyBase
+from code.strategies.strategy_base import StrategyBase
 
-from code.strategies.classificationstrategy import ClassificationStrategy
-from code.strategies.contrastivestrategy import ContrastiveStrategy
-from code.strategies.directstrategy import DirectStrategy
-from code.strategies.descriptivestrategy import DescriptiveStrategy
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.strategies.classification_strategy import ClassificationStrategy
+from code.strategies.contrastive_strategy import ContrastiveStrategy
+from code.strategies.direct_strategy import DirectStrategy
+from code.strategies.descriptive_strategy import DescriptiveStrategy
+from code.preprocessing.processor_config import ProcessorConfig
 from code.technical.utils import load_all_dataset_configs, get_dataset_config
 
 class StrategyFactory:
