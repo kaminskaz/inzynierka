@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import logging
 
-from code.evaluation.evaluationbase import EvaluationBase
+from code.evaluation.evaluation_base import EvaluationBase
 
 logger = logging.getLogger(__name__)
 

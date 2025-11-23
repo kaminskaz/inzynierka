@@ -6,7 +6,7 @@ import csv
 import json
 import pandas as pd
 
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.processor_config import ProcessorConfig
 from code.models.vllm import VLLM
 from code.technical.response_schema import ResponseSchema
 from code.technical.utils import get_dataset_config

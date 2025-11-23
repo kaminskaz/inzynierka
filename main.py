@@ -1,6 +1,6 @@
 import argparse
 import logging
-from code.preprocessing.datamodule import DataModule
+from code.preprocessing.data_module import DataModule
 from code.preprocessing.logging_configuration import setup_logging
 
 logger = logging.getLogger(__name__)

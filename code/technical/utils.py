@@ -6,7 +6,7 @@ import torch
 from typing import Any, Dict, Optional
 import logging
 
-from code.preprocessing.processorconfig import ProcessorConfig
+from code.preprocessing.processor_config import ProcessorConfig
 
 logger = logging.getLogger(__name__)
 

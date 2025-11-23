@@ -5,7 +5,7 @@ import os
 import re
 from pathlib import Path
 from typing import Any
-from code.strategies.strategyfactory import StrategyFactory
+from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
 import asyncio
 

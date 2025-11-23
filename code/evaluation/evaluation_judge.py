@@ -2,7 +2,7 @@ import pandas as pd
 import json
 import logging
 
-from code.evaluation.evaluationbase import EvaluationBase
+from code.evaluation.evaluation_base import EvaluationBase
 from code.models.llm_judge import LLMJudge
 from code.technical.response_schema import SimilarityResponseSchema
 
@@ -28,10 +28,10 @@ class EvaluationWithJudge(EvaluationBase):
 
     def evaluate(
             self, 
-            prompt: str,
             answers_path: str, 
             key_path: str, 
-            output_dir: str
+            output_dir: str,
+            prompt: str
         ):
 
         answers_df = pd.read_csv(answers_path)
