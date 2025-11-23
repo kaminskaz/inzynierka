@@ -10,6 +10,13 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationWithJudge(EvaluationBase):
+    def __init__(self):
+        super().__init__()
+        try:
+            with open("prompts/evaluation/evaluation_main.txt", "r") as file:
+                self.prompt = file.read()
+        except Exception as e:
+            logger.error(f"Failed to read prompt file: {e}")
 
     def evaluate_single_answer(
         self,

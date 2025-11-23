@@ -36,7 +36,7 @@ python run_single_experiment.py \
     --strategy direct \
     --model_name "Qwen/Qwen2.5-VL-7B-Instruct" \
     --temperature 0.5 \
-    --max_tokens 8123 \
+    --max_tokens 12000 \
     --max_output_tokens 8123 \
     --limit_mm_per_prompt 2 \
     --debug \
