@@ -37,7 +37,7 @@ class ContrastiveStrategy(StrategyBase):
         problem_descriptions_dict = {}
 
         if self.config.category == "BP" or self.config.category == "choice_only":
-            descriptions = []
+            collected_descriptions = []
             
             # FIX: Define response_schema early to avoid UnboundLocalError
             if self.config.category == "BP":
@@ -69,8 +69,8 @@ class ContrastiveStrategy(StrategyBase):
                         desc_right = getattr(description_response, 'description_right', '')
                         combined_desc = f"Left: {desc_left} | Right: {desc_right}"
                         
-                        # Patch the object so the list comprehension below works uniformly
-                        description_response.description = combined_desc
+                        # Store string directly, do not attempt to patch the Pydantic object
+                        collected_descriptions.append(combined_desc)
                         
                         key = f"{i}"
                         problem_descriptions_dict[key] = combined_desc
@@ -90,17 +90,10 @@ class ContrastiveStrategy(StrategyBase):
 
                     desc_text = getattr(description_response, 'description', None)
                     if description_response and desc_text:
+                        collected_descriptions.append(desc_text)
                         problem_descriptions_dict[letter_index] = desc_text
 
-                descriptions.append(description_response)
-
-            all_descriptions_text = "\n\n".join(
-                [
-                    getattr(r, 'description', '')
-                    for r in descriptions
-                    if r is not None
-                ]
-            )
+            all_descriptions_text = "\n\n".join(collected_descriptions)
 
             prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}"
             contents_to_send = [TextContent(prompt)]
@@ -151,7 +144,6 @@ class ContrastiveStrategy(StrategyBase):
         """
         Executes the logic for a single contrastive problem.
         """
-        image_path = self.get_choice_panel(problem_id)
 
         response, problem_descriptions = self.run_single_problem(
             problem_id, self.descriptions_prompt, self.main_prompt
