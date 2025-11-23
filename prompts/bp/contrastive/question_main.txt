@@ -1,16 +1,10 @@
-You are given descriptions of six pairs of corresponding images, labeled 0–5:
-- 0: top-left pair
-- 1: top-right pair
-- 2: middle-left pair
-- 3: middle-right pair
-- 4: bottom-left pair
-- 5: bottom-right pair
-Each description explains the differences between the two images in the corresponding pair.
+You are given descriptions of six pairs of corresponding images from opposite sides, labeled 0–5. The label number itself does not matter, focus on descriptions only.
 
 Your task is to:
 - Compare the left and right sides of the panel based on the descriptions.
-- Infer the underlying concept or rule that separates the two sides.
+- Infer the underlying concept that separates the two sides.
+- Check your hypothesis. Does it hold true for all descriptions? If not, discard it and look for a different concept.
 - On a scale of 0 to 1, indicate how confident you are in your answer.
 - Briefly explain how each side conforms (or does not conform) to the inferred rule.
 
-Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Only use information provided in the descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.

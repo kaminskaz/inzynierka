@@ -1,6 +1,7 @@
 Your task is to:
-- Analyze the provided grid image and identify which candidate (A, B, C, or D) correctly completes it, based on the candidate image descriptions and the visual pattern or rule governing the rows and columns.
+- Analyze the provided grid image and identify which candidate (A, B, C, or D) correctly completes it, based on the visual pattern or rule governing the rows and columns the candidate image descriptions.
 - On a scale of 0 to 1, indicate how confident you are in your answer.
 - Briefly explain why the selected candidate follows the pattern and why the others do not.
 
-Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Only use information provided in the image descriptions and the grid image.
+Answer in less than 500 words.

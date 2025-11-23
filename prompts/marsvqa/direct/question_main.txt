@@ -2,6 +2,7 @@ Your task is to:
 - Analyze the 3×3 grid of images and infer the underlying visual pattern or rule that governs the arrangement.
 - Determine which image (A, B, C or D) from the provided options correctly completes the grid according to this rule.
 - On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly how each group conforms (or does not conform) to it.
+- Explain briefly your reasoning.
 
 Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown.
+Answer in less than 500 words.

@@ -6,3 +6,4 @@ Your task is to:
 - Explain briefly why the selected grid follows the pattern, and why the others do not.
 
 Only use information visible in the images. Do not assume hidden rules or patterns that are not explicitly shown.
+Answer in less than 500 words.

@@ -1,8 +1,7 @@
 Your task is to:
-- Compare the two groups of images and infer the underlying concept or rule that separates them.
+- Using the information provided in the image descriptions, compare the two groups of images and infer the underlying concept that separates them - applies to all images on the Left (descriptions 0-5), but not on the Right (descriptions 6-11).
+- Check your hypothesis. Does it hold true for all 6 images on the Left? Does it fail for all 6 images on the Right? If not, discard it and look for a different concept.
 - On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly how each group conforms (or does not conform) to it.
+- Explain briefly how each side conforms (or does not conform) to it.
 
-Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
-
-Image descriptions labeled 0–5 correspond to the left panel, and 6–11 correspond to the right panel.
+Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.

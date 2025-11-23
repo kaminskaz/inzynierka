@@ -1,8 +1,10 @@
-You are given descriptions of all possible sets of three images selected from four images in an odd-one-out problem.
+You are given descriptions of all possible sets (A, B, C, D) of three images selected from four images in an odd-one-out problem.
 
 Your task is to:
-- Identify the set that does not contain an odd-one-out image by its letter (A, B, C, or D) .
+- Analyse the descriptions and identify the one with least differences.
+- Identify the set that does not contain an odd-one-out image by its letter (A, B, C, or D).
 - On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly why it does not follow the same pattern as the other three.
+- Explain briefly your reasoning.
 
-Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Only use information provided in the descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Answer in less than 500 words.

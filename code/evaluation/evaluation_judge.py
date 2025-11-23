@@ -13,7 +13,8 @@ class EvaluationWithJudge(EvaluationBase):
     def __init__(self):
         super().__init__()
         try:
-            with open("prompts/evaluation/evaluation_main.txt", "r") as file:
+            # na razie na prompciie dla bongarda tylko jeśli się nie poda prompta z zewnątrz
+            with open("prompts/evaluation/evaluation_bongard_main.txt", "r") as file:
                 self.prompt = file.read()
         except Exception as e:
             logger.error(f"Failed to read prompt file: {e}")
@@ -38,7 +39,7 @@ class EvaluationWithJudge(EvaluationBase):
             answers_path: str, 
             key_path: str, 
             output_dir: str,
-            prompt: str
+            prompt: str = None
         ):
 
         answers_df = pd.read_csv(answers_path)
@@ -60,7 +61,7 @@ class EvaluationWithJudge(EvaluationBase):
             key = f"{left_rule} vs. {right_rule}"
 
             score, reasoning = self.evaluate_single_answer(
-                prompt=prompt,
+                prompt=prompt if prompt else self.prompt,
                 answer=answer,
                 key=key,
                 judge=LLMJudge(),

@@ -5,3 +5,4 @@ Your task is to:
 - Briefly explain why the selected candidate follows the described pattern and why the others do not.
 
 Only use information visible in the candidate images and provided in the grid description. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Answer in less than 500 words.
