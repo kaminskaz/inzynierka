@@ -3,7 +3,7 @@
 #SBATCH --job-name=strat_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
 #SBATCH --time=01:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
-#SBATCH --gpus=1 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
+#SBATCH --gpus=4 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
 #SBATCH --cpus-per-gpu=8 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze minimum 6-8 bo inaczej kole>
 #SBATCH --mem=128gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
 #SBATCH --partition=short # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma A100 short max 1d long dł>
@@ -40,7 +40,7 @@ python run_single_experiment.py \
     --max_output_tokens 2048 \
     --limit_mm_per_prompt 2 \
     --debug \
-    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9 --max-num-seqs 128 --max-model-len 8192
+    --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128 --structured-outputs-config.backend=guided
 
 # Clean up temporary directories
 rm -rf ${JOB_HF_HOME}

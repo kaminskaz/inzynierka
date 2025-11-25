@@ -21,8 +21,8 @@ class VLLM:
         self,
         model_name: str,
         temperature: float = 0.5,
-        max_tokens: int = 2048,
-        max_output_tokens: int = 1024,
+        max_tokens: int = 8192,
+        max_output_tokens: int = 4096,
         limit_mm_per_prompt: int = 2,
         custom_args: List[str] = [],
     ):
@@ -69,8 +69,6 @@ class VLLM:
                 "--guided-decoding-backend",
                 "outlines",
                 *custom_args,
-                "--chat-template",
-                "{% for message in messages %}{{message['role']}}: {{message['content']}}\n{% endfor %}",
             ),
         )
 
