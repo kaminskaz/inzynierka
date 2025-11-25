@@ -40,7 +40,7 @@ python run_single_experiment.py \
     --max_output_tokens 2048 \
     --limit_mm_per_prompt 2 \
     --debug \
-    --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128 --structured-outputs-config.backend=guided
+    --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9 --max-num-seqs 128
 
 # Clean up temporary directories
 rm -rf ${JOB_HF_HOME}

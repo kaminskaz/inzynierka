@@ -198,6 +198,9 @@ def launch_vllm_server(
 
     full_log = "\n".join(stdout_buffer).lower()
 
+    with open(f"vllm_startup_error_{model.replace('/', '_')}.log", "w") as f:
+        f.write(full_log)
+
     if "out of memory" in full_log or "cuda" in full_log:
         reason = "GPU OUT OF MEMORY — try smaller model or reduce --max-model-len."
     elif "not found" in full_log or "no such file" in full_log:
