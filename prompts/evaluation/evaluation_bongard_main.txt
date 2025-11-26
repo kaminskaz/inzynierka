@@ -51,3 +51,14 @@ Evaluation: Wrong
 
 Evaluate the following input based on the rubric and examples above.
 Provide your reasoning and the final evaluation label.
+
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Two fields:
+- reasoning: Explain your reasoning here. Which answers grouped together? Why did this group constitute the best answer? Explain the logic used to reach the consensus.,
+- similarity_label: Similarity label based on the scoring rubric.
+
+Example:
+{
+    "reasoning": "These are synonyms describing the exact same visual property.",
+    "similarity_label": "Right"
+}

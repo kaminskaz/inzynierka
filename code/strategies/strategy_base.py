@@ -30,8 +30,10 @@ class StrategyBase(ABC):
         self.data_dir = "data_test"
         self.dataset_dir = os.path.join(self.data_dir, self.dataset_name, "problems")
         self.problem_description_prompt = self.get_prompt("problem_description_main")
+        self.sample_answer_prompt = self.get_prompt("sample_answer_main")
         self.question_prompt = self.get_prompt("question_main")
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
+        self.describe_prompt = self.get_prompt("describe_main")
 
         # path for descriptions, to be set by subclasses if needed - for contrastive and descriptive
         self.descriptions_path: Optional[str] = None
@@ -52,16 +54,6 @@ class StrategyBase(ABC):
         The core logic for processing a single problem.
         """
         pass
-
-    def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
-        """
-        Returns a dictionary of prompts to be saved in the metadata file.
-        """
-        return {
-            "question_prompt": self.question_prompt,
-            "problem_description_prompt": self.problem_description_prompt,
-            "describe_prompt": None,
-        }
 
     def run(self) -> None:
         """
@@ -117,13 +109,11 @@ class StrategyBase(ABC):
 
         self.save_raw_answers_to_csv(results)
 
-        metadata_prompts = self._get_metadata_prompts()
         self.save_metadata(
-            question_prompt=metadata_prompts["question_prompt"],
-            problem_description_prompt=metadata_prompts["problem_description_prompt"],
-            describe_prompt=metadata_prompts.get(
-                "describe_prompt"
-            ),
+            question_prompt=self.question_prompt,
+            problem_description_prompt=self.problem_description_prompt,
+            describe_prompt=self.describe_prompt,
+            sample_answer_prompt=self.sample_answer_prompt,
         )
 
         if all_descriptions_data and self.descriptions_path:
@@ -172,6 +162,7 @@ class StrategyBase(ABC):
         self,
         question_prompt: str,
         problem_description_prompt: str,
+        sample_answer_prompt: Optional[str] = None,
         describe_prompt: Optional[str] = None,
     ) -> None:
         """Save dataset, strategy, model, and config info into a metadata file."""
@@ -192,6 +183,7 @@ class StrategyBase(ABC):
             "model": self.model.get_model_name(),
             "config": config_data,
             "problem_description_prompt": problem_description_prompt,
+            "sample_answer_prompt": sample_answer_prompt,
             "question_prompt": question_prompt,
             "describe_prompt": describe_prompt,
         }

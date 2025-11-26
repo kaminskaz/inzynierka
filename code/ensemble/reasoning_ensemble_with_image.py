@@ -23,6 +23,7 @@ class ReasoningEnsemble(EnsembleBase):
     def evaluate_reasoning_using_llm(self, answer_list, reasoning_list, question_image_path):
         problem_description = self.config.get("problem_description_prompt", "")
         reasoning_prompt_path = "prompts/ensemble/ensemble_reasoning_with_image_main.txt"
+        sample_answer =self.config.get("sample_answer_structure", "")
         with open(reasoning_prompt_path, "r", encoding="utf-8") as file:
             reasoning_prompt = file.read()
    
@@ -31,7 +32,8 @@ class ReasoningEnsemble(EnsembleBase):
         schema = GeneralEnsembleSchema
         prompt_filled = reasoning_prompt.format(
             problem_description=problem_description,
-            all_answers=all_answers_str
+            all_answers=all_answers_str,
+            sample_answer=sample_answer
         )
 
         response = self.llm.ask_structured(

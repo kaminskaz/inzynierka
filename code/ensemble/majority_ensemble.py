@@ -33,6 +33,7 @@ class MajorityEnsemble(EnsembleBase):
         
     def evaluate_majority_using_llm(self, answer_list):
         problem_description = self.config.get("problem_description_prompt", "")
+        sample_answer =self.config.get("sample_answer_structure", "")
         majority_prompt_path = "prompts/ensemble/ensemble_majority_main.txt"
         with open(majority_prompt_path, "r", encoding="utf-8") as file:
             majority_prompt = file.read()
@@ -42,7 +43,8 @@ class MajorityEnsemble(EnsembleBase):
         schema = GeneralEnsembleSchema
         prompt_filled = majority_prompt.format(
             problem_description=problem_description,
-            all_answers=all_answers_str
+            all_answers=all_answers_str,
+            sample_answer=sample_answer
         )
         response = self.llm.ask_structured(
             [TextContent(prompt_filled)],

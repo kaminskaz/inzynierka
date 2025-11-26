@@ -1,6 +1,0 @@
-main prompt for reasoning
-Problem:
-{problem_description}
-
-Answers with reasoning:
-{all_answers}
