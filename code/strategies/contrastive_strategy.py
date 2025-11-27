@@ -53,8 +53,9 @@ class ContrastiveStrategy(StrategyBase):
                     choice_image_input_2 = self.get_choice_image(
                         problem_id, image_index=i + 6
                     )
+                    description_example_bp = self.get_prompt("contrast_example_main")
                     contents_to_send_descriptions = [
-                        TextContent(descriptions_prompt),
+                        TextContent(f"{descriptions_prompt}\n{description_example_bp}"),
                         ImageContent(choice_image_input_1),
                         ImageContent(choice_image_input_2),
                     ]
@@ -80,8 +81,9 @@ class ContrastiveStrategy(StrategyBase):
                     choice_image_input = self.get_blackout_image(
                         problem_id, image_index=letter_index
                     )
+                    description_example = self.get_prompt("contrast_example_main")
                     contents_to_send_descriptions = [
-                        TextContent(descriptions_prompt),
+                        TextContent(f"{descriptions_prompt}\n{description_example}"),
                         ImageContent(choice_image_input),
                     ]
                     description_response = asyncio.run(self.model.ask_structured(
@@ -95,7 +97,7 @@ class ContrastiveStrategy(StrategyBase):
 
             all_descriptions_text = "\n\n".join(collected_descriptions)
 
-            prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}"
+            prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}\n{self.example_prompt}"
             contents_to_send = [TextContent(prompt)]
 
         else:  # 'standard' category
@@ -118,7 +120,7 @@ class ContrastiveStrategy(StrategyBase):
             else:
                 all_descriptions_text = ""
 
-            prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}"
+            prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}\n{self.example_prompt}"
             choice_panel_input = self.get_choice_panel(problem_id)
 
             if choice_panel_input is None:

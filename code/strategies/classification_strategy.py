@@ -27,8 +27,9 @@ class ClassificationStrategy(StrategyBase):
     ) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
         image_path = self.get_classification_panel(problem_id)
 
+        prompt_with_example = f"{self.main_prompt}\n{self.example_prompt}"
         # Use self.main_prompt from the base class
-        response = self.run_single_problem(image_path, self.main_prompt)
+        response = self.run_single_problem(image_path, prompt_with_example)
 
         # Return response, image name, and None for descriptions
         return response, problem_id, None

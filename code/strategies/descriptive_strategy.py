@@ -41,8 +41,9 @@ class DescriptiveStrategy(StrategyBase):
                 choice_image_input = self.get_choice_image(problem_id, image_index=i)
                 index_key = i
 
+            describe_example_prompt = self.get_prompt("describe_example_main")
             contents_to_send_descriptions = [
-                TextContent(descriptions_prompt),
+                TextContent(f"{descriptions_prompt}\n{describe_example_prompt}"),
                 ImageContent(choice_image_input),
             ]
             description_response = asyncio.run(self.model.ask_structured(
@@ -66,12 +67,13 @@ class DescriptiveStrategy(StrategyBase):
             ]
         )
 
-        prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}"
+        prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}\n{self.example_prompt}"
 
         if self.config.category == "BP" or self.config.category == "choice_only":
             contents_to_send = [TextContent(prompt)]
         else:
             image_input = self.get_choice_panel(problem_id)
+            prompt = f"{prompt}\n{self.example_prompt}"
             if image_input is None:
                 self.logger.error(
                     f"Could not get choice panel for problem {problem_id}. Skipping image content."
@@ -105,11 +107,3 @@ class DescriptiveStrategy(StrategyBase):
         )
 
         return response, problem_id, problem_descriptions
-
-    def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
-        """
-        Overrides the base method to add the 'describe_prompt'.
-        """
-        prompts = super()._get_metadata_prompts()
-        prompts["describe_prompt"] = self.descriptions_prompt
-        return prompts

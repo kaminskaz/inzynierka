@@ -34,6 +34,7 @@ class StrategyBase(ABC):
         self.question_prompt = self.get_prompt("question_main")
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
         self.describe_prompt = self.get_prompt("describe_main")
+        self.example_prompt = self.get_prompt("example_main")
 
         # path for descriptions, to be set by subclasses if needed - for contrastive and descriptive
         self.descriptions_path: Optional[str] = None
