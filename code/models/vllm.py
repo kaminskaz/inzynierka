@@ -1,3 +1,4 @@
+import json
 import subprocess
 import time
 from typing import List, Optional, Dict, Type, Any
@@ -25,6 +26,7 @@ class VLLM:
         max_output_tokens: int = 4096,
         limit_mm_per_prompt: int = 2,
         custom_args: List[str] = [],
+        cpu_local_testing: bool = False
     ):
 
         assert max_tokens > max_output_tokens, (
@@ -35,6 +37,9 @@ class VLLM:
         self.max_tokens = max_tokens
         self.temperature = temperature
         self.max_output_tokens = max_output_tokens
+        self.cpu_local_testing = cpu_local_testing
+        if self.cpu_local_testing:
+            logger.info("CPU-only mode enabled for this request. Setting schema to None for the purpose of local testing.")
 
         model_info = get_model_architecture(model_name)
         if not model_info["supported"]:
@@ -72,7 +77,7 @@ class VLLM:
             ),
         )
 
-        self.client = openai.AsyncClient(
+        self.client = openai.OpenAI(
             base_url=f"{self.base_url}/v1", api_key=self.api_key
         )
         self.formatter = PromptFormatter()
@@ -83,12 +88,17 @@ class VLLM:
     def get_model_name(self) -> str:
         return self.model_name
 
-    async def ask(
-        self, contents: List[Content], schema: Optional[Type[BaseModel]] = None
+    def ask(
+        self, contents: List[Content], 
+        schema: Optional[Type[BaseModel]] = None
     ) -> str:
+
+        if self.cpu_local_testing and schema is not None:
+            schema = None
+            
         message = self.formatter.user_message(contents)
 
-        response = await self.client.chat.completions.create(
+        response = self.client.chat.completions.create(
             model=self.model_name,
             messages=message,
             temperature=self.temperature,
@@ -99,12 +109,13 @@ class VLLM:
         model_response = response.choices[0].message.content
         return model_response.strip() if model_response else ""
 
-    async def ask_structured(
+    # currently not in use in the pipeline
+    def ask_structured(
         self, contents: List[Content], schema: Type[BaseModel]
     ) -> Optional[BaseModel]:
         message = self.formatter.user_message(contents)
 
-        response = await self.client.beta.chat.completions.parse(
+        response =  self.client.beta.chat.completions.parse(
             model=self.model_name,
             messages=message,
             temperature=self.temperature,
@@ -201,23 +212,9 @@ def launch_vllm_server(
     with open(f"vllm_startup_error_{model.replace('/', '_')}.log", "w") as f:
         f.write(full_log)
 
-    if "out of memory" in full_log or "cuda" in full_log:
-        reason = "GPU OUT OF MEMORY — try smaller model or reduce --max-model-len."
-    elif "not found" in full_log or "no such file" in full_log:
-        reason = "Model not found — check model name or path."
-    elif "timeout" in full_log:
-        reason = "Initialization timeout — model took too long to load."
-    elif "architecture" in full_log and "not supported" in full_log:
-        reason = "Model architecture not supported by this vLLM version."
-    else:
-        reason = "Unknown error — check vLLM logs below."
-
-    logger.critical(f"Failed to start vLLM server for '{model}'. Reason: {reason}")
+    logger.critical(f"Failed to start vLLM server for '{model}'.")
     logger.debug(f"vLLM log excerpt (last 500 chars): {full_log[-500:]}")
-    raise TimeoutError(
-        f"vLLM server failed to start within {timeout}s. Reason: {reason}"
-    )
-
+    raise RuntimeError(f"vLLM server for '{model}' failed to start.")
 
 def get_model_architecture(model_name: str) -> Dict[str, Any]:
     MMM_KEYWORDS = (

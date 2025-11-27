@@ -56,7 +56,7 @@ class LLMJudge(VLLM):
             )
 
             if response_schema:
-                response = await self.ask_structured(
+                response = await self.ask(
                     [TextContent(prompt)], response_schema
                 )
                 similarity_label = response.similarity_label

@@ -1,4 +1,4 @@
-import asyncio
+
 import os
 import sys
 from pydantic import create_model
@@ -30,4 +30,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

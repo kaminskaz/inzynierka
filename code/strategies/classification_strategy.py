@@ -1,6 +1,6 @@
 import os
 from typing import Optional, Dict
-import asyncio
+
 
 from code.strategies.strategy_base import StrategyBase
 from code.technical.content import ImageContent, TextContent
@@ -17,9 +17,9 @@ class ClassificationStrategy(StrategyBase):
         else:
             response_schema = ResponseSchema
 
-        response = asyncio.run(self.model.ask_structured(
+        response = self.model.ask(
             contents=contents_to_send, schema=response_schema
-        ))
+        )
         return response
 
     def _execute_problem(

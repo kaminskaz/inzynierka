@@ -77,6 +77,9 @@ class StrategyBase(ABC):
                 if problem_descriptions:
                     all_descriptions_data[problem_id] = problem_descriptions
 
+                print(f"Problem description for {problem_id}: {problem_descriptions}")
+                print(f"Response for {problem_id}: {response}")
+
                 if response:
                     # SAFE ACCESS: BPResponseSchema does not have an 'answer' field.
                     answer = getattr(response, "answer", "")

@@ -1,7 +1,7 @@
 from traitlets import List
 import os
 from typing import Optional, Dict, Any
-import asyncio
+
 
 from code.technical.content import ImageContent, TextContent
 from code.strategies.strategy_base import StrategyBase
@@ -46,9 +46,9 @@ class DescriptiveStrategy(StrategyBase):
                 TextContent(f"{descriptions_prompt}\n{describe_example_prompt}"),
                 ImageContent(choice_image_input),
             ]
-            description_response = asyncio.run(self.model.ask_structured(
+            description_response = self.model.ask(
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
-            ))
+            )
             raw_description = description_response.description
             if (
                 raw_description is not None
@@ -88,9 +88,9 @@ class DescriptiveStrategy(StrategyBase):
         else:
             response_schema = ResponseSchema
             
-        response = asyncio.run(self.model.ask_structured(
+        response = self.model.ask(
             contents_to_send, schema=response_schema
-        ))
+        )
 
         return response, problem_descriptions_dict
 

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
-import asyncio
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,8 @@ def _load_model(
         max_tokens: int = 2048, 
         max_output_tokens: int = 1536, 
         limit_mm_per_prompt: int = 2,
-        custom_args: list = []
+        custom_args: list = [],
+        local_testing: bool = False
     ) -> Any:
     """
     Loads a VLLM model based on the provided model name and parameters.
@@ -33,7 +34,8 @@ def _load_model(
             max_tokens=max_tokens,
             max_output_tokens=max_output_tokens,
             limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args
+            custom_args=custom_args,
+            cpu_local_testing=local_testing
         )
 
         if vllm_model:
@@ -157,10 +159,12 @@ def run_strategy_tests(model_name: str,
         max_tokens: int, 
         max_output_tokens: int, 
         limit_mm_per_prompt: int,
-        custom_args: list = []):
+        custom_args: list = [],
+        local_testing: bool = False
+    ):
     
     model = initialize_model(model_name=model_name, temperature=temperature, max_tokens=max_tokens, max_output_tokens=max_output_tokens,
-                             limit_mm_per_prompt=limit_mm_per_prompt, custom_args=custom_args)
+                             limit_mm_per_prompt=limit_mm_per_prompt, local_testing=local_testing, custom_args=custom_args)
     datasets = ['bp','cvr','raven','marsvqa']
     strategies = ['direct','descriptive','contrastive','classification']
 
@@ -179,7 +183,8 @@ def run_single_experiment(
         max_tokens: int=2048, 
         max_output_tokens: int=1024, 
         limit_mm_per_prompt: int=2,
-        custom_args: list = []
+        custom_args: list = [],
+        local_testing: bool = False
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -196,7 +201,8 @@ def run_single_experiment(
             max_tokens=max_tokens,
             max_output_tokens=max_output_tokens,
             limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args
+            custom_args=custom_args,
+            local_testing=local_testing
         )
         
         strategy = strategy_factory.create_strategy(
@@ -224,7 +230,9 @@ def initialize_model(model_name: str,
         max_tokens: int, 
         max_output_tokens: int, 
         limit_mm_per_prompt: int,
-        custom_args: list = []) -> None:
+        custom_args: list = [], 
+        local_testing: bool = False
+    ) -> None:
     
     model = _load_model(
             model_name=model_name,
@@ -232,7 +240,8 @@ def initialize_model(model_name: str,
             max_tokens=max_tokens,
             max_output_tokens=max_output_tokens,
             limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args
+            custom_args=custom_args,
+            local_testing=local_testing
         )
     
     return model
@@ -248,6 +257,7 @@ if __name__ == "__main__":
     parser.add_argument('--max_output_tokens', type=int, default=1536, help='Maximum output tokens for the model (if applicable)')
     parser.add_argument('--limit_mm_per_prompt', type=int, default=2, help='Limit of multimodal inputs per prompt (if applicable)')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
+    parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
     args = parser.parse_args()
 
@@ -275,9 +285,22 @@ if __name__ == "__main__":
     #     custom_args=args.custom_args
     # )
 
-    run_strategy_tests(model_name=args.model_name,
+    # run_strategy_tests(model_name=args.model_name,
+    #     temperature=args.temperature,
+    #     max_tokens=args.max_tokens,
+    #     max_output_tokens=args.max_output_tokens,
+    #     limit_mm_per_prompt=args.limit_mm_per_prompt,
+    #     custom_args=args.custom_args,
+    #     local_testing=args.local_testing)
+
+    run_single_experiment(
+        dataset_name=args.dataset_name,
+        strategy_name=args.strategy,
+        model_name=args.model_name,
         temperature=args.temperature,
         max_tokens=args.max_tokens,
         max_output_tokens=args.max_output_tokens,
         limit_mm_per_prompt=args.limit_mm_per_prompt,
-        custom_args=args.custom_args)
+        custom_args=args.custom_args,
+        local_testing=args.local_testing
+        )

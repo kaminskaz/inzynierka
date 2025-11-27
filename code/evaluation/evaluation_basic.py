@@ -1,6 +1,8 @@
 import pandas as pd
 import json
 import logging
+import os
+from pathlib import Path
 
 from code.evaluation.evaluation_base import EvaluationBase
 
@@ -8,32 +10,47 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationBasic(EvaluationBase):
-
     def evaluate_single_answer(self, answer: str, key: str) -> float:
         score = "Right" if answer == key else "Wrong"
         return score
+    
 
-    def evaluate(self, answers_path, key_path, output_dir):
-        answers_df = pd.read_csv(answers_path)
+    def evaluate(
+            self, 
+            results_dir: str,
+            answers_path: str, 
+            key_path: str, 
+            evaluation_output_path: str = "evaluation_results"
+        ):
+        if not answers_path or not os.path.exists(answers_path):
+            logger.error("Answers path is not provided or does not exist.")
+            return
+        
+        answers_df = pd.read_csv(answers_path, dtype={"problem_id": str})
+
+        summary_answers = self.check_completeness(answers_df)
+        logger.info(f"Answers DataFrame Completeness Summary: {summary_answers}")
+
         output_df = answers_df.copy()
-        output_df["score"] = 0.0
+        output_df["score"] = ""
 
         with open(key_path, "r") as f:
             key_dict = json.load(f)
+
+        summary_key = self.check_completeness(pd.Series(key_dict).to_frame())
+        logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
         for index, row in answers_df.iterrows():
             answer = row["answer"]
-            id_ = str(row["id"])
+            id_ = str(row["problem_id"])
 
-        with open(key_path, "r") as f:
-            key_dict = json.load(f)
-
-        for index, row in answers_df.iterrows():
-            answer = str(row["answer"]).strip().upper()
-            id_ = str(row["id"]).zfill(3)
+            if answer is None or pd.isna(answer) or answer.strip() == "":
+                output_df.at[index, "score"] = "No answer provided"
+                continue
 
             if id_ not in key_dict:
                 logger.info(f"ID {id_} not found in key file.")
+                output_df.at[index, "score"] = "Problem id not found in key"
                 continue
 
             key = key_dict[id_].strip().upper()
@@ -41,6 +58,70 @@ class EvaluationBasic(EvaluationBase):
             score = self.evaluate_single_answer(answer, key)
             output_df.at[index, "score"] = score
 
-        output_path = f"{output_dir}/evaluation_results.csv"
+        output_summaries_path = f"{results_dir}/{evaluation_output_path}_summary.json"
+        with open(output_summaries_path, "w") as summary_file:
+            json.dump({
+                "answers_completeness": summary_answers,
+                "key_completeness": summary_key
+            }, summary_file, indent=4)
+        logger.info(f"Summaries saved to {output_summaries_path}")
+
+        metrics = self.calculate_metrics(output_df)
+        metrics_path = f"{results_dir}/{evaluation_output_path}_metrics.json"
+        with open(metrics_path, "w") as metrics_file:
+            json.dump(metrics, metrics_file, indent=4)
+        logger.info(f"Metrics saved to {metrics_path}")
+
+        output_path = f"{results_dir}/{evaluation_output_path}.csv"
         output_df.to_csv(output_path, index=False)
         logger.info(f"Results saved to {output_path}")
+
+
+    def run_evaluation(
+            self, 
+            dataset_name,
+            model_name,
+            strategy_name,
+            version,
+            results_dir, 
+            answers_path, 
+            key_path, 
+            evaluation_output_path = "evaluation_results", 
+            concat = True, 
+            output_all_results_concat_path = None
+        ):
+        if output_all_results_concat_path  is None:
+            default_dir = results_dir.split("results")[0] + "results"
+            output_all_results_concat_path  = default_dir / "all_results_concat.csv"
+
+        self.evaluate(
+            results_dir, 
+            answers_path, 
+            key_path, 
+            evaluation_output_path)
+        if concat:
+            self.append_to_all_results_concat(
+                dataset_name,
+                model_name,
+                strategy_name,
+                version,
+                pd.read_csv(f"{results_dir}/{evaluation_output_path}.csv"),
+                output_all_results_concat_path
+            )
+
+    def calculate_metrics(self, evaluated_df):
+        total = len(evaluated_df)
+        correct = len(evaluated_df[evaluated_df["score"] == "Right"])
+        accuracy = correct / total if total > 0 else 0.0
+
+        avg_confidence = evaluated_df.groupby("score")["confidence"].mean().to_dict() if "confidence" in evaluated_df.columns else {}
+        median_confidence = evaluated_df.groupby("score")["confidence"].median().to_dict() if "confidence" in evaluated_df.columns else {}
+
+        return {
+            "total": total,
+            "correct": correct,
+            "accuracy": accuracy,
+            "avg_confidence": avg_confidence,
+            "median_confidence": median_confidence
+        }
+        

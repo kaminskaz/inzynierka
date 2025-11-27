@@ -36,7 +36,7 @@ class ReasoningEnsemble(EnsembleBase):
             sample_answer=sample_answer
         )
 
-        response = self.llm.ask_structured(
+        response = self.llm.ask(
             [TextContent(prompt_filled), ImageContent(question_image_path)],
             response_schema=schema,
         )

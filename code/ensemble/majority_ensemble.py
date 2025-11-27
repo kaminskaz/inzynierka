@@ -46,7 +46,7 @@ class MajorityEnsemble(EnsembleBase):
             all_answers=all_answers_str,
             sample_answer=sample_answer
         )
-        response = self.llm.ask_structured(
+        response = self.llm.ask(
             [TextContent(prompt_filled)],
             response_schema=schema,
         )

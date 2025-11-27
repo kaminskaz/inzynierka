@@ -1,7 +1,7 @@
 from traitlets import List
 import os
 from typing import Optional, Dict, Any
-import asyncio
+
 
 from code.strategies.strategy_base import StrategyBase
 from code.technical.content import ImageContent, TextContent
@@ -59,10 +59,10 @@ class ContrastiveStrategy(StrategyBase):
                         ImageContent(choice_image_input_1),
                         ImageContent(choice_image_input_2),
                     ]
-                    description_response = asyncio.run(self.model.ask_structured(
+                    description_response = self.model.ask(
                         contents_to_send_descriptions,
                         schema=BPDescriptionResponseSchemaContrastive,
-                    ))
+                    )
 
                     # FIX: Handle Left/Right split in schema
                     if description_response:
@@ -86,9 +86,9 @@ class ContrastiveStrategy(StrategyBase):
                         TextContent(f"{descriptions_prompt}\n{description_example}"),
                         ImageContent(choice_image_input),
                     ]
-                    description_response = asyncio.run(self.model.ask_structured(
+                    description_response = self.model.ask(
                         contents_to_send_descriptions, schema=DescriptionResponseSchema
-                    ))
+                    )
 
                     desc_text = getattr(description_response, 'description', None)
                     if description_response and desc_text:
@@ -109,9 +109,9 @@ class ContrastiveStrategy(StrategyBase):
                 ImageContent(question_image_input),
             ]
 
-            description_response = asyncio.run(self.model.ask_structured(
+            description_response = self.model.ask(
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
-            ))
+            )
 
             desc_text = getattr(description_response, 'description', None)
             if description_response and desc_text:
@@ -134,9 +134,9 @@ class ContrastiveStrategy(StrategyBase):
                     ImageContent(choice_panel_input),
                 ]
 
-        response = asyncio.run(self.model.ask_structured(
+        response = self.model.ask(
             contents_to_send, schema=response_schema
-        ))
+        )
 
         return response, problem_descriptions_dict
 
