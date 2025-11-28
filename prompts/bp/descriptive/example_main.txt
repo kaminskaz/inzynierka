@@ -1,12 +1,12 @@
-Output Format:
+### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. Three fields:
-- answer: Write the answer to the given problem based on the provided descriptions of the images.
-- confidence: How confident you are in your answer.
-- rationale: Explain your reasoning. Which answers grouped together? How did the confidence scores influence the decision?
+- **answer**: Answer to the problem. Left rule vs. Right rule based on comparison between Left (0-5) and Right (6-11) image descriptions.
+- **confidence**: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- **rationale**: Short rationale for your answer.
 
-Example:
+### Example:
 {
     "answer": "Multiple objects vs. Single object",
     "confidence": 0.97,
-    "rationale": "Sample explanation",
+    "rationale": "Sample explanation based on observations",
 }

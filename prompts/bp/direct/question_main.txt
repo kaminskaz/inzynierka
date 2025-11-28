@@ -1,7 +1,7 @@
-Your task is to:
+### Your task is to:
 - Analyse the two groups of images and infer the underlying concept that separates them - applies to all images on the Left, but not on the Right.
 - Check your hypothesis. Does it hold true for all 6 images on the Left? Does it fail for all 6 images on the Right? If not, discard it and look for a different concept.
 - On a scale of 0 to 1, indicate how confident you are in your answer.
 - Explain briefly how each side conforms (or does not conform) to the concept.
 
-Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown. Answer in less than 500 words.
+** Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown. Answer in less than 500 words.**

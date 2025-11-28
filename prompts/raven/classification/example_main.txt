@@ -1,1 +1,12 @@
-example
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Three fields:
+- **answer**: Answer to the problem. Letter identifying which of the EIGHT/FOUR options follows all assumptions of a given problem (sequence of shapes, colors, orientations, and relations in rows and columns of the matrix best followed).
+- **confidence**: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- **rationale**: Short rationale for your answer.
+
+### Example:
+{
+    "answer": "C",
+    "confidence": 0.97,
+    "rationale": "Sample explanation based on observations",
+}

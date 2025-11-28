@@ -1,4 +1,4 @@
-You are given descriptions of all possible sets (A, B, C, D) of three images selected from four images in an odd-one-out problem.
+### You are given descriptions of all possible sets (A, B, C, D) of three images selected from four images in an odd-one-out problem.
 
 Your task is to:
 - Analyse the descriptions and identify the one with least differences.
@@ -6,5 +6,5 @@ Your task is to:
 - On a scale of 0 to 1, indicate how confident you are in your answer.
 - Explain briefly your reasoning.
 
-Only use information provided in the descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
-Answer in less than 500 words.
+** Only use information provided in the descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Answer in less than 500 words.**
