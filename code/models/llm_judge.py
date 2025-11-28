@@ -36,8 +36,10 @@ class LLMJudge(VLLM):
             custom_args=kwargs.get("custom_args", []),
         )
 
-        if not hasattr(self.tokenizer, "chat_template") or self.tokenizer.chat_template is None:
-            self.tokenizer.chat_template = (
+        tokenizer = self.llm_engine.tokenizer
+
+        if not hasattr(tokenizer, "chat_template") or tokenizer.chat_template is None:
+            tokenizer.chat_template = (
                 "<s>[INST] {{ message }} [/INST]</s>"
             )
 
