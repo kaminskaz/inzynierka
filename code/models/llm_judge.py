@@ -36,6 +36,11 @@ class LLMJudge(VLLM):
             custom_args=kwargs.get("custom_args", []),
         )
 
+        if not hasattr(self.tokenizer, "chat_template") or self.tokenizer.chat_template is None:
+            self.tokenizer.chat_template = (
+                "<s>[INST] {{ message }} [/INST]</s>"
+            )
+
         self.judge_mode = "text_only"
         logger.info(
             f"Initialized LLMJudge for text-only evaluation with model {model_name}"
