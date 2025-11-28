@@ -1,6 +1,7 @@
 from traitlets import List
 import os
 from typing import Optional, Dict, Any
+from PIL import Image
 
 
 from code.technical.content import ImageContent, TextContent
@@ -46,10 +47,13 @@ class DescriptiveStrategy(StrategyBase):
                 TextContent(f"{descriptions_prompt}\n{describe_example_prompt}"),
                 ImageContent(choice_image_input),
             ]
+
             description_response = self.model.ask(
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
             )
-            raw_description = description_response.description
+            # raw_description = description_response.description
+            raw_description = self.parse_response(description_response)
+            print(f"Description for choice {index_key}: {raw_description}")
             if (
                 raw_description is not None
                 and description_response.description is not None

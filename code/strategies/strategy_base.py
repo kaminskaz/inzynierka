@@ -5,6 +5,7 @@ import os
 import csv
 import json
 from dataclasses import asdict, is_dataclass
+from pydantic import BaseModel
 
 from code.preprocessing.processor_config import ProcessorConfig
 from code.models.vllm import VLLM
@@ -74,10 +75,11 @@ class StrategyBase(ABC):
                     self._execute_problem(problem_id)
                 )
 
+                response = self.parse_response(response)
+
                 if problem_descriptions:
                     all_descriptions_data[problem_id] = problem_descriptions
 
-                print(f"Problem description for {problem_id}: {problem_descriptions}")
                 print(f"Response for {problem_id}: {response}")
 
                 if response:
@@ -335,3 +337,18 @@ class StrategyBase(ABC):
             self.logger.info(f"Saved descriptions to {descriptions_path}")
         except Exception as e:
             self.logger.error(f"Error in save_descriptions_to_json: {e}")
+
+    def parse_response(self, response: Any) -> dict:
+        if isinstance(response, dict):
+            return response
+
+        if isinstance(response, BaseModel):
+            return response.dict()
+
+        if isinstance(response, str):
+            try:
+                return json.loads(response)
+            except json.JSONDecodeError:
+                return {"raw": response}
+
+        return {"raw": str(response)}

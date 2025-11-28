@@ -41,7 +41,7 @@ class LLMJudge(VLLM):
             f"Initialized LLMJudge for text-only evaluation with model {model_name}"
         )
 
-    async def evaluate_similarity(
+    def evaluate_similarity(
         self, 
         prompt: str, 
         answer: str, 
@@ -56,7 +56,7 @@ class LLMJudge(VLLM):
             )
 
             if response_schema:
-                response = await self.ask(
+                response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
                 similarity_label = response.similarity_label
@@ -66,7 +66,7 @@ class LLMJudge(VLLM):
                     reasoning = reasoning.strip()
                 return similarity_label, reasoning
             else:
-                response = await self.ask([TextContent(prompt)])
+                response = self.ask([TextContent(prompt)])
                 similarity_label = response[0].text.strip()
                 return similarity_label
 
