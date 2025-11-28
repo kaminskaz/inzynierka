@@ -1,11 +1,18 @@
 import pandas as pd
 import random
 
+from traitlets import List
+
 from code.ensemble.ensemble_base import EnsembleBase
+from code.models.vllm import VLLM
 from code.technical.content import ImageContent, TextContent
 from code.technical.response_schema import GeneralEnsembleSchema
 
 class ReasoningEnsemble(EnsembleBase):
+    def __init__(self, dataset: str, members_configuration: List[List[str]], run_missing: bool = True):
+        super().__init__(dataset, members_configuration, run_missing)
+        self.vllm = VLLM(model_name="Qwen/Qwen2.5-VL-7B-Instruct", max_tokens=2048, max_output_tokens=1024)
+
     def evaluate_single_problem(self, problem_id):
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()
 
@@ -36,7 +43,7 @@ class ReasoningEnsemble(EnsembleBase):
             sample_answer=sample_answer
         )
 
-        response = self.llm.ask(
+        response = self.vllm.ask(
             [TextContent(prompt_filled), ImageContent(question_image_path)],
             response_schema=schema,
         )
