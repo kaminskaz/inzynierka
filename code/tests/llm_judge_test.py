@@ -13,15 +13,19 @@ def main():
 
     answer1 = TextContent("The capital of Norway is Bergen.")
     key1 = TextContent("The capital of Norway is Oslo.")
+    prompt = (
+        "Please evaluate the similarity between the provided answer and the key answer. "
+        "Respond with a similarity label (e.g., 'similar', 'not similar') and provide reasoning for your judgment."
+    )
     response1 = llm.evaluate_similarity(
-        answer1.text, key1.text, response_schema=SimilarityResponseSchema
+        prompt, answer1.text, key1.text, response_schema=SimilarityResponseSchema
     )
     print("Response (text):", response1, flush=True)
 
     answer2 = TextContent("Oslo is the capital of Norway.")
     key2 = TextContent("The capital of Norway is Oslo.")
     response2 = llm.evaluate_similarity(
-        answer2.text, key2.text, response_schema=SimilarityResponseSchema
+        prompt, answer2.text, key2.text, response_schema=SimilarityResponseSchema
     )
     print("Response (text):", response2, flush=True)
 
