@@ -68,6 +68,14 @@ class EnsembleBase(ABC):
     def _build_ensemble(self) -> pd.DataFrame:
         for idx, mem in enumerate(self.members_configuration):
             strategy, model, version = mem
+
+            if self.dataset == 'bp' and strategy == 'classification':
+                self.logger.info(
+                    f"Skipping member {idx}: 'classification' strategy is not allowed"
+                    f"for dataset '{self.dataset}'."
+                )
+                continue
+
             df, meta = self.load_data_from_results_path(self.dataset, strategy, model, version)
 
             if meta is None:
