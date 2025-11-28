@@ -32,10 +32,10 @@ class StrategyBase(ABC):
         self.data_dir = "data_test"
         self.dataset_dir = os.path.join(self.data_dir, self.dataset_name, "problems")
         self.problem_description_prompt = self.get_prompt("problem_description_main")
-        self.sample_answer_prompt = self.get_prompt("sample_answer_main")
+        self.sample_answer_prompt = self.get_prompt("sample_answers_main")
         self.question_prompt = self.get_prompt("question_main")
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
-        self.describe_prompt = self.get_prompt("describe_main")
+        self.descriptions_prompt = None
         self.example_prompt = self.get_prompt("example_main")
 
         # path for descriptions, to be set by subclasses if needed - for contrastive and descriptive
@@ -90,12 +90,6 @@ class StrategyBase(ABC):
                     confidence = self._get_field(response, "confidence", "")
                     rationale = self._get_field(response, "rationale", "")
 
-                    left_rule = self._get_field(response, "left_side_rule")
-                    right_rule = self._get_field(response, "right_side_rule")
-
-                    if left_rule and right_rule:
-                        answer = f"{left_rule} vs. {right_rule}"
-
                     result = {
                         "problem_id": problem_id,
                         "answer": answer,
@@ -121,7 +115,7 @@ class StrategyBase(ABC):
         self.save_metadata(
             question_prompt=self.question_prompt,
             problem_description_prompt=self.problem_description_prompt,
-            describe_prompt=self.describe_prompt,
+            describe_prompt=self.descriptions_prompt,
             sample_answer_prompt=self.sample_answer_prompt,
         )
 
@@ -140,7 +134,7 @@ class StrategyBase(ABC):
             current_dir = os.path.dirname(os.path.abspath(__file__))
             repo_root = os.path.dirname(os.path.dirname(current_dir))
 
-            if prompt_type == "problem_description_main":
+            if prompt_type == "problem_description_main" or prompt_type == "sample_answers_main":
                 prompt_path = os.path.join(
                     repo_root, "prompts", self.dataset_name, f"{prompt_type}.txt"
                 )

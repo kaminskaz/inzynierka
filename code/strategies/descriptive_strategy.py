@@ -104,7 +104,6 @@ class DescriptiveStrategy(StrategyBase):
         """
         Executes the logic for a single descriptive problem.
         """
-        image_path = self.get_choice_panel(problem_id)
 
         response, problem_descriptions = self.run_single_problem(
             problem_id, self.descriptions_prompt, self.main_prompt

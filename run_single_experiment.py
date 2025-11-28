@@ -163,8 +163,16 @@ def run_strategy_tests(model_name: str,
         local_testing: bool = False
     ):
     
-    model = initialize_model(model_name=model_name, temperature=temperature, max_tokens=max_tokens, max_output_tokens=max_output_tokens,
-                             limit_mm_per_prompt=limit_mm_per_prompt, local_testing=local_testing, custom_args=custom_args)
+    model = _load_model(
+            model_name=model_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            max_output_tokens=max_output_tokens,
+            limit_mm_per_prompt=limit_mm_per_prompt,
+            custom_args=custom_args,
+            local_testing=local_testing
+        )
+    
     datasets = ['bp','cvr','raven','marsvqa']
     strategies = ['direct','descriptive','contrastive','classification']
 
@@ -224,27 +232,6 @@ def run_single_experiment(
     except Exception as e:
         logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
         sys.exit(1)
-
-def initialize_model(model_name: str, 
-        temperature: float, 
-        max_tokens: int, 
-        max_output_tokens: int, 
-        limit_mm_per_prompt: int,
-        custom_args: list = [], 
-        local_testing: bool = False
-    ) -> None:
-    
-    model = _load_model(
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            max_output_tokens=max_output_tokens,
-            limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args,
-            local_testing=local_testing
-        )
-    
-    return model
     
 
 if __name__ == "__main__":

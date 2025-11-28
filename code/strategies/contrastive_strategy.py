@@ -63,23 +63,13 @@ class ContrastiveStrategy(StrategyBase):
                         contents_to_send_descriptions,
                         schema=BPDescriptionResponseSchemaContrastive,
                     )
-
-                    # FIX: Handle Left/Right split in schema
-                    if description_response:
-                        desc_left = getattr(description_response, 'description_left', '')
-                        desc_right = getattr(description_response, 'description_right', '')
-                        combined_desc = f"Left: {desc_left} | Right: {desc_right}"
                         
-                        # Store string directly, do not attempt to patch the Pydantic object
-                        collected_descriptions.append(combined_desc)
-                        
-                        key = f"{i}"
-                        problem_descriptions_dict[key] = combined_desc
+                    string_index = f"{i}"
 
                 else:  # 'choice_only'
-                    letter_index = chr(65 + i)
+                    string_index = chr(65 + i)
                     choice_image_input = self.get_blackout_image(
-                        problem_id, image_index=letter_index
+                        problem_id, image_index=string_index
                     )
                     description_example = self.get_prompt("contrast_example_main")
                     contents_to_send_descriptions = [
@@ -90,10 +80,10 @@ class ContrastiveStrategy(StrategyBase):
                         contents_to_send_descriptions, schema=DescriptionResponseSchema
                     )
 
-                    desc_text = getattr(description_response, 'description', None)
-                    if description_response and desc_text:
-                        collected_descriptions.append(desc_text)
-                        problem_descriptions_dict[letter_index] = desc_text
+                desc_text = getattr(description_response, 'description', None)
+                if description_response and desc_text:
+                    collected_descriptions.append(desc_text)
+                    problem_descriptions_dict[string_index] = desc_text
 
             all_descriptions_text = "\n\n".join(collected_descriptions)
 
