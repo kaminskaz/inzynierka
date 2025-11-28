@@ -1,5 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
+import re
 from typing import Any, List, Union, Optional, Dict
 import os
 import csv
@@ -75,6 +76,8 @@ class StrategyBase(ABC):
                     self._execute_problem(problem_id)
                 )
 
+                print(f"Raw response for {problem_id}: {response}")
+
                 response = self.parse_response(response)
 
                 if problem_descriptions:
@@ -83,15 +86,13 @@ class StrategyBase(ABC):
                 print(f"Response for {problem_id}: {response}")
 
                 if response:
-                    # SAFE ACCESS: BPResponseSchema does not have an 'answer' field.
-                    answer = getattr(response, "answer", "")
-                    confidence = getattr(response, "confidence", "")
-                    rationale = getattr(response, "rationale", "")
+                    answer = self._get_field(response, "answer", "")
+                    confidence = self._get_field(response, "confidence", "")
+                    rationale = self._get_field(response, "rationale", "")
 
-                    # If BP, capture the rules in the rationale
-                    left_rule = getattr(response, "left_side_rule", None)
-                    right_rule = getattr(response, "right_side_rule", None)
-                    
+                    left_rule = self._get_field(response, "left_side_rule")
+                    right_rule = self._get_field(response, "right_side_rule")
+
                     if left_rule and right_rule:
                         answer = f"{left_rule} vs. {right_rule}"
 
@@ -101,6 +102,7 @@ class StrategyBase(ABC):
                         "confidence": confidence,
                         "rationale": rationale,
                     }
+
                 else:
                     result = {
                         "problem_id": problem_id,
@@ -108,6 +110,7 @@ class StrategyBase(ABC):
                         "confidence": "",
                         "rationale": "",
                     }
+
                 results.append(result)
 
             except Exception as e:
@@ -338,17 +341,33 @@ class StrategyBase(ABC):
         except Exception as e:
             self.logger.error(f"Error in save_descriptions_to_json: {e}")
 
-    def parse_response(self, response: Any) -> dict:
+    def parse_response(self, response):
         if isinstance(response, dict):
             return response
 
-        if isinstance(response, BaseModel):
+        if hasattr(response, "dict"):
             return response.dict()
 
         if isinstance(response, str):
+            text = response.strip()
+
+            match = re.search(r"```json\s*(\{.*?\})\s*```", text, flags=re.S)
+            if match:
+                try:
+                    return json.loads(match.group(1))
+                except json.JSONDecodeError:
+                    pass
+
             try:
-                return json.loads(response)
+                return json.loads(text)
             except json.JSONDecodeError:
                 return {"raw": response}
 
         return {"raw": str(response)}
+    
+    def _get_field(self, obj, name, default=None):
+        if isinstance(obj, dict):
+            return obj.get(name, default)
+        if isinstance(obj, BaseModel):
+            return getattr(obj, name, default)
+        return default
