@@ -3,7 +3,6 @@ from typing import List
 from enum import Enum
 
 
-
 class ResponseSchema(BaseModel):
     answer: str = Field(..., description="The model's answer to the question.")
     confidence: float = Field(..., description="The model's confidence in its answer, ranging from 0.0 to 1.0.")
