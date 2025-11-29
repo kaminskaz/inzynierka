@@ -28,7 +28,7 @@ export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 # Navigate to the project directory
 cd /mnt/evafs/groups/jrafalko-lab/inzynierka/
-
+export RAY_METRICS_EXPORT_PORT=0
 # Run the experiment
 # Added line breaks (\) for readability
 python run_single_experiment.py \
