@@ -56,17 +56,16 @@ class DescriptiveStrategy(StrategyBase):
             raw_description = _get_field(description_json, 'description', None)
             print(f"Description for choice {index_key}: {raw_description}")
 
-            if (raw_description and description_json.description):
-                description_json.description = f"{index_key}: {raw_description}"
+            if raw_description:
                 problem_descriptions_dict[index_key] = raw_description
 
-            descriptions.append(description_json)
+            descriptions.append(f"{index_key}: {raw_description}" if raw_description else None)
 
         all_descriptions_text = "\n\n".join(
             [
-                r.description
-                for r in descriptions
-                if r is not None and r.description is not None
+                desc
+                for desc in descriptions
+                if desc is not None
             ]
         )
 
