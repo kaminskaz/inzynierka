@@ -99,13 +99,23 @@ class EvaluationBasic(EvaluationBase):
             answers_path, 
             key_path, 
             evaluation_output_path)
+        
         if concat:
+            csv_path = f"{results_dir}/{evaluation_output_path}.csv"
+
+            Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
+
+            if os.path.exists(csv_path):
+                concat_df = pd.read_csv(csv_path)
+            else:
+                concat_df = pd.DataFrame()
+
             self.append_to_all_results_concat(
                 dataset_name,
                 model_name,
                 strategy_name,
                 version,
-                pd.read_csv(f"{results_dir}/{evaluation_output_path}.csv"),
+                concat_df,
                 output_all_results_concat_path
             )
 
