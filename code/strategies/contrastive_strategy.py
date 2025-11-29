@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 
 from code.strategies.strategy_base import StrategyBase
 from code.technical.content import ImageContent, TextContent
-from code.technical.utils import parse_response
+from code.technical.utils import _parse_response, _get_field
 from code.technical.response_schema import (
     DescriptionResponseSchema,
     ResponseSchema,
@@ -81,8 +81,8 @@ class ContrastiveStrategy(StrategyBase):
                         contents_to_send_descriptions, schema=DescriptionResponseSchema
                     )
 
-                description_response_json = parse_response(description_response)
-                desc_text = getattr(description_response_json, 'description', None)
+                description_response_json = _parse_response(description_response)
+                desc_text = _get_field(description_response_json, 'description', None)
                 if desc_text:
                     collected_descriptions.append(desc_text)
                     problem_descriptions_dict[string_index] = desc_text
@@ -105,8 +105,8 @@ class ContrastiveStrategy(StrategyBase):
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
             )
 
-            description_response_json = parse_response(description_response)
-            desc_text = getattr(description_response_json, 'description', None)
+            description_response_json = _parse_response(description_response)
+            desc_text = _get_field(description_response_json, 'description', None)
             if desc_text:
                 problem_descriptions_dict["question_panel"] = desc_text
                 all_descriptions_text = desc_text
