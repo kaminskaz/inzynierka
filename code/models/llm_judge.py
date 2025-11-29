@@ -23,20 +23,21 @@ class LLMJudge(VLLM):
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
-        chat_template_path: str = "technical/chat_templates/mistral_template.jinja",
+        chat_template_path: str = "mistral_template.jinja",
         **kwargs,
     ):
         # forcing text-only evaluation
         limit_mm_per_prompt = 0
+
+        here = os.path.dirname(os.path.abspath(__file__))
+        code_root = os.path.abspath(os.path.join(here, ".."))
+        chat_template_path = os.path.join(code_root, "technical", "chat_templates", "mistral_template.jinja")
 
         custom_args = kwargs.get("custom_args", [])
         custom_args += [
             "--chat-template",
             chat_template_path
         ]
-
-        print("LLMJudge is starting with chat template:", chat_template_path)
-        print("Custom args:", custom_args)
 
         if not os.path.exists(chat_template_path):
             raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
@@ -73,12 +74,13 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
+            
             else:
                 response = self.ask([TextContent(prompt)])
 
             response = _parse_response(response)
-            similarity_label = _get_field(response, "similarity_label", "No similarity label provided.").strip()
-            reasoning = _get_field(response, "reasoning", "No reasoning provided.").strip
+            similarity_label = _get_field(response, "similarity_label", "No similarity label provided.")
+            reasoning = _get_field(response, "reasoning", "No reasoning provided.")
 
             # if response.similarity_label is None:
             #     logger.info("Received None similarity_label from LLM.")
