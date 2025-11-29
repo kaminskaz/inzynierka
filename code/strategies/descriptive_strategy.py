@@ -51,17 +51,16 @@ class DescriptiveStrategy(StrategyBase):
             description_response = self.model.ask(
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
             )
-            # raw_description = description_response.description
-            raw_description = self.parse_response(description_response)
+
+            description_json = self.parse_response(description_response)
+            raw_description = getattr(description_json, 'description', None)
             print(f"Description for choice {index_key}: {raw_description}")
-            if (
-                raw_description is not None
-                and description_response.description is not None
-            ):
-                description_response.description = f"{index_key}: {raw_description}"
+
+            if (raw_description and description_json.description):
+                description_json.description = f"{index_key}: {raw_description}"
                 problem_descriptions_dict[index_key] = raw_description
 
-            descriptions.append(description_response)
+            descriptions.append(description_json)
 
         all_descriptions_text = "\n\n".join(
             [

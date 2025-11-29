@@ -80,8 +80,9 @@ class ContrastiveStrategy(StrategyBase):
                         contents_to_send_descriptions, schema=DescriptionResponseSchema
                     )
 
-                desc_text = getattr(description_response, 'description', None)
-                if description_response and desc_text:
+                description_response_json = self.parse_response(description_response)
+                desc_text = getattr(description_response_json, 'description', None)
+                if desc_text:
                     collected_descriptions.append(desc_text)
                     problem_descriptions_dict[string_index] = desc_text
 
@@ -103,8 +104,9 @@ class ContrastiveStrategy(StrategyBase):
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
             )
 
-            desc_text = getattr(description_response, 'description', None)
-            if description_response and desc_text:
+            description_response_json = self.parse_response(description_response)
+            desc_text = getattr(description_response_json, 'description', None)
+            if desc_text:
                 problem_descriptions_dict["question_panel"] = desc_text
                 all_descriptions_text = desc_text
             else:
