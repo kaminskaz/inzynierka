@@ -30,7 +30,8 @@ class LLMJudge(VLLM):
         limit_mm_per_prompt = 0
 
         here = os.path.dirname(os.path.abspath(__file__))
-        chat_template_path = os.path.join(here, "technical", "chat_templates", chat_template_path)
+        code_root = os.path.abspath(os.path.join(here, ".."))
+        chat_template_path = os.path.join(code_root, "technical", "chat_templates", "mistral_template.jinja")
 
         custom_args = kwargs.get("custom_args", [])
         custom_args += [
