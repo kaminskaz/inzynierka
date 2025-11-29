@@ -22,17 +22,17 @@ class LLMJudge(VLLM):
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
+        chat_template_path: str = "code/technical/chat_templates/mistral_template.jinja",
         **kwargs,
     ):
-        # turn off multi-modal capabilities for judge
+        # forcing text-only evaluation
         limit_mm_per_prompt = 0
 
-        default_chat_template = kwargs.get(
-            "chat_template", 
-            "<s>[INST] {{ message }} [/INST]</s>" 
-        )
-
-        limit_mm_per_prompt = 0
+        custom_args = kwargs.get("custom_args", [])
+        custom_args += [
+            "--chat-template",
+            chat_template_path
+        ]
 
         super().__init__(
             model_name=model_name,
@@ -40,13 +40,8 @@ class LLMJudge(VLLM):
             max_tokens=max_tokens,
             max_output_tokens=max_output_tokens,
             limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=kwargs.get("custom_args", [])
+            custom_args=custom_args
         )
-
-        tokenizer = self.get_tokenizer()
-
-        if not hasattr(tokenizer, "chat_template") or tokenizer.chat_template is None:
-            tokenizer.chat_template = default_chat_template
 
         self.judge_mode = "text_only"
         logger.info(
@@ -71,8 +66,17 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
-                similarity_label = response.similarity_label
-                reasoning = response.reasoning
+                if response.similarity_label is None:
+                    logger.info("Received None similarity_label from LLM.")
+                    similarity_label = "No similarity label provided."
+                else:
+                    similarity_label = response.similarity_label
+                if response.reasoning is None:
+                    logger.info("Received None reasoning from LLM.")
+                    reasoning = "No reasoning provided."
+                else:
+                    reasoning = response.reasoning
+
                 if isinstance(similarity_label, str):
                     similarity_label = similarity_label.strip()
                     reasoning = reasoning.strip()

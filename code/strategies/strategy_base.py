@@ -78,7 +78,7 @@ class StrategyBase(ABC):
 
                 print(f"Raw response for {problem_id}: {response}")
 
-                response = self.parse_response(response)
+                response = self._parse_response(response)
 
                 if problem_descriptions:
                     all_descriptions_data[problem_id] = problem_descriptions
@@ -335,7 +335,7 @@ class StrategyBase(ABC):
         except Exception as e:
             self.logger.error(f"Error in save_descriptions_to_json: {e}")
 
-    def parse_response(self, response):
+    def _parse_response(self, response):
         if isinstance(response, dict):
             return response
 
@@ -345,10 +345,10 @@ class StrategyBase(ABC):
         if isinstance(response, str):
             text = response.strip()
 
-            match = re.search(r"```json\s*(\{.*?\})\s*```", text, flags=re.S)
+            match = re.search(r'\{.*\}', text, re.DOTALL)
             if match:
                 try:
-                    return json.loads(match.group(1))
+                    return json.loads(match.group())
                 except json.JSONDecodeError:
                     pass
 
