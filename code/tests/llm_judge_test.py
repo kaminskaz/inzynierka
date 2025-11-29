@@ -14,8 +14,8 @@ def main():
     answer1 = TextContent("The capital of Norway is Bergen.")
     key1 = TextContent("The capital of Norway is Oslo.")
     prompt = (
-        "Please evaluate the similarity between the provided answer and the key answer. "
-        "Respond with a similarity label (e.g., 'similar', 'not similar') and provide reasoning for your judgment."
+        "Evaluate the similarity between the provided answer and the key answer. "
+        "Respond with a similarity label and provide reasoning for your judgment."
     )
     response1 = llm.evaluate_similarity(
         prompt, answer1.text, key1.text, response_schema=BongardEvaluationSchema
