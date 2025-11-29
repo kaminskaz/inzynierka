@@ -52,7 +52,7 @@ class DescriptiveStrategy(StrategyBase):
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
             )
 
-            description_json = self.parse_response(description_response)
+            description_json = parse_response(description_response)
             raw_description = getattr(description_json, 'description', None)
             print(f"Description for choice {index_key}: {raw_description}")
 
