@@ -39,9 +39,6 @@ class LLMJudge(VLLM):
             chat_template_path
         ]
 
-        print("LLMJudge is starting with chat template:", chat_template_path)
-        print("Custom args:", custom_args)
-
         if not os.path.exists(chat_template_path):
             raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
 
@@ -77,12 +74,13 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
+            
             else:
                 response = self.ask([TextContent(prompt)])
 
             response = _parse_response(response)
-            similarity_label = _get_field(response, "similarity_label", "No similarity label provided.").strip()
-            reasoning = _get_field(response, "reasoning", "No reasoning provided.").strip
+            similarity_label = _get_field(response, "similarity_label", "No similarity label provided.")
+            reasoning = _get_field(response, "reasoning", "No reasoning provided.")
 
             # if response.similarity_label is None:
             #     logger.info("Received None similarity_label from LLM.")
