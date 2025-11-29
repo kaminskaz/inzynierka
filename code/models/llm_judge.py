@@ -38,6 +38,9 @@ class LLMJudge(VLLM):
         print("LLMJudge is starting with chat template:", chat_template_path)
         print("Custom args:", custom_args)
 
+        if not os.path.exists(chat_template_path):
+            raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
+
         super().__init__(
             model_name=model_name,
             temperature=temperature,
