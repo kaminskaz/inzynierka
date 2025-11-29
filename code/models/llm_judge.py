@@ -23,11 +23,14 @@ class LLMJudge(VLLM):
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
-        chat_template_path: str = "technical/chat_templates/mistral_template.jinja",
+        chat_template_path: str = "mistral_template.jinja",
         **kwargs,
     ):
         # forcing text-only evaluation
         limit_mm_per_prompt = 0
+
+        here = os.path.dirname(os.path.abspath(__file__))
+        chat_template_path = os.path.join(here, "technical", "chat_templates", chat_template_path)
 
         custom_args = kwargs.get("custom_args", [])
         custom_args += [
