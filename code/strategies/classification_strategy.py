@@ -4,18 +4,13 @@ from typing import Optional, Dict
 
 from code.strategies.strategy_base import StrategyBase
 from code.technical.content import ImageContent, TextContent
-from code.technical.response_schema import ResponseSchema, BPResponseSchema
+from code.technical.response_schema import ResponseSchema
 
 
 class ClassificationStrategy(StrategyBase):
     def run_single_problem(self, image_path: str, prompt: str) -> ResponseSchema:
 
         contents_to_send = [TextContent(prompt), ImageContent(image_path)]
-
-        # if self.config.category == "BP":
-        #     response_schema = BPResponseSchema
-        # else:
-        #     response_schema = ResponseSchema
         response_schema = ResponseSchema
 
         response = self.model.ask(

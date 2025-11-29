@@ -6,7 +6,7 @@ from PIL import Image
 
 from code.technical.content import ImageContent, TextContent
 from code.strategies.strategy_base import StrategyBase
-from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema, BPResponseSchema
+from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema
 from code.models.vllm import VLLM
 from code.preprocessing.processor_config import ProcessorConfig
 from code.technical.utils import _parse_response, _get_field
@@ -84,11 +84,7 @@ class DescriptiveStrategy(StrategyBase):
             else:
                 contents_to_send = [TextContent(prompt), ImageContent(image_input)]
 
-        if self.config.category == 'BP':
-            response_schema = BPResponseSchema
-        
-        else:
-            response_schema = ResponseSchema
+        response_schema = ResponseSchema
             
         response = self.model.ask(
             contents_to_send, schema=response_schema

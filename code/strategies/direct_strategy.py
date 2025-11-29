@@ -4,7 +4,7 @@ from typing import Optional, Dict
 
 from code.strategies.strategy_base import StrategyBase
 from code.technical.content import ImageContent, TextContent
-from code.technical.response_schema import ResponseSchema, BPResponseSchema
+from code.technical.response_schema import ResponseSchema
 
 
 class DirectStrategy(StrategyBase):
@@ -12,10 +12,7 @@ class DirectStrategy(StrategyBase):
     def run_single_problem(self, image_path: str, prompt: str) -> ResponseSchema:
         contents = [TextContent(prompt), ImageContent(image_path)]
 
-        if self.config.category == "BP":
-            response_schema = BPResponseSchema
-        else:
-            response_schema = ResponseSchema
+        response_schema = ResponseSchema
 
         response = self.model.ask(contents, schema=response_schema)
 

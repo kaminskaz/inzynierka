@@ -9,8 +9,7 @@ from code.technical.utils import _parse_response, _get_field
 from code.technical.response_schema import (
     DescriptionResponseSchema,
     ResponseSchema,
-    BPDescriptionResponseSchemaContrastive,
-    BPResponseSchema
+    BPDescriptionResponseSchemaContrastive
 )
 from code.models.vllm import VLLM
 from code.preprocessing.processor_config import ProcessorConfig
@@ -40,11 +39,7 @@ class ContrastiveStrategy(StrategyBase):
         if self.config.category == "BP" or self.config.category == "choice_only":
             collected_descriptions = []
             
-            # FIX: Define response_schema early to avoid UnboundLocalError
-            if self.config.category == "BP":
-                response_schema = BPResponseSchema
-            else:
-                response_schema = ResponseSchema
+            response_schema = ResponseSchema
 
             for i in range(self.config.num_choices):
                 if self.config.category == "BP":
