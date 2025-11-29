@@ -66,8 +66,17 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
-                similarity_label = response.similarity_label
-                reasoning = response.reasoning
+                if response.similarity_label is None:
+                    logger.info("Received None similarity_label from LLM.")
+                    similarity_label = "No similarity label provided."
+                else:
+                    similarity_label = response.similarity_label
+                if response.reasoning is None:
+                    logger.info("Received None reasoning from LLM.")
+                    reasoning = "No reasoning provided."
+                else:
+                    reasoning = response.reasoning
+
                 if isinstance(similarity_label, str):
                     similarity_label = similarity_label.strip()
                     reasoning = reasoning.strip()

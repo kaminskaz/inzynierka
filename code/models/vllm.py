@@ -106,6 +106,8 @@ class VLLM:
             extra_body={"guided_json": schema.model_json_schema()} if schema else None,
         )
 
+        print("Full response:", response)
+
         model_response = response.choices[0].message.content
         return model_response.strip() if model_response else ""
 
