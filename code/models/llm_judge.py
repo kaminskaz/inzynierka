@@ -22,17 +22,17 @@ class LLMJudge(VLLM):
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
+        chat_template_path: str = "code/technical/chat_templates/mistral_template.jinja",
         **kwargs,
     ):
-        # turn off multi-modal capabilities for judge
+        # forcing text-only evaluation
         limit_mm_per_prompt = 0
 
-        default_chat_template = kwargs.get(
-            "chat_template", 
-            "<s>[INST] {{ message }} [/INST]</s>" 
-        )
-
-        limit_mm_per_prompt = 0
+        custom_args = kwargs.get("custom_args", [])
+        custom_args += [
+            "--chat-template",
+            chat_template_path
+        ]
 
         super().__init__(
             model_name=model_name,
@@ -40,13 +40,8 @@ class LLMJudge(VLLM):
             max_tokens=max_tokens,
             max_output_tokens=max_output_tokens,
             limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=kwargs.get("custom_args", [])
+            custom_args=custom_args
         )
-
-        tokenizer = self.get_tokenizer()
-
-        if not hasattr(tokenizer, "chat_template") or tokenizer.chat_template is None:
-            tokenizer.chat_template = default_chat_template
 
         self.judge_mode = "text_only"
         logger.info(
