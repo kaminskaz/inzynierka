@@ -71,8 +71,6 @@ class VLLM:
                     if limit_mm_per_prompt > 0
                     else ()
                 ),
-                "--guided-decoding-backend",
-                "outlines",
                 *custom_args,
             ),
         )

@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from code.preprocessing.processor_config import ProcessorConfig
 from code.models.vllm import VLLM
 from code.technical.response_schema import ResponseSchema
+from code.technical.utils import _parse_response, _get_field
 
 
 class StrategyBase(ABC):
@@ -78,7 +79,7 @@ class StrategyBase(ABC):
 
                 print(f"Raw response for {problem_id}: {response}")
 
-                response = self._parse_response(response)
+                response = _parse_response(response)
 
                 if problem_descriptions:
                     all_descriptions_data[problem_id] = problem_descriptions
@@ -86,9 +87,9 @@ class StrategyBase(ABC):
                 print(f"Response for {problem_id}: {response}")
 
                 if response:
-                    answer = self._get_field(response, "answer", "")
-                    confidence = self._get_field(response, "confidence", "")
-                    rationale = self._get_field(response, "rationale", "")
+                    answer = _get_field(response, "answer", "")
+                    confidence = _get_field(response, "confidence", "")
+                    rationale = _get_field(response, "rationale", "")
 
                     result = {
                         "problem_id": problem_id,
@@ -334,34 +335,3 @@ class StrategyBase(ABC):
             self.logger.info(f"Saved descriptions to {descriptions_path}")
         except Exception as e:
             self.logger.error(f"Error in save_descriptions_to_json: {e}")
-
-    def _parse_response(self, response):
-        if isinstance(response, dict):
-            return response
-
-        if hasattr(response, "dict"):
-            return response.dict()
-
-        if isinstance(response, str):
-            text = response.strip()
-
-            match = re.search(r'\{.*\}', text, re.DOTALL)
-            if match:
-                try:
-                    return json.loads(match.group())
-                except json.JSONDecodeError:
-                    pass
-
-            try:
-                return json.loads(text)
-            except json.JSONDecodeError:
-                return {"raw": response}
-
-        return {"raw": str(response)}
-    
-    def _get_field(self, obj, name, default=None):
-        if isinstance(obj, dict):
-            return obj.get(name, default)
-        if isinstance(obj, BaseModel):
-            return getattr(obj, name, default)
-        return default

@@ -8,6 +8,7 @@ class ResponseSchema(BaseModel):
     confidence: float = Field(..., description="The model's confidence in its answer, ranging from 0.0 to 1.0.")
     rationale: str = Field(..., description="The model's rationale for its answer.")
 
+# deprecated
 class BPResponseSchema(BaseModel):
     left_side_rule: str = Field(..., description="The model's description of the left side rule.")
     right_side_rule: str = Field(..., description="The model's description of the right side rule.")

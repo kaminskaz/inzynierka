@@ -12,10 +12,11 @@ class ClassificationStrategy(StrategyBase):
 
         contents_to_send = [TextContent(prompt), ImageContent(image_path)]
 
-        if self.config.category == "BP":
-            response_schema = BPResponseSchema
-        else:
-            response_schema = ResponseSchema
+        # if self.config.category == "BP":
+        #     response_schema = BPResponseSchema
+        # else:
+        #     response_schema = ResponseSchema
+        response_schema = ResponseSchema
 
         response = self.model.ask(
             contents=contents_to_send, schema=response_schema

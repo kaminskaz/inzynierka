@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
 from code.models.vllm import VLLM
+from code.technical.utils import _parse_response, _get_field
 
 logger = logging.getLogger(__name__)
 
@@ -18,11 +19,11 @@ logger = logging.getLogger(__name__)
 class LLMJudge(VLLM):
     def __init__(
         self,
-        model_name: str = "mistralai/Mistral-7B-v0.3",
+        model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
-        chat_template_path: str = "code/technical/chat_templates/mistral_template.jinja",
+        chat_template_path: str = "technical/chat_templates/mistral_template.jinja",
         **kwargs,
     ):
         # forcing text-only evaluation
@@ -33,6 +34,12 @@ class LLMJudge(VLLM):
             "--chat-template",
             chat_template_path
         ]
+
+        print("LLMJudge is starting with chat template:", chat_template_path)
+        print("Custom args:", custom_args)
+
+        if not os.path.exists(chat_template_path):
+            raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
 
         super().__init__(
             model_name=model_name,
@@ -66,25 +73,28 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
-                if response.similarity_label is None:
-                    logger.info("Received None similarity_label from LLM.")
-                    similarity_label = "No similarity label provided."
-                else:
-                    similarity_label = response.similarity_label
-                if response.reasoning is None:
-                    logger.info("Received None reasoning from LLM.")
-                    reasoning = "No reasoning provided."
-                else:
-                    reasoning = response.reasoning
-
-                if isinstance(similarity_label, str):
-                    similarity_label = similarity_label.strip()
-                    reasoning = reasoning.strip()
-                return similarity_label, reasoning
             else:
                 response = self.ask([TextContent(prompt)])
-                similarity_label = response[0].text.strip()
-                return similarity_label
+
+            response = _parse_response(response)
+            similarity_label = _get_field(response, "similarity_label", "No similarity label provided.").strip()
+            reasoning = _get_field(response, "reasoning", "No reasoning provided.").strip
+
+            # if response.similarity_label is None:
+            #     logger.info("Received None similarity_label from LLM.")
+            #     similarity_label = "No similarity label provided."
+            # else:
+            #     similarity_label = response.similarity_label
+            # if response.reasoning is None:
+            #     logger.info("Received None reasoning from LLM.")
+            #     reasoning = "No reasoning provided."
+            # else:
+            #     reasoning = response.reasoning
+
+            # if isinstance(similarity_label, str):
+            #     similarity_label = similarity_label.strip()
+            #     reasoning = reasoning.strip()
+            return similarity_label, reasoning
 
         except Exception as e:
             logger.error(f"Similarity evaluation failed: {e}")
