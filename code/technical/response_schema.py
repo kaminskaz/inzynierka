@@ -21,12 +21,10 @@ class DescriptionResponseSchema(BaseModel):
         ..., description="A detailed description of the provided image content."
     )
 
+#deprecated
 class BPDescriptionResponseSchemaContrastive(BaseModel):
-    description_left: str = Field(
-        ..., description="A detailed description of the left provided image content."
-    )
-    description_right: str = Field(
-        ..., description="A detailed description of the right provided image content."
+    description: str = Field(
+        ..., description="A detailed description of the differences between images."
     )
 
 # for now not in use

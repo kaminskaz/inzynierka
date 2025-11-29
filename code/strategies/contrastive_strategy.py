@@ -8,8 +8,7 @@ from code.technical.content import ImageContent, TextContent
 from code.technical.utils import _parse_response, _get_field
 from code.technical.response_schema import (
     DescriptionResponseSchema,
-    ResponseSchema,
-    BPDescriptionResponseSchemaContrastive
+    ResponseSchema
 )
 from code.models.vllm import VLLM
 from code.preprocessing.processor_config import ProcessorConfig
@@ -57,7 +56,7 @@ class ContrastiveStrategy(StrategyBase):
                     ]
                     description_response = self.model.ask(
                         contents_to_send_descriptions,
-                        schema=BPDescriptionResponseSchemaContrastive,
+                        schema=DescriptionResponseSchema,
                     )
                         
                     string_index = f"{i}"
@@ -89,11 +88,11 @@ class ContrastiveStrategy(StrategyBase):
 
         else:  # 'standard' category
             response_schema = ResponseSchema
-            question_image_input = self.get_question_image(problem_id)
+            choice_panel_input = self.get_choice_panel(problem_id)
 
             contents_to_send_descriptions = [
                 TextContent(descriptions_prompt),
-                ImageContent(question_image_input),
+                ImageContent(choice_panel_input),
             ]
 
             description_response = self.model.ask(
@@ -103,7 +102,7 @@ class ContrastiveStrategy(StrategyBase):
             description_response_json = _parse_response(description_response)
             desc_text = _get_field(description_response_json, 'description', None)
             if desc_text:
-                problem_descriptions_dict["question_panel"] = desc_text
+                problem_descriptions_dict["choice_panel"] = desc_text
                 all_descriptions_text = desc_text
             else:
                 all_descriptions_text = ""
