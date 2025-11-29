@@ -211,7 +211,7 @@ class DataModule:
                 if user_input == "n":
                     self.logger.info("User aborted processing due to count mismatch.")
                     return False
-                print("Invalid input. Please enter 'y' or 'n'.")
+                self.logger.warning("Invalid input. Please enter 'y' or 'n'.")
 
     def process_all(self) -> None:
         """Process all datasets."""

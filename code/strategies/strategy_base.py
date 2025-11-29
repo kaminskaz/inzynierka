@@ -77,14 +77,15 @@ class StrategyBase(ABC):
                     self._execute_problem(problem_id)
                 )
 
-                print(f"Raw response for {problem_id}: {response}")
+                self.logger.debug(f"Raw response for {problem_id}: {response}")
+                
 
                 response = _parse_response(response)
 
                 if problem_descriptions:
                     all_descriptions_data[problem_id] = problem_descriptions
 
-                print(f"Response for {problem_id}: {response}")
+                self.logger.debug(f"Response for {problem_id}: {response}")
 
                 if response:
                     answer = _get_field(response, "answer", "")

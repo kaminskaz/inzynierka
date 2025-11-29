@@ -54,7 +54,7 @@ class DescriptiveStrategy(StrategyBase):
     
             description_json = _parse_response(description_response)
             raw_description = _get_field(description_json, 'description', None)
-            print(f"Description for choice {index_key}: {raw_description}")
+            self.logger.debug(f"Description for choice {index_key}: {raw_description}")
 
             if raw_description:
                 problem_descriptions_dict[index_key] = raw_description
