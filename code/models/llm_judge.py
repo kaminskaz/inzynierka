@@ -40,8 +40,7 @@ class LLMJudge(VLLM):
             max_tokens=max_tokens,
             max_output_tokens=max_output_tokens,
             limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=kwargs.get("custom_args", []),
-            chat_template=default_chat_template,
+            custom_args=kwargs.get("custom_args", [])
         )
 
         tokenizer = self.get_tokenizer()
