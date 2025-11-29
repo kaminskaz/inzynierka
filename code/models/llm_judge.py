@@ -22,7 +22,7 @@ class LLMJudge(VLLM):
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
-        chat_template_path: str = "code/technical/chat_templates/mistral_template.jinja",
+        chat_template_path: str = "technical/chat_templates/mistral_template.jinja",
         **kwargs,
     ):
         # forcing text-only evaluation
@@ -66,6 +66,7 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
+
                 if response.similarity_label is None:
                     logger.info("Received None similarity_label from LLM.")
                     similarity_label = "No similarity label provided."
