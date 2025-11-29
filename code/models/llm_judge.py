@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class LLMJudge(VLLM):
     def __init__(
         self,
-        model_name: str = "mistralai/Mistral-7B-v0.3",
+        model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
         temperature: float = 0.0,
         max_tokens: int = 1024,
         max_output_tokens: int = 512,
@@ -34,6 +34,9 @@ class LLMJudge(VLLM):
             "--chat-template",
             chat_template_path
         ]
+
+        print("LLMJudge is starting with chat template:", chat_template_path)
+        print("Custom args:", custom_args)
 
         super().__init__(
             model_name=model_name,
