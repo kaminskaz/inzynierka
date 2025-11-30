@@ -85,7 +85,7 @@ class EvaluationWithJudge(EvaluationBase):
                 answer=answer,
                 key=key,
                 model=LLMJudge(),
-                schema=BongardEvaluationSchema,
+                response_schema=BongardEvaluationSchema,
             )
 
             output_df.at[index, "score"] = score
