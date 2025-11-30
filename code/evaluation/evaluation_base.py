@@ -4,8 +4,6 @@ from pydantic import BaseModel
 import pandas as pd
 import os
 
-from code.models.llm_judge import LLMJudge
-
 class EvaluationBase(ABC):
 
     @abstractmethod

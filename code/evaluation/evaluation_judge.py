@@ -48,6 +48,8 @@ class EvaluationWithJudge(EvaluationBase):
             logger.error("Answers path is not provided or does not exist.")
             return
 
+        judge = LLMJudge()
+
         answers_df = pd.read_csv(answers_path, dtype={"problem_id": str})
         output_df = answers_df.copy()
         output_df["score"] = ""
@@ -84,7 +86,7 @@ class EvaluationWithJudge(EvaluationBase):
                 prompt=prompt if prompt else self.prompt,
                 answer=answer,
                 key=key,
-                model=LLMJudge(),
+                model=judge,
                 response_schema=BongardEvaluationSchema,
             )
 
