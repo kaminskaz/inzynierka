@@ -20,6 +20,8 @@ class EvaluationWithJudge(EvaluationBase):
                 self.prompt = file.read()
         except Exception as e:
             logger.error(f"Failed to read prompt file: {e}")
+        
+        self.judge = LLMJudge()
 
     def evaluate_single_answer(
         self,
@@ -47,8 +49,6 @@ class EvaluationWithJudge(EvaluationBase):
         if not answers_path or not os.path.exists(answers_path):
             logger.error("Answers path is not provided or does not exist.")
             return
-
-        judge = LLMJudge()
 
         answers_df = pd.read_csv(answers_path, dtype={"problem_id": str})
         output_df = answers_df.copy()
@@ -86,7 +86,7 @@ class EvaluationWithJudge(EvaluationBase):
                 prompt=prompt if prompt else self.prompt,
                 answer=answer,
                 key=key,
-                model=judge,
+                model=self.judge,
                 response_schema=BongardEvaluationSchema,
             )
 
