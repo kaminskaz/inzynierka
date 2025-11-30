@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 import json
 import logging
@@ -83,7 +84,7 @@ class EvaluationWithJudge(EvaluationBase):
                 prompt=prompt if prompt else self.prompt,
                 answer=answer,
                 key=key,
-                judge=LLMJudge(),
+                model=LLMJudge(),
                 schema=BongardEvaluationSchema,
             )
 
@@ -131,6 +132,14 @@ class EvaluationWithJudge(EvaluationBase):
             key_path, 
             evaluation_output_path)
         if concat:
+            csv_path = f"{results_dir}/{evaluation_output_path}.csv"
+
+            Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
+
+            if os.path.exists(csv_path):
+                concat_df = pd.read_csv(csv_path)
+            else:
+                concat_df = pd.DataFrame()
             self.append_to_all_results_concat(
                 dataset_name,
                 model_name,
