@@ -6,15 +6,7 @@ from pathlib import Path
 import torch
 
 from code.evaluation.evaluation_basic import EvaluationBasic
-
-def show_gpu_memory():
-    allocated = torch.cuda.memory_allocated() / 1024**3
-    reserved = torch.cuda.memory_reserved() / 1024**3
-    total = torch.cuda.get_device_properties(0).total_memory / 1024**3
-    free = total - reserved
-    print(f"GPU allocated: {allocated:.2f} GB")
-    print(f"GPU reserved:  {reserved:.2f} GB")
-    print(f"GPU free:      {free:.2f} GB / {total:.2f} GB")
+from code.evaluation.evaluation_judge import EvaluationWithJudge
 
 def main():
     print("Evaluation standard")
@@ -31,11 +23,8 @@ def main():
         concat=True,
         output_all_results_concat_path="results/all_results_concat.csv"
     )
-    
-    show_gpu_memory()
 
     print("Evaluation with LLM Judge")
-    from code.evaluation.evaluation_judge import EvaluationWithJudge
     evaluator = EvaluationWithJudge()
     evaluator.run_evaluation(
         dataset_name="bp",
