@@ -76,7 +76,7 @@ class EvaluationWithJudge(EvaluationBase):
                 output_df.at[index, "score"] = "Problem id not found in key"
                 continue
 
-            left_rule, right_rule = key_dict[id_].strip()
+            left_rule, right_rule = key_dict[id_]
             key = f"{left_rule} vs. {right_rule}"
 
             score, reasoning = self.evaluate_single_answer(

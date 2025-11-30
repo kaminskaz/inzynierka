@@ -15,7 +15,7 @@ def main():
         model_name="Qwen2.5-VL-7B-Instruct",
         strategy_name="contrastive",
         version="1",
-        results_dir="results",
+        results_dir="results/contrastive_cvr_Qwen2.5-VL-7B-Instruct_ver1",
         answers_path="results/contrastive_cvr_Qwen2.5-VL-7B-Instruct_ver1/results.csv",
         key_path="data_test/cvr/jsons/cvr_solutions.json",
         evaluation_output_path="evaluation_results",
