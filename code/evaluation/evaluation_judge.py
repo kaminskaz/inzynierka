@@ -142,12 +142,13 @@ class EvaluationWithJudge(EvaluationBase):
                 concat_df = pd.read_csv(csv_path)
             else:
                 concat_df = pd.DataFrame()
+                
             self.append_to_all_results_concat(
                 dataset_name,
                 model_name,
                 strategy_name,
                 version,
-                pd.read_csv(f"{results_dir}/{evaluation_output_path}.csv"),
+                concat_df,
                 output_all_results_concat_path
             )
 

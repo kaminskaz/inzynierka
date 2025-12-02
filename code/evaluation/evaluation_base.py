@@ -56,5 +56,24 @@ class EvaluationBase(ABC):
         else:
             combined_df  = df
 
+        meta_cols = [
+            "reasoning"
+            "dataset_name",
+            "model_name",
+            "strategy_name",
+            "version"
+        ]
+
+        for col in meta_cols:
+            if col not in combined_df.columns:
+                combined_df[col] = ""
+
+
+        other_cols = [c for c in combined_df.columns if c not in meta_cols]
+        final_order = meta_cols + other_cols
+
+        combined_df = combined_df[final_order]
+        combined_df = combined_df.drop_duplicates(subset=["dataset_name", "model_name", "strategy_name", "version"], keep='last')
+
         combined_df.to_csv(all_results_concat_path, index=False)
     
