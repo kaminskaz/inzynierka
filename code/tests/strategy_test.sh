@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH -A jrafalko-lab
-#SBATCH --job-name=strat_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
+#SBATCH -A kazmierczak-group
+#SBATCH --job-name=intern # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
 #SBATCH --time=01:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=2 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
@@ -33,8 +33,8 @@ export RAY_METRICS_EXPORT_PORT=0
 # Added line breaks (\) for readability
 python run_single_experiment.py \
     --dataset_name bp \
-    --strategy direct \
-    --model_name "Qwen/Qwen2.5-VL-7B-Instruct" \
+    --strategy contrastive \
+    --model_name "OpenGVLab/InternVL3-8B" \
     --temperature 0.5 \
     --max_tokens 8192 \
     --max_output_tokens 2048 \

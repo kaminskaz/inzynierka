@@ -262,23 +262,23 @@ if __name__ == "__main__":
         sys.exit(1)
 
 
-    run_strategy_tests(
-        model_name=args.model_name,
-        temperature=args.temperature,
-        max_tokens=args.max_tokens,
-        max_output_tokens=args.max_output_tokens,
-        limit_mm_per_prompt=args.limit_mm_per_prompt,
-        custom_args=args.custom_args,
-        local_testing=args.local_testing)
-
-    # run_single_experiment(
-    #     dataset_name=args.dataset_name,
-    #     strategy_name=args.strategy,
+    # run_strategy_tests(
     #     model_name=args.model_name,
     #     temperature=args.temperature,
     #     max_tokens=args.max_tokens,
     #     max_output_tokens=args.max_output_tokens,
     #     limit_mm_per_prompt=args.limit_mm_per_prompt,
     #     custom_args=args.custom_args,
-    #     local_testing=args.local_testing
-    #     )
+    #     local_testing=args.local_testing)
+
+    run_single_experiment(
+        dataset_name=args.dataset_name,
+        strategy_name=args.strategy,
+        model_name=args.model_name,
+        temperature=args.temperature,
+        max_tokens=args.max_tokens,
+        max_output_tokens=args.max_output_tokens,
+        limit_mm_per_prompt=args.limit_mm_per_prompt,
+        custom_args=args.custom_args,
+        local_testing=args.local_testing
+        )
