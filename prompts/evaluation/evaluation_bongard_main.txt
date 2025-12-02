@@ -4,7 +4,7 @@ A Bongard Problem consists of two sets of images (Left and Right). The goal is t
 
 ### SCORING RUBRIC
 
-1. Right: The answer is semantically identical, mathematically equivalent, or a synonym of the key.
+1. Right: The answer is semantically identical, mathematically equivalent, or a synonym of the key. If the answer is correct but the sides are swapped, it should still be classified as "Right".
 2. Somewhat right: The answer captures the correct core distinction but lacks precision.
 3. Unclear: The answer is subjective, vague, metaphoric, or unintelligible (e.g., "messy vs clean").
 4. Somewhat wrong: The user identified the correct category of the problem (e.g., counting, orientation, topology) but applied the specific rule incorrectly (e.g., counting corners instead of sides, or up/down instead of left/right).
@@ -15,6 +15,11 @@ A Bongard Problem consists of two sets of images (Left and Right). The goal is t
 Input Answer: "Solid shapes vs. Outlined shapes"
 Key Answer: "Filled vs. Empty"
 Reasoning: These are synonyms describing the exact same visual property.
+Evaluation: Right
+
+Input Answer: "Outlined shapes vs. Solid shapes"
+Key Answer: "Filled vs. Empty"
+Reasoning: These are synonyms describing the exact same visual property, the answer is correct but the order is switched.
 Evaluation: Right
 
 Input Answer: "Polygons vs. Round things"

@@ -30,7 +30,7 @@ class StrategyBase(ABC):
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.results_dir = results_dir
-        self.data_dir = "data_test"
+        self.data_dir = "data"
         self.dataset_dir = os.path.join(self.data_dir, self.dataset_name, "problems")
         self.problem_description_prompt = self.get_prompt("problem_description_main")
         self.sample_answer_prompt = self.get_prompt("sample_answers_main")
