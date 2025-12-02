@@ -1,3 +1,4 @@
+from pathlib import Path
 import pandas as pd
 import json
 import logging
@@ -19,6 +20,8 @@ class EvaluationWithJudge(EvaluationBase):
                 self.prompt = file.read()
         except Exception as e:
             logger.error(f"Failed to read prompt file: {e}")
+        
+        self.judge = LLMJudge()
 
     def evaluate_single_answer(
         self,
@@ -76,15 +79,15 @@ class EvaluationWithJudge(EvaluationBase):
                 output_df.at[index, "score"] = "Problem id not found in key"
                 continue
 
-            left_rule, right_rule = key_dict[id_].strip()
+            left_rule, right_rule = key_dict[id_]
             key = f"{left_rule} vs. {right_rule}"
 
             score, reasoning = self.evaluate_single_answer(
                 prompt=prompt if prompt else self.prompt,
                 answer=answer,
                 key=key,
-                judge=LLMJudge(),
-                schema=BongardEvaluationSchema,
+                model=self.judge,
+                response_schema=BongardEvaluationSchema,
             )
 
             output_df.at[index, "score"] = score
@@ -131,12 +134,21 @@ class EvaluationWithJudge(EvaluationBase):
             key_path, 
             evaluation_output_path)
         if concat:
+            csv_path = f"{results_dir}/{evaluation_output_path}.csv"
+
+            Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
+
+            if os.path.exists(csv_path):
+                concat_df = pd.read_csv(csv_path)
+            else:
+                concat_df = pd.DataFrame()
+                
             self.append_to_all_results_concat(
                 dataset_name,
                 model_name,
                 strategy_name,
                 version,
-                pd.read_csv(f"{results_dir}/{evaluation_output_path}.csv"),
+                concat_df,
                 output_all_results_concat_path
             )
 
