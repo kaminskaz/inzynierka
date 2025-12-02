@@ -41,15 +41,15 @@ class VLLM:
         if self.cpu_local_testing:
             logger.info("CPU-only mode enabled for this request. Setting schema to None for the purpose of local testing.")
 
-        model_info = get_model_architecture(model_name)
-        if not model_info["supported"]:
-            logger.critical(
-                f"Model '{model_name}' not supported. Reason: {model_info['error']}"
-            )
-            raise ValueError(f"Model '{model_name}' unsupported.")
+        # model_info = get_model_architecture(model_name)
+        # if not model_info["supported"]:
+        #     logger.critical(
+        #         f"Model '{model_name}' not supported. Reason: {model_info['error']}"
+        #     )
+        #     raise ValueError(f"Model '{model_name}' unsupported.")
 
-        if not model_info["is_multi_modal"]:
-            logger.warning(f"'{model_name}' appears to be text-only.")
+        # if not model_info["is_multi_modal"]:
+        #     logger.warning(f"'{model_name}' appears to be text-only.")
 
         port = portpicker.pick_unused_port()
         self.api_key = "NOT-USED"
