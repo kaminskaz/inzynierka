@@ -1,15 +1,27 @@
 #!/bin/bash
 #SBATCH -A kazmierczak-group
-#SBATCH --job-name=intern # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
-#SBATCH --time=01:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że>
+#SBATCH --job-name=inz # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
+#SBATCH --time=08:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=2 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
 #SBATCH --cpus-per-gpu=7 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze minimum 6-8 bo inaczej kole>
 #SBATCH --mem=64gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
-#SBATCH --partition=short # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma A100 short max 1d long dł>
+#SBATCH --partition=hopper # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma A100 short max 1d long dł>
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=01180698@pw.edu.pl
 # Debugging flags
+
+
+# ---- PARAMETERS ----
+DATASET_NAME=${1:-cvr}
+STRATEGY=${2:-direct}
+MODEL_NAME=${3:-"OpenGVLab/InternVL3-8B"}
+
+echo "Dataset: $DATASET_NAME"
+echo "Strategy: $STRATEGY"
+echo "Model: $MODEL_NAME"
+
+
 export PYTHONFAULTHANDLER=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
@@ -32,15 +44,15 @@ export RAY_METRICS_EXPORT_PORT=0
 # Run the experiment
 # Added line breaks (\) for readability
 python run_single_experiment.py \
-    --dataset_name bp \
-    --strategy contrastive \
-    --model_name "OpenGVLab/InternVL3-8B" \
+    --dataset_name "$DATASET_NAME" \
+    --strategy "$STRATEGY" \
+    --model_name "$MODEL_NAME" \
     --temperature 0.5 \
     --max_tokens 8192 \
     --max_output_tokens 2048 \
     --limit_mm_per_prompt 2 \
-    --debug \
-    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9 --max-num-seqs 128
+    # --debug \
+    --custom_args --tensor-parallel-size 2 --gpu-memory-utilization 0.9 --max-num-seqs 128
 
 # Clean up temporary directories
 rm -rf ${JOB_HF_HOME}

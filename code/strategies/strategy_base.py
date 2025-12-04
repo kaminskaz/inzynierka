@@ -60,76 +60,82 @@ class StrategyBase(ABC):
         pass
 
     def run(self) -> None:
-        """
-        Main execution loop (Template Method).
-        Common to all strategies.
-        """
-        results = []
-        all_descriptions_data = {}
-
-        for problem_entry in os.scandir(self.dataset_dir):
-            try:
-                if not problem_entry.is_dir():
-                    continue
-                problem_id = problem_entry.name
-
-                response, problem_id, problem_descriptions = (
-                    self._execute_problem(problem_id)
-                )
-
-                self.logger.debug(f"Raw response for {problem_id}: {response}")
-                
-
-                response = _parse_response(response)
-
-                if problem_descriptions:
-                    all_descriptions_data[problem_id] = problem_descriptions
-
-                self.logger.debug(f"Response for {problem_id}: {response}")
-
-                if response:
-                    answer = _get_field(response, "answer", "")
-                    confidence = _get_field(response, "confidence", "")
-                    rationale = _get_field(response, "rationale", "")
-
-                    result = {
-                        "problem_id": problem_id,
-                        "answer": answer,
-                        "confidence": confidence,
-                        "rationale": rationale,
-                    }
-
-                else:
-                    result = {
-                        "problem_id": problem_id,
-                        "answer": "",
-                        "confidence": "",
-                        "rationale": "",
-                    }
-
-                results.append(result)
-
-            except Exception as e:
-                self.logger.error(f"Error processing {problem_entry.name}: {e}")
-
-        self.save_raw_answers_to_csv(results)
-
-        self.save_metadata(
-            question_prompt=self.question_prompt,
-            problem_description_prompt=self.problem_description_prompt,
-            describe_prompt=self.descriptions_prompt,
-            sample_answer_prompt=self.sample_answer_prompt,
-        )
-
-        if all_descriptions_data and self.descriptions_path:
-            self.save_descriptions_to_json(
-                self.descriptions_path, all_descriptions_data
+            """
+            Main execution loop (Template Method).
+            Common to all strategies.
+            """
+            results = []
+            all_descriptions_data = {}
+            
+            self.save_metadata(
+                question_prompt=self.question_prompt,
+                problem_description_prompt=self.problem_description_prompt,
+                describe_prompt=self.descriptions_prompt,
+                sample_answer_prompt=self.sample_answer_prompt,
             )
 
-        self.logger.info(
-            f"{self.strategy_name} run completed for dataset: {self.dataset_name} "
-            f"using model: {self.model.get_model_name()}"
-        )
+            for problem_entry in os.scandir(self.dataset_dir):
+                try:
+                    if not problem_entry.is_dir():
+                        continue
+                    problem_id = problem_entry.name
+
+                    response, problem_id, problem_descriptions = (
+                        self._execute_problem(problem_id)
+                    )
+
+                    self.logger.debug(f"Raw response for {problem_id}: {response}")
+
+                    response = _parse_response(response)
+
+                    if problem_descriptions:
+                        all_descriptions_data[problem_id] = problem_descriptions
+                        #  descriptions incrementally
+                        if self.descriptions_path:
+                            self.save_descriptions_to_json(
+                                self.descriptions_path, all_descriptions_data
+                            )
+
+                    self.logger.debug(f"Response for {problem_id}: {response}")
+
+                    # construct the result dictionary
+                    if response:
+                        answer = _get_field(response, "answer", "")
+                        confidence = _get_field(response, "confidence", "")
+                        rationale = _get_field(response, "rationale", "")
+
+                        result = {
+                            "problem_id": problem_id,
+                            "answer": answer,
+                            "confidence": confidence,
+                            "rationale": rationale,
+                        }
+                    else:
+                        result = {
+                            "problem_id": problem_id,
+                            "answer": "",
+                            "confidence": "",
+                            "rationale": "",
+                        }
+
+                    results.append(result)
+
+                    self.save_raw_answers_to_csv(results)
+
+                except Exception as e:
+                    self.logger.error(f"Error processing {problem_entry.name}: {e}")
+
+            self.save_raw_answers_to_csv(results)
+
+            if all_descriptions_data and self.descriptions_path:
+                self.save_descriptions_to_json(
+                    self.descriptions_path, all_descriptions_data
+                )
+
+            self.logger.info(
+                f"{self.strategy_name} run completed for dataset: {self.dataset_name} "
+                f"using model: {self.model.get_model_name()}"
+            )
 
     def get_prompt(self, prompt_type: str) -> str:
         try:
