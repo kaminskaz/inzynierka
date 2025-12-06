@@ -7,6 +7,7 @@ import os
 from code.evaluation.evaluation_base import EvaluationBase
 from code.models.llm_judge import LLMJudge
 from code.technical.response_schema import BongardEvaluationSchema
+from code.technical.utils import make_dir_for_results
 
 logger = logging.getLogger(__name__)
 
@@ -48,22 +49,16 @@ class EvaluationWithJudge(EvaluationBase):
             evaluation_output_path: str = "evaluation_results",
         ):
 
-        results_dir = f"results/{strategy_name}_{dataset_name}_{model_name}_ver{version}"
-        answers_path = f"{results_dir}/results.csv"
-        key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
+        results_dir, answers_path, key_path = self.get_evaluation_paths(
+            strategy_name,
+            dataset_name,
+            model_name,
+            version
+        )
 
-        if not results_dir or not os.path.exists(results_dir):
-            logger.error("Results directory is not provided or does not exist.")
+        if not results_dir or not answers_path or not key_path:
             return
         
-        if not answers_path or not os.path.exists(answers_path):
-            logger.error("Answers path is not provided or does not exist.")
-            return
-
-        if not key_path or not os.path.exists(key_path):
-            logger.error("Key path is not provided or does not exist.")
-            return
-
         answers_df = pd.read_csv(answers_path, dtype={"problem_id": str})
         output_df = answers_df.copy()
         output_df["score"] = ""
@@ -124,47 +119,6 @@ class EvaluationWithJudge(EvaluationBase):
         output_path = f"{results_dir}/{evaluation_output_path}.csv"
         output_df.to_csv(output_path, index=False)
         logger.info(f"Results saved to {output_path}")
-
-    def run_evaluation(
-            self, 
-            dataset_name,
-            model_name,
-            strategy_name,
-            version,
-            results_dir, 
-            answers_path, 
-            key_path, 
-            evaluation_output_path = "evaluation_results", 
-            concat = True, 
-            output_all_results_concat_path = None
-        ):
-        if output_all_results_concat_path  is None:
-            default_dir = results_dir.split("results")[0] + "results"
-            output_all_results_concat_path  = default_dir / "all_results_concat.csv"
-
-        self.evaluate(
-            results_dir, 
-            answers_path, 
-            key_path, 
-            evaluation_output_path)
-        if concat:
-            csv_path = f"{results_dir}/{evaluation_output_path}.csv"
-
-            Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
-
-            if os.path.exists(csv_path):
-                concat_df = pd.read_csv(csv_path)
-            else:
-                concat_df = pd.DataFrame()
-
-            self.append_to_all_results_concat(
-                dataset_name,
-                model_name,
-                strategy_name,
-                version,
-                concat_df,
-                output_all_results_concat_path
-            )
 
     def calculate_metrics(self, evaluated_df):
         total = len(evaluated_df)

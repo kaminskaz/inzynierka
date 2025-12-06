@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Type
+import logging
 from pydantic import BaseModel
 import pandas as pd
 import os
+from code.technical.utils import make_dir_for_results, shorten_model_name, get_dataset_config
+from pathlib import Path
 
+logger = logging.getLogger(__name__)
 
 class EvaluationBase(ABC):
 
@@ -15,9 +19,66 @@ class EvaluationBase(ABC):
     def evaluate(self, *args, **kwargs):
         pass
 
-    @abstractmethod
-    def run_evaluation(self, *args, **kwargs):
-        pass
+    def run_evaluation(
+            self, 
+            dataset_name,
+            model_name,
+            strategy_name,
+            version,
+            evaluation_output_path = "evaluation_results", 
+            prompt=None,
+            concat = True, 
+            output_all_results_concat_path = None
+        ):
+        results_dir = make_dir_for_results(
+            dataset_name=dataset_name,
+            strategy_name=strategy_name,
+            model_name=model_name,
+            version=version
+        )
+        if output_all_results_concat_path  is None:
+            default_dir = results_dir.split("results")[0] + "results"
+            output_all_results_concat_path  = default_dir / "all_results_concat.csv"
+
+        d_category = get_dataset_config(dataset_name).category
+
+        if d_category == "bp":
+            self.evaluate(
+                strategy_name=strategy_name,
+                dataset_name=dataset_name,
+                model_name=model_name,
+                version=version,
+                prompt=prompt,
+                evaluation_output_path=evaluation_output_path
+            )
+            
+        elif d_category == "standard":
+            self.evaluate(
+                strategy_name=strategy_name,
+                dataset_name=dataset_name,
+                model_name=model_name,
+                version=version,
+                evaluation_output_path=evaluation_output_path
+            )
+        
+        if concat:
+            csv_path = f"{results_dir}/{evaluation_output_path}.csv"
+
+            Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
+
+            if os.path.exists(csv_path):
+                concat_df = pd.read_csv(csv_path)
+            else:
+                concat_df = pd.DataFrame()
+
+            self.append_to_all_results_concat(
+                dataset_name,
+                model_name,
+                strategy_name,
+                version,
+                concat_df,
+                output_all_results_concat_path
+            )
 
     @abstractmethod
     def calculate_metrics(self, *args, **kwargs) -> dict:
@@ -66,7 +127,7 @@ class EvaluationBase(ABC):
             all_results_concat_path
         ):
         df["dataset_name"]  = dataset_name
-        df["model_name"]    = model_name
+        df["model_name"]    = shorten_model_name(model_name)
         df["strategy_name"] = strategy_name
         df["version"]       = version
         if os.path.exists(all_results_concat_path):
@@ -95,4 +156,32 @@ class EvaluationBase(ABC):
         combined_df = combined_df.drop_duplicates(subset=["problem_id", "dataset_name", "model_name", "strategy_name", "version"], keep='last')
 
         combined_df.to_csv(all_results_concat_path, index=False)
-    
+
+    def get_evaluation_paths(
+            strategy_name: str,
+            dataset_name: str,
+            model_name: str,
+            version: str):
+        
+        results_dir = make_dir_for_results(
+            dataset_name=dataset_name,
+            strategy_name=strategy_name,
+            model_name=model_name,
+            version=version
+        )
+        answers_path = f"{results_dir}/results.csv"
+        key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
+
+        if not results_dir or not os.path.exists(results_dir):
+            logger.error("Results directory is not provided or does not exist.")
+            results_dir = None
+        
+        if not answers_path or not os.path.exists(answers_path):
+            logger.error("Answers path is not provided or does not exist.")
+            answers_path = None 
+
+        if not key_path or not os.path.exists(key_path):
+            logger.error("Key path is not provided or does not exist.")
+            key_path = None
+
+        return results_dir, answers_path, key_path

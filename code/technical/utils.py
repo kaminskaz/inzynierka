@@ -70,3 +70,48 @@ def _get_field(obj, name, default=None):
     if isinstance(obj, BaseModel):
         return getattr(obj, name, default)
     return default
+
+def make_dir_for_results(dataset_name: str, strategy_name: str, model_name: str, version: Optional[str] = None) -> str:
+    """
+    Creates a new versioned results directory for the given dataset and strategy.
+    If previous versions exist, increments the version number.
+    """
+    base_results_dir = "results"
+    os.makedirs(base_results_dir, exist_ok=True)
+
+    short_model_name = shorten_model_name(model_name)
+
+    prefix = f"{strategy_name}_{dataset_name}_{short_model_name}"
+    if version is not None:
+        dir_name = f"{prefix}_ver{version}"
+        path = os.path.join(base_results_dir, dir_name)
+        return path
+        
+    version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
+
+    existing_versions = []
+    for entry in os.scandir(base_results_dir):
+        if entry.is_dir():
+            match = version_pattern.match(entry.name)
+            if match:
+                existing_versions.append(int(match.group(1)))
+
+    new_version = max(existing_versions, default=0) + 1
+    new_dir_name = f"{prefix}_ver{new_version}"
+    new_dir_path = os.path.join(base_results_dir, new_dir_name)
+
+    os.makedirs(new_dir_path, exist_ok=True)
+    logger.info(f"Results directory created at: {new_dir_path}")
+
+    return new_dir_path
+
+def shorten_model_name(model_name: str) -> str:
+    parts = model_name.split('/')
+    if len(parts) >= 3:
+        short_model_name = parts[1]
+    elif len(parts) == 2:
+        short_model_name = parts[1]
+    else:
+        short_model_name = model_name
+    short_model_name = short_model_name.replace('/', '_')
+    return short_model_name

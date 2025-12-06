@@ -8,7 +8,7 @@ from typing import Any, List
 
 from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
-from code.technical.utils import get_dataset_config
+from code.technical.utils import get_dataset_config, make_dir_for_results
 from code.evaluation.evaluation_basic import EvaluationBasic
 from code.evaluation.evaluation_judge import EvaluationWithJudge
 
@@ -16,23 +16,22 @@ from code.evaluation.evaluation_judge import EvaluationWithJudge
 logger = logging.getLogger(__name__)
 
 def run_multiple_evaluations(
-        self,
-        strategy_name: List[str],
-        dataset_name: List[str],
-        model_name: List[str],
-        version: List[str],
-        judge_prompt: str = "",
+        strategy_names: List[str],
+        dataset_names: List[str],
+        model_names: List[str],
+        versions: List[str],
+        judge_prompt: str = None,
         evaluation_output_path: str = "evaluation_results"
     ):
         evaluator_judge = EvaluationWithJudge()
         evaluator_simple = EvaluationBasic()
 
-        for d_name in dataset_name:
+        for d_name in dataset_names:
             d_category = get_dataset_config(d_name).category 
-            for s_name, m_name, ver in zip(strategy_name, dataset_name, model_name, version):
+            for s_name, m_name, ver in zip(strategy_names, dataset_names, model_names, versions):
                 if d_category == "standard":
                     evaluator = evaluator_simple
-                    evaluator.evaluate(
+                    evaluator.run_evaluation(
                         dataset_name=d_name,
                         model_name=m_name,
                         strategy_name=s_name,
@@ -41,7 +40,7 @@ def run_multiple_evaluations(
                     )
                 else:
                     evaluator = evaluator_judge
-                    evaluator.evaluate(
+                    evaluator.run_evaluation(
                         dataset_name=d_name,
                         model_name=m_name,
                         strategy_name=s_name,
@@ -129,42 +128,6 @@ def check_data_preprocessed(dataset_name: str) -> bool:
     logger.info(f"Found preprocessed data at: {base_data_path}")
     return True
 
-def make_dir_for_results(dataset_name: str, strategy_name: str, model_name: str) -> str:
-    """
-    Creates a new versioned results directory for the given dataset and strategy.
-    If previous versions exist, increments the version number.
-    """
-    base_results_dir = "results"
-    os.makedirs(base_results_dir, exist_ok=True)
-
-    #shorten model name
-    parts = model_name.split('/')
-    if len(parts) >= 3:
-        short_model_name = parts[1]
-    elif len(parts) == 2:
-        short_model_name = parts[1]
-    else:
-        short_model_name = model_name
-    short_model_name = short_model_name.replace('/', '_')
-
-    prefix = f"{strategy_name}_{dataset_name}_{short_model_name}"
-    version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
-
-    existing_versions = []
-    for entry in os.scandir(base_results_dir):
-        if entry.is_dir():
-            match = version_pattern.match(entry.name)
-            if match:
-                existing_versions.append(int(match.group(1)))
-
-    new_version = max(existing_versions, default=0) + 1
-    new_dir_name = f"{prefix}_ver{new_version}"
-    new_dir_path = os.path.join(base_results_dir, new_dir_name)
-
-    os.makedirs(new_dir_path, exist_ok=True)
-    logger.info(f"Results directory created at: {new_dir_path}")
-
-    return new_dir_path
 
 def run_single_experiment_on_model(dataset_name: str,
         strategy_name: str, 

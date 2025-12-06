@@ -9,7 +9,7 @@ import pandas as pd
 from code.preprocessing.processor_config import ProcessorConfig
 from code.models.vllm import VLLM
 from code.technical.response_schema import GeneralEnsembleSchema
-from code.technical.utils import get_dataset_config
+from code.technical.utils import get_dataset_config, make_dir_for_results
 from run_single_experiment import run_single_experiment
 from code.models.llm_judge import LLMJudge
 
@@ -27,8 +27,8 @@ class EnsembleBase(ABC):
         self._build_ensemble()
         self.llm = LLMJudge()
 
-    def get_results_dir(self, dataset: str, strategy: str, model: str, version: str = '1',) -> str:
-        base_dir = f"results/{dataset}_{strategy}_{model}_{version}"
+    def get_results_dir(self, dataset: str, strategy: str, model_name: str, version: str = '1',) -> str:
+        base_dir = make_dir_for_results(dataset, strategy, model_name, version)
         if not os.path.exists(base_dir):
             self.logger.warning(f"Directory {base_dir} does not exist.")
             return ""
@@ -38,11 +38,11 @@ class EnsembleBase(ABC):
         self, 
         dataset: str, 
         strategy: str, 
-        model: str, 
+        model_name: str, 
         version: str = "1"
     ) -> tuple[pd.DataFrame, dict]:
         
-        results_dir = self.get_results_dir(dataset, strategy, model, version)
+        results_dir = self.get_results_dir(dataset, strategy, model_name, version)
         path_to_csv = os.path.join(results_dir, "results.csv")
         path_to_metadata = os.path.join(results_dir, "metadata.json")
 
@@ -67,7 +67,7 @@ class EnsembleBase(ABC):
 
     def _build_ensemble(self) -> pd.DataFrame:
         for idx, mem in enumerate(self.members_configuration):
-            strategy, model, version = mem
+            strategy, model_name, version = mem
 
             if self.dataset == 'bp' and strategy == 'classification':
                 self.logger.info(
@@ -76,20 +76,20 @@ class EnsembleBase(ABC):
                 )
                 continue
 
-            df, meta = self.load_data_from_results_path(self.dataset, strategy, model, version)
+            df, meta = self.load_data_from_results_path(self.dataset, strategy, model_name, version)
 
             if meta is None:
-                self.logger.warning(f"No metadata found for member {idx} with strategy {strategy}, model {model}.")
+                self.logger.warning(f"No metadata found for member {idx} with strategy {strategy}, model {model_name}.")
                 meta = {}
 
             if df.empty:
-                self.logger.warning(f"No data loaded for member {idx} with strategy {strategy}, model {model}.")
+                self.logger.warning(f"No data loaded for member {idx} with strategy {strategy}, model {model_name}.")
                 if self.run_missing:
-                    self.logger.info(f"Running new for member {idx} with strategy {strategy}, model {model}.")
+                    self.logger.info(f"Running new for member {idx} with strategy {strategy}, model {model_name}.")
                     run_single_experiment(dataset_name=self.dataset, 
                                           strategy_name=strategy,
-                                          model_name=model)
-                    df, meta = self.load_data_from_results_path(self.dataset, strategy, model, version)
+                                          model_name=model_name)
+                    df, meta = self.load_data_from_results_path(self.dataset, strategy, model_name, version)
             
             self.config[f"member_{idx}"] = meta
 
