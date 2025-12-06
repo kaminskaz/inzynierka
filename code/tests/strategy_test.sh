@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH -A kazmierczak-group
+#SBATCH -A jrafalko-lab
 #SBATCH --job-name=inz # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
-#SBATCH --time=08:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja twój proces (zasada jest że>
+#SBATCH --time=20:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja tw>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
-#SBATCH --gpus=2 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
-#SBATCH --cpus-per-gpu=7 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze minimum 6-8 bo inaczej kole>
-#SBATCH --mem=64gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
-#SBATCH --partition=hopper # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma A100 short max 1d long dł>
+#SBATCH --gpus=4 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
+#SBATCH --cpus-per-gpu=8 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze mi>
+#SBATCH --mem=128gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
+#SBATCH --partition=hopper # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma>
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=01180698@pw.edu.pl
 # Debugging flags
@@ -27,33 +27,27 @@ export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 
 echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
 
-# Set up job-specific temporary directories
-export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/huggingface/tmp/${SLURM_JOB_ID}"
+export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/huggingface_${SLURM_JOB_ID}"
 mkdir -p ${JOB_HF_HOME}
 
-export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/tmp/${SLURM_JOB_ID}"
+export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/tmp_${SLURM_JOB_ID}"
 mkdir -p ${JOB_TMPDIR}
 
-# Activate virtual environment
+
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
-# Navigate to the project directory
 cd /mnt/evafs/groups/jrafalko-lab/inzynierka/
-export RAY_METRICS_EXPORT_PORT=0
-# Run the experiment
-# Added line breaks (\) for readability
 python run_single_experiment.py \
     --dataset_name "$DATASET_NAME" \
     --strategy "$STRATEGY" \
     --model_name "$MODEL_NAME" \
     --temperature 0.5 \
-    --max_tokens 8192 \
-    --max_output_tokens 2048 \
+    --max_tokens 16384 \
+    --max_output_tokens 4096 \
     --limit_mm_per_prompt 2 \
-    # --debug \
-    --custom_args --tensor-parallel-size 2 --gpu-memory-utilization 0.9 --max-num-seqs 128
+    --custom_args --tensor-parallel-size 4 --gpu-memory-utilization 0.9
+    # --debug
 
-# Clean up temporary directories
 rm -rf ${JOB_HF_HOME}
 rm -rf ${JOB_TMPDIR}
