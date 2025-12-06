@@ -4,12 +4,51 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, List
+
 from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
+from code.technical.utils import get_dataset_config
+from code.evaluation.evaluation_basic import EvaluationBasic
+from code.evaluation.evaluation_judge import EvaluationWithJudge
 
 
 logger = logging.getLogger(__name__)
+
+def run_multiple_evaluations(
+        self,
+        strategy_name: List[str],
+        dataset_name: List[str],
+        model_name: List[str],
+        version: List[str],
+        judge_prompt: str = "",
+        evaluation_output_path: str = "evaluation_results"
+    ):
+        evaluator_judge = EvaluationWithJudge()
+        evaluator_simple = EvaluationBasic()
+
+        for d_name in dataset_name:
+            d_category = get_dataset_config(d_name).category 
+            for s_name, m_name, ver in zip(strategy_name, dataset_name, model_name, version):
+                if d_category == "standard":
+                    evaluator = evaluator_simple
+                    evaluator.evaluate(
+                        dataset_name=d_name,
+                        model_name=m_name,
+                        strategy_name=s_name,
+                        version=ver,
+                        evaluation_output_path=evaluation_output_path,
+                    )
+                else:
+                    evaluator = evaluator_judge
+                    evaluator.evaluate(
+                        dataset_name=d_name,
+                        model_name=m_name,
+                        strategy_name=s_name,
+                        version=ver,
+                        prompt=judge_prompt,
+                        evaluation_output_path=evaluation_output_path,
+                    )
 
 
 def _load_model(
