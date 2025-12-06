@@ -40,14 +40,28 @@ class EvaluationWithJudge(EvaluationBase):
 
     def evaluate(
             self, 
-            results_dir: str,
-            answers_path: str, 
-            key_path: str, 
+            strategy_name: str,
+            dataset_name: str,
+            model_name: str,
+            version: str,
             prompt: str = "",
             evaluation_output_path: str = "evaluation_results",
         ):
+
+        results_dir = f"results/{strategy_name}_{dataset_name}_{model_name}_ver{version}"
+        answers_path = f"{results_dir}/results.csv"
+        key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
+
+        if not results_dir or not os.path.exists(results_dir):
+            logger.error("Results directory is not provided or does not exist.")
+            return
+        
         if not answers_path or not os.path.exists(answers_path):
             logger.error("Answers path is not provided or does not exist.")
+            return
+
+        if not key_path or not os.path.exists(key_path):
+            logger.error("Key path is not provided or does not exist.")
             return
 
         answers_df = pd.read_csv(answers_path, dtype={"problem_id": str})
@@ -142,7 +156,7 @@ class EvaluationWithJudge(EvaluationBase):
                 concat_df = pd.read_csv(csv_path)
             else:
                 concat_df = pd.DataFrame()
-                
+
             self.append_to_all_results_concat(
                 dataset_name,
                 model_name,
