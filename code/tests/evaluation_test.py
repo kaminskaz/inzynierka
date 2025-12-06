@@ -13,12 +13,12 @@ def main():
     evaluator = EvaluationBasic()
     evaluator.run_evaluation(
         dataset_name="cvr",
-        model_name="Qwen2.5-VL-7B-Instruct",
-        strategy_name="contrastive",
+        model_name="InternVL3-8B",
+        strategy_name="descriptive",
         version="1",
-        results_dir="results/contrastive_cvr_Qwen2.5-VL-7B-Instruct_ver1",
-        answers_path="results/contrastive_cvr_Qwen2.5-VL-7B-Instruct_ver1/results.csv",
-        key_path="data_test/cvr/jsons/cvr_solutions.json",
+        results_dir="results/descriptive_cvr_InternVL3-8B_ver1",
+        answers_path="results/descriptive_cvr_InternVL3-8B_ver1/results.csv",
+        key_path="data/cvr/jsons/cvr_solutions.json",
         evaluation_output_path="evaluation_results",
         concat=True,
         output_all_results_concat_path="results/all_results_concat.csv"
@@ -28,12 +28,12 @@ def main():
     evaluator = EvaluationWithJudge()
     evaluator.run_evaluation(
         dataset_name="bp",
-        model_name="Qwen2.5-VL-7B-Instruct",
-        strategy_name="direct",
+        model_name="InternVL3-8B",
+        strategy_name="descriptive",
         version="1",
-        results_dir="results/direct_bp_Qwen2.5-VL-7B-Instruct_ver1",
-        answers_path="results/direct_bp_Qwen2.5-VL-7B-Instruct_ver1/results.csv",
-        key_path="data_test/bp/jsons/bp_solutions.json",
+        results_dir="results/descriptive_bp_InternVL3-8B_ver1",
+        answers_path="results/descriptive_bp_InternVL3-8B_ver1/results.csv",
+        key_path="data/bp/jsons/bp_solutions.json",
         evaluation_output_path="evaluation_results",
         concat=True,
         output_all_results_concat_path="results/all_results_concat.csv"
