@@ -58,7 +58,7 @@ class VLLM:
         self.process = launch_vllm_server(
             model_name,
             self.base_url,
-            timeout=1800,
+            timeout=3600.0,
             api_key=self.api_key,
             other_args=(
                 "--port",
@@ -120,7 +120,7 @@ class VLLM:
             max_tokens=self.max_output_tokens,
             response_format=schema,
             extra_body=dict(guided_decoding_backend="outlines"),
-            timeout=600.0
+            timeout=1800.0
         )
 
         model_response = response.choices[0].message
