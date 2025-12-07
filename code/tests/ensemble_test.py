@@ -41,7 +41,7 @@ def run_single_ensemble(
         if not model_object:
             if type_name == "reasoning_with_image" and vllm_model_name:
                 logger.info(f"Initializing VLLM model '{vllm_model_name}' for reasoning with image ensemble.")
-                model_object = VLLM(
+                model = VLLM(
                     model_name=vllm_model_name,
                     temperature=temperature,
                     max_tokens=max_tokens,
@@ -50,10 +50,11 @@ def run_single_ensemble(
                     custom_args=custom_args,
                     cpu_local_testing=local_testing
                 )
-            else:
+
+            elif (get_dataset_config(dataset_name).category == "BP" and llm_model_name) or (type_name == "reasoning" and llm_model_name):
                 logger.info(f"Initializing LLM model '{llm_model_name}' for ensemble.")
                 
-                model_object = LLMJudge(
+                model = LLMJudge(
                     model_name=llm_model_name,
                     temperature=temperature,
                     max_tokens=max_tokens,
@@ -68,7 +69,7 @@ def run_single_ensemble(
             dataset_name=dataset_name,
             members_configuration=members_configuration,
             run_missing=True,
-            judge_model=model_object,
+            judge_model=model,
             type_name=type_name
         )
         

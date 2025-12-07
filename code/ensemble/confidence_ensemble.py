@@ -6,13 +6,15 @@ from transformers import Optional, Any, List
 from code.ensemble.ensemble_base import EnsembleBase
 from code.technical.response_schema import GeneralEnsembleSchema
 from code.technical.content import TextContent
-from code.technical.utils import get_field
+from code.technical.utils import get_field, get_dataset_config
 from code.models.llm_judge import LLMJudge
+
 
 class ConfidenceEnsemble(EnsembleBase):
     def __init__(self, dataset_name, members_configuration, run_missing = True, type_name = "confidence", judge_model: Optional[Any] = None):
         super().__init__(dataset_name, members_configuration, run_missing, type_name)
-        self.llm = judge_model if judge_model is not None else LLMJudge()
+        if get_dataset_config(dataset_name).category == "BP":
+            self.llm = judge_model if judge_model is not None else LLMJudge()
         
     def evaluate_single_problem(self, problem_id):
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()
