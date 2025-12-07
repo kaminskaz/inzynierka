@@ -65,6 +65,9 @@ class EnsembleBase(ABC):
         return pd.DataFrame(), {}
 
     def _build_ensemble(self) -> pd.DataFrame:
+        
+        ensemble_df = pd.DataFrame()
+
         for idx, mem in enumerate(self.members_configuration):
             strategy, model_name, version = mem
 

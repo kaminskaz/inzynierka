@@ -1,7 +1,7 @@
 import pandas as pd
 import random
 
-from transformers import Optional, Any, List
+from typing import Optional, Any, List
 
 from code.ensemble.ensemble_base import EnsembleBase
 from code.technical.response_schema import GeneralEnsembleSchema

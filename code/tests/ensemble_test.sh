@@ -13,7 +13,7 @@
 
 # ---- PARAMETERS ----
 DATASET_NAME=${1:-cvr}
-MEMBERS_CONFIGURATION=${2:-"[['direct', 'OpenGVLab/InternVL3-8B', '1'], ['classification', 'OpenGVLab/InternVL3-8B', '1>
+MEMBERS_CONFIGURATION=${2:-'[["direct", "OpenGVLab/InternVL3-8B", "1"], ["classification", "OpenGVLab/InternVL3-8B", "1"]]'}
 ENSEMBLE_TYPE=${3:-"majority"}
 
 echo "Ensemble Type: $ENSEMBLE_TYPE"

@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 import logging
 import os
@@ -16,6 +17,12 @@ from code.evaluation.evaluation_judge import EvaluationWithJudge
 
 
 logger = logging.getLogger(__name__)
+
+def json_list(value):
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        raise argparse.ArgumentTypeError("members_configuration must be valid JSON")
 
 def run_single_ensemble(
         dataset_name: str,
@@ -62,6 +69,8 @@ def run_single_ensemble(
                     custom_args=custom_args,
                     cpu_local_testing=local_testing
                 )
+            else:
+                model = None
         else:
             model = model_object
         
@@ -76,7 +85,9 @@ def run_single_ensemble(
         logger.info("Ensemble created successfully. Running ensemble...")
         ensemble.evaluate()
         logger.info(f"Ensemble run complete for {dataset_name} / {type_name}.")
-        model.stop()
+        
+        if model:
+            model.stop()
 
     except ImportError as e:
         logger.error(f"Failed to create ensemble. Does '{type_name}' exist and is it importable? Error: {e}", exc_info=True)
@@ -93,7 +104,9 @@ if __name__ == "__main__":
 
     parser.add_argument('--dataset_name', type=str, required=True, 
                         help='Name of the dataset to use (same as in dataset_config.json)')
-    parser.add_argument('--members_configuration', type=List[List[str]], required=True, 
+    # parser.add_argument('--members_configuration', type=List[List[str]], required=True, 
+    #                     help='Configuration string/file for the ensemble members')
+    parser.add_argument('--members_configuration', type=json_list, required=True, 
                         help='Configuration string/file for the ensemble members')
     parser.add_argument('--ensemble_type', type=str, required=True, 
                         help='The type of ensemble method to apply')

@@ -57,10 +57,10 @@ def make_dir_for_results(
         os.makedirs(base_results_dir, exist_ok=True)
 
     short_model_name = shorten_model_name(model_name)
-    prefix = f"{strategy_name}_{dataset_name}_{short_model_name}"
+    prefix = os.path.join(dataset_name, strategy_name, short_model_name)
 
     if version is not None:
-        dir_name = f"{prefix}_ver{version}"
+        dir_name = os.path.join(prefix, f"ver{version}")
         path = os.path.join(base_results_dir, dir_name)
 
         if create_dir:
@@ -68,19 +68,20 @@ def make_dir_for_results(
 
         return path
 
-    version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
     existing_versions = []
 
-    if os.path.isdir(base_results_dir):
-        for entry in os.scandir(base_results_dir):
-            if entry.is_dir():
-                match = version_pattern.match(entry.name)
-                if match:
-                    existing_versions.append(int(match.group(1)))
+    if os.path.isdir(prefix):
+        for entry in os.scandir(prefix):
+            if entry.is_dir() and entry.name.startswith("ver"):
+                try:
+                    ver_num = int(entry.name.replace("ver", ""))
+                    existing_versions.append(ver_num)
+                except ValueError:
+                    pass
 
     new_version = max(existing_versions, default=0) + 1
-    new_dir_name = f"{prefix}_ver{new_version}"
-    new_dir_path = os.path.join(base_results_dir, new_dir_name)
+    new_dir_name = f"ver{new_version}"
+    new_dir_path = os.path.join(prefix, new_dir_name)
 
     if create_dir:
         os.makedirs(new_dir_path, exist_ok=True)
