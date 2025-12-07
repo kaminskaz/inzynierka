@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import json
+import string
 from typing import List, Optional, Type
 import logging
 from pydantic import BaseModel
@@ -36,14 +38,14 @@ class EvaluationBase(ABC):
             model_name=model_name,
             version=version
         )
-        print(f"Results directory: {results_dir}")
+
         if output_all_results_concat_path  is None:
             default_dir = results_dir.split("results")[0] + "results"
             output_all_results_concat_path = os.path.join(default_dir, "all_results_concat.csv")
 
         d_category = get_dataset_config(dataset_name).category
 
-        if d_category == "bp":
+        if d_category == "BP":
             self.evaluate(
                 strategy_name=strategy_name,
                 dataset_name=dataset_name,
@@ -85,7 +87,7 @@ class EvaluationBase(ABC):
     def calculate_metrics(self, *args, **kwargs) -> dict:
         pass
 
-    def check_completeness(self, df, descriptions = None) -> dict:
+    def check_completeness(self, df, metadata, descriptions = None) -> dict:
         summary = {}
 
         summary["row_ids_with_any_missing"] = df.index[df.isna().any(axis=1)].tolist()
@@ -94,27 +96,35 @@ class EvaluationBase(ABC):
         summary["missing_count_per_column"] = df.isna().sum().to_dict()
         summary["missing_ratio_per_column"] = df.isna().mean().to_dict()
 
+        expected_num_samples = metadata["config"]["expected_num_samples"]
+        summary["expected_num_samples"] = expected_num_samples
+
+        # num_digits = len(str(expected_num_samples - 1)) 
+        # for now fixed for 3 digits !
+        expected_ids = {str(i).zfill(3) for i in range(expected_num_samples)}
+        actual_ids = set(df["problem_id"].tolist())
+
+        missing_ids = sorted(expected_ids - actual_ids)
+        summary["missing_problem_ids"] = missing_ids
+        summary["num_missing_problem_ids"] = len(missing_ids)
+
         if descriptions:
             json_summary = {}
 
             max_inner_count = max(len(inner) for inner in descriptions.values())
-            expected_keys = {str(i) for i in range(max_inner_count)}
 
             incomplete_ids = {}
             for outer_id, inner_dict in descriptions.items():
-                missing_inner = sorted(list(expected_keys - set(inner_dict.keys())))
-                if missing_inner:
-                    incomplete_ids[outer_id] = missing_inner
+                missing_inner = sorted(
+                [k for k, v in inner_dict.items() if v is None or v.strip() == ""]
+            )
+            if missing_inner:
+                incomplete_ids[outer_id] = missing_inner
 
             json_summary["problem_ids_with_missing_descriptions"] = incomplete_ids
             json_summary["num_problem_ids_with_missing_descriptions"] = len(incomplete_ids)
-            json_summary["num_descriptions_expected"] = sorted(list(expected_keys))
 
             summary["descriptions_completeness"] = json_summary
-
-        total_cells = df.size
-        missing_cells = int(df.isna().sum().sum())
-        summary["completeness_ratio"] = float(1 - (missing_cells / total_cells if total_cells > 0 else 0))
 
         return summary
     

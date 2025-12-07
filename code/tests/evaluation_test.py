@@ -14,7 +14,7 @@ def main():
         strategy_names=["direct", "descriptive", "contrastive", "classification"],
         dataset_names=["cvr", "bp", "raven", "marsvqa"],
         model_names=["OpenGVLab/InternVL3-8B"],
-        versions=["1"]
+        versions=["1", "2"]
     )
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import logging
 import os
 import re
 from pathlib import Path
+from itertools import product
 from typing import Any, List
 
 from code.strategies.strategy_factory import StrategyFactory
@@ -28,8 +29,8 @@ def run_multiple_evaluations(
 
         for d_name in dataset_names:
             d_category = get_dataset_config(d_name).category 
-            print(f"Evaluating dataset: {d_name} of category {d_category}")
-            for s_name, m_name, ver in zip(strategy_names, model_names, versions):
+            for s_name, m_name, ver in product(strategy_names, model_names, versions):
+                print(f"Evaluating dataset: {d_name} of category {d_category} for strategies: {s_name}")
                 if d_category == "standard" or d_category == "choice_only":
                     evaluator = evaluator_simple
                     evaluator.run_evaluation(
