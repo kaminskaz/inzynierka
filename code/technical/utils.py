@@ -115,3 +115,37 @@ def shorten_model_name(model_name: str) -> str:
         short_model_name = model_name
     short_model_name = short_model_name.replace('/', '_')
     return short_model_name
+
+
+def get_ensemble_directory(dataset_name, type_name, create: bool = False, version: Optional[str] = None) -> str:
+        # creates a new directory for the ensemble results inside results/ensembles/{dataset_name}/{type_name}/ensemble_ver{version}
+        # where {version} is incremented if previous versions exist
+        base_results_dir = os.path.join("results", "ensembles", dataset_name, type_name)
+        os.makedirs(base_results_dir, exist_ok=True)
+        prefix = f"ensemble_"
+
+        # get if version is provided
+        if version is not None:
+            dir_name = f"{prefix}ver{version}"
+            path = os.path.join(base_results_dir, dir_name)
+            if create:
+                os.makedirs(os.path.join(base_results_dir, f"{prefix}ver{version}"), exist_ok=True)
+                logger.info(f"Ensemble results directory created at: {path} with version specified.")
+            return path
+        
+        version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
+        existing_versions = []
+        for entry in os.scandir(base_results_dir):
+            if entry.is_dir():
+                match = version_pattern.match(entry.name)
+                if match:
+                    existing_versions.append(int(match.group(1)))
+        new_version = max(existing_versions, default=0) + 1
+        new_dir_name = f"{prefix}ver{new_version}"
+        new_dir_path = os.path.join(base_results_dir, new_dir_name)
+        if create:
+            os.makedirs(new_dir_path, exist_ok=True)
+            logger.info(f"Ensemble results directory created at: {new_dir_path}")
+            return new_dir_path
+        
+        return ""

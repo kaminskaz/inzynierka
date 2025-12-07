@@ -1,17 +1,19 @@
 import pandas as pd
 import random
-
+from typing import Dict, Any, List, Optional
 from traitlets import List
 
 from code.ensemble.ensemble_base import EnsembleBase
 from code.models.vllm import VLLM
 from code.technical.content import ImageContent, TextContent
 from code.technical.response_schema import GeneralEnsembleSchema
+from code.technical.utils import get_field
 
-class ReasoningEnsemble(EnsembleBase):
-    def __init__(self, dataset: str, members_configuration: List[List[str]], run_missing: bool = True):
-        super().__init__(dataset, members_configuration, run_missing)
-        self.vllm = VLLM(model_name="Qwen/Qwen2.5-VL-7B-Instruct", max_tokens=2048, max_output_tokens=1024)
+
+class ReasoningEnsembleWithImage(EnsembleBase):
+    def __init__(self, dataset_name: str, members_configuration: List[List[str]], run_missing: bool = True, judge_model: Optional[Any] = None, type_name: str = "reasoning_with_image"):
+        super().__init__(dataset_name, members_configuration, run_missing, type_name)
+        self.vllm = judge_model if judge_model is not None else VLLM(model_name="OpenGVLab/InternVL3-8B", max_tokens=4096, max_output_tokens=2048)
 
     def evaluate_single_problem(self, problem_id):
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()
@@ -22,7 +24,7 @@ class ReasoningEnsemble(EnsembleBase):
 
         answer_list = single_problem_df["answer"].tolist()
         reasoning_list = single_problem_df["reasoning"].tolist()
-        image_path = (f"data/{self.dataset}/problems/{problem_id}/question_panel.png")
+        image_path = (f"data/{self.dataset_name}/problems/{problem_id}/question_panel.png")
 
         final_answer = self.evaluate_reasoning_using_llm(answer_list, reasoning_list, question_image_path=image_path)
         return final_answer
@@ -48,4 +50,6 @@ class ReasoningEnsemble(EnsembleBase):
             response_schema=schema,
         )
 
-        return response.final_answer
+        final_answer = get_field(response, "final_answer")
+
+        return final_answer

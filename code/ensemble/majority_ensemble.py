@@ -1,11 +1,18 @@
 import pandas as pd
 import random
 
+from typing import Optional, Any, List
 from code.ensemble.ensemble_base import EnsembleBase
 from code.technical.content import TextContent
 from code.technical.response_schema import GeneralEnsembleSchema
+from code.technical.utils import get_field
+from code.models.llm_judge import LLMJudge
 
 class MajorityEnsemble(EnsembleBase):
+    def __init__(self, dataset_name, members_configuration, run_missing = True, type_name = "majority", judge_model: Optional[Any] = None):
+        super().__init__(dataset_name, members_configuration, run_missing, type_name)
+        self.llm = judge_model if judge_model is not None else LLMJudge()
+
     def evaluate_single_problem(self, problem_id):
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()
 
@@ -51,7 +58,8 @@ class MajorityEnsemble(EnsembleBase):
             response_schema=schema,
         )
 
-        return response.final_answer
+        final_answer = get_field(response, "final_answer")
+        return final_answer
 
 
         

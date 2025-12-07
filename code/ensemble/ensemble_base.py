@@ -1,34 +1,33 @@
 import logging
 from abc import ABC, abstractmethod
+import re
 from typing import Any, List, Union, Optional, Dict
 import os
 import csv
 import json
 import pandas as pd
 
-from code.preprocessing.processor_config import ProcessorConfig
-from code.models.vllm import VLLM
-from code.technical.response_schema import GeneralEnsembleSchema
-from code.technical.utils import get_dataset_config, make_dir_for_results
+from code.technical.utils import get_dataset_config, make_dir_for_results, get_ensemble_directory
 from run_single_experiment import run_single_experiment
-from code.models.llm_judge import LLMJudge
+
 
 class EnsembleBase(ABC):
-    def __init__(self, dataset: str, members_configuration: List[List[str]], run_missing: bool = True):
+    def __init__(self, dataset_name: str, members_configuration: List[List[str]], run_missing: bool = True, type_name: str = ""):
         self.logger = logging.getLogger(__name__)
-        self.dataset = dataset
+        self.dataset_name = dataset_name
         self.config: Dict[str, Any] = {}
         self.run_missing = run_missing
         self.members_configuration = members_configuration
         self.answers = pd.DataFrame()
-        self.dataset_config = get_dataset_config(dataset)
+        self.dataset_config = get_dataset_config(dataset_name)
         self.seed = 42
+        self.type_name = type_name
+        self.ensemble_directory = None
 
         self._build_ensemble()
-        self.llm = LLMJudge()
 
-    def get_results_dir(self, dataset: str, strategy: str, model_name: str, version: str = '1',) -> str:
-        base_dir = make_dir_for_results(dataset, strategy, model_name, version)
+    def get_results_dir(self, dataset_name: str, strategy: str, model_name: str, version: str = '1',) -> str:
+        base_dir = make_dir_for_results(dataset_name, strategy, model_name, version)
         if not os.path.exists(base_dir):
             self.logger.warning(f"Directory {base_dir} does not exist.")
             return ""
@@ -36,13 +35,13 @@ class EnsembleBase(ABC):
 
     def load_data_from_results_path(
         self, 
-        dataset: str, 
+        dataset_name: str, 
         strategy: str, 
         model_name: str, 
         version: str = "1"
     ) -> tuple[pd.DataFrame, dict]:
         
-        results_dir = self.get_results_dir(dataset, strategy, model_name, version)
+        results_dir = self.get_results_dir(dataset_name, strategy, model_name, version)
         path_to_csv = os.path.join(results_dir, "results.csv")
         path_to_metadata = os.path.join(results_dir, "metadata.json")
 
@@ -69,27 +68,30 @@ class EnsembleBase(ABC):
         for idx, mem in enumerate(self.members_configuration):
             strategy, model_name, version = mem
 
-            if self.dataset == 'bp' and strategy == 'classification':
+            if self.dataset_name == 'bp' and strategy == 'classification':
                 self.logger.info(
                     f"Skipping member {idx}: 'classification' strategy is not allowed"
-                    f"for dataset '{self.dataset}'."
+                    f"for dataset '{self.dataset_name}'."
                 )
                 continue
 
-            df, meta = self.load_data_from_results_path(self.dataset, strategy, model_name, version)
-
+            df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, version)
             if meta is None:
-                self.logger.warning(f"No metadata found for member {idx} with strategy {strategy}, model {model_name}.")
-                meta = {}
+                self.logger.warning(f"""No metadata found for member {idx} with strategy {strategy}, model {model_name}, version {version}.
+                                    Defaulting to version '1'.""")
+                df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, "1")
+                if meta is None:
+                    self.logger.error(f"Version 1 not found.")
+                    meta = {}
 
             if df.empty:
                 self.logger.warning(f"No data loaded for member {idx} with strategy {strategy}, model {model_name}.")
                 if self.run_missing:
                     self.logger.info(f"Running new for member {idx} with strategy {strategy}, model {model_name}.")
-                    run_single_experiment(dataset_name=self.dataset, 
+                    run_single_experiment(dataset_name=self.dataset_name, 
                                           strategy_name=strategy,
                                           model_name=model_name)
-                    df, meta = self.load_data_from_results_path(self.dataset, strategy, model_name, version)
+                    df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, version)
             
             self.config[f"member_{idx}"] = meta
 
@@ -98,9 +100,15 @@ class EnsembleBase(ABC):
             ensemble_df = pd.concat([ensemble_df, df], ignore_index=True)
 
         self.answers = ensemble_df
-        return ensemble_df
+        existing_version = self.check_if_ensemble_exists()
+        if existing_version:
+            self.logger.info(f"Ensemble configuration already exists as version {existing_version}.")
+        else:
+            self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create=True)
+            self.save_config_to_json(self.ensemble_directory)
+        return 
 
-    def evaluate(self):
+    def evaluate(self) -> None:
         results = []
         problem_ids = self.answers["problem_id"].unique()
 
@@ -112,10 +120,52 @@ class EnsembleBase(ABC):
             })
 
         results_df = pd.DataFrame(results)
-        return results_df
+        self.save_results_to_csv(results_df, self.ensemble_directory)
         
     @abstractmethod
     def evaluate_single_problem(self):
         pass
-            
-        
+
+    def save_results_to_csv(self, results_df: pd.DataFrame, results_dir: str) -> None:
+        path_to_csv = os.path.join(results_dir, "ensemble_results.csv")
+        results_df.to_csv(path_to_csv, index=False)
+        self.logger.info(f"Ensemble results saved to {path_to_csv}.")
+
+    def save_config_to_json(self, results_dir: str) -> None:
+        path_to_json = os.path.join(results_dir, "ensemble_config.json")
+        with open(path_to_json, "w", encoding="utf-8") as f:
+            json.dump(self.config, f, indent=4)
+        self.logger.info(f"Ensemble configuration saved to {path_to_json}.")
+
+    def check_if_ensemble_exists(self) -> Optional[str]:
+        base_results_dir = os.path.join("results", "ensembles", self.dataset_name, self.type_name)
+        if not os.path.exists(base_results_dir):
+            return None
+        prefix = f"ensemble_"
+        version_pattern = re.compile(rf"^{re.escape(prefix)}ver(\d+)$")
+        for entry in os.scandir(base_results_dir):
+            if entry.is_dir():
+                match = version_pattern.match(entry.name)
+                if match:
+                    version = match.group(1)
+                    path_to_json = os.path.join(entry.path, "ensemble_config.json")
+                    try:
+                        with open(path_to_json, "r", encoding="utf-8") as f:
+                            existing_config = json.load(f)
+                        if self.check_if_configs_equal(existing_config):
+                            return version
+                    except Exception as e:
+                        self.logger.error(f"Error reading ensemble config from {path_to_json}: {e}")
+        return None
+
+    def check_if_configs_equal(self, other_config: dict) -> bool:
+        # checks if the meta values in self.config match the ones in other_config, ignoring the 'member_{idx}' keys.
+        self_metas = [m for m in self.config.values() if m != {}]
+        other_metas = [v for v in other_config.values() if v != {}]
+
+        for meta in self_metas:
+            if meta in other_metas:
+                other_metas.remove(meta)
+            else:
+                return False
+        return len(other_metas) == 0
