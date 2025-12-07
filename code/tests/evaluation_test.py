@@ -12,9 +12,9 @@ def main():
     print("Evaluation")
     run_multiple_evaluations(
         strategy_names=["direct", "descriptive", "contrastive", "classification"],
-        dataset_names=["cvr", "bp", "raven", "marsvqa"],
-        model_names=["OpenGVLab/InternVL3-8B", "Qwen/Qwen2.5-VL-3B-Instruct"],
-        versions=["1", "2"]
+        dataset_names=["bp"],
+        model_names=["OpenGVLab/InternVL3-8B"],
+        versions=["1"]
     )
 
 if __name__ == "__main__":
