@@ -40,68 +40,51 @@ def load_all_dataset_configs(config_path="code/preprocessing/dataset_config.json
         )
         raise
 
-def _parse_response(response):
-    if isinstance(response, dict):
-        return response
-
-    if hasattr(response, "dict"):
-        return response.dict()
-
-    if isinstance(response, str):
-        text = response.strip()
-
-        match = re.search(r'\{.*\}', text, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except json.JSONDecodeError:
-                pass
-
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            return {"raw": response}
-
-    return {"raw": str(response)}
-    
-def _get_field(obj, name, default=None):
-    if isinstance(obj, dict):
-        return obj.get(name, default)
-    if isinstance(obj, BaseModel):
-        return getattr(obj, name, default)
-    return default
-
-def make_dir_for_results(dataset_name: str, strategy_name: str, model_name: str, version: Optional[str] = None) -> str:
+def make_dir_for_results(
+        dataset_name: str, 
+        strategy_name: str, 
+        model_name: str, 
+        version: Optional[str] = None,
+        create_dir: bool = True
+        ) -> str:
     """
     Creates a new versioned results directory for the given dataset and strategy.
     If previous versions exist, increments the version number.
     """
     base_results_dir = "results"
-    os.makedirs(base_results_dir, exist_ok=True)
+
+    if create_dir:
+        os.makedirs(base_results_dir, exist_ok=True)
 
     short_model_name = shorten_model_name(model_name)
-
     prefix = f"{strategy_name}_{dataset_name}_{short_model_name}"
+
     if version is not None:
         dir_name = f"{prefix}_ver{version}"
         path = os.path.join(base_results_dir, dir_name)
-        return path
-        
-    version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
 
+        if create_dir:
+            os.makedirs(path, exist_ok=True)
+
+        return path
+
+    version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
     existing_versions = []
-    for entry in os.scandir(base_results_dir):
-        if entry.is_dir():
-            match = version_pattern.match(entry.name)
-            if match:
-                existing_versions.append(int(match.group(1)))
+
+    if os.path.isdir(base_results_dir):
+        for entry in os.scandir(base_results_dir):
+            if entry.is_dir():
+                match = version_pattern.match(entry.name)
+                if match:
+                    existing_versions.append(int(match.group(1)))
 
     new_version = max(existing_versions, default=0) + 1
     new_dir_name = f"{prefix}_ver{new_version}"
     new_dir_path = os.path.join(base_results_dir, new_dir_name)
 
-    os.makedirs(new_dir_path, exist_ok=True)
-    logger.info(f"Results directory created at: {new_dir_path}")
+    if create_dir:
+        os.makedirs(new_dir_path, exist_ok=True)
+        logger.info(f"Results directory created at: {new_dir_path}")
 
     return new_dir_path
 
@@ -115,7 +98,6 @@ def shorten_model_name(model_name: str) -> str:
         short_model_name = model_name
     short_model_name = short_model_name.replace('/', '_')
     return short_model_name
-
 
 def get_ensemble_directory(dataset_name, type_name, create: bool = False, version: Optional[str] = None) -> str:
         # creates a new directory for the ensemble results inside results/ensembles/{dataset_name}/{type_name}/ensemble_ver{version}
@@ -149,3 +131,10 @@ def get_ensemble_directory(dataset_name, type_name, create: bool = False, versio
             return new_dir_path
         
         return ""
+
+def get_field(obj, name, default=None):
+    if isinstance(obj, dict):
+        return obj.get(name, default)
+    if isinstance(obj, BaseModel):
+        return getattr(obj, name, default)
+    return default

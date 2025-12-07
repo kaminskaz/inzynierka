@@ -53,8 +53,8 @@ def check_processing_outputs(
         annotation_keys = set()
 
         # 2. Load solutions
-        # Handle special case for 'bp'
-        if dataset_name == "bp":
+        # Handle special case for 'BP'
+        if dataset_name == "BP":
             solutions_path = json_dir / "bp_solutions.json"
         else:
             solutions_path = json_dir / f"{dataset_name}_solutions.json"

@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from code.preprocessing.processor_config import ProcessorConfig
 from code.models.vllm import VLLM
 from code.technical.response_schema import ResponseSchema
-from code.technical.utils import _parse_response, _get_field
+from code.technical.utils import get_field
 
 
 class StrategyBase(ABC):
@@ -89,8 +89,6 @@ class StrategyBase(ABC):
 
                     self.logger.debug(f"Raw response for {problem_id}: {response}")
 
-                    response = _parse_response(response)
-
                     if problem_descriptions:
                         all_descriptions_data[problem_id] = problem_descriptions
                         #  descriptions incrementally
@@ -103,9 +101,9 @@ class StrategyBase(ABC):
 
                     # construct the result dictionary
                     if response:
-                        answer = _get_field(response, "answer", "")
-                        confidence = _get_field(response, "confidence", "")
-                        rationale = _get_field(response, "rationale", "")
+                        answer = get_field(response, "answer", "")
+                        confidence = get_field(response, "confidence", "")
+                        rationale = get_field(response, "rationale", "")
 
                         result = {
                             "problem_id": problem_id,

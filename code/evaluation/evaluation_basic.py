@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 from code.evaluation.evaluation_base import EvaluationBase
-from code.technical.utils import make_dir_for_results
 
 logger = logging.getLogger(__name__)
 
@@ -33,14 +32,20 @@ class EvaluationBasic(EvaluationBase):
 
         if not results_dir or not answers_path or not key_path:
             return
+
+        answers_df = pd.read_csv(answers_path, dtype={"problem_id": str}, encoding="utf-8")
+
+        metadata_path = os.path.join(results_dir, "metadata.json")
+        with open(metadata_path, "r") as f:
+            metadata = json.load(f)
         
-        print(f"Results directory: {results_dir}")
-        print(f"Answers path: {answers_path}")
-        print(f"Key path: {key_path}")
+        if metadata["strategy"] == "descriptive" or metadata["strategy"] == "contrastive":
+            with open(os.path.join(results_dir, "descriptions.json"), "r") as f:
+                descriptions = json.load(f)
+        else:
+            descriptions = None
 
-        answers_df = pd.read_csv(answers_path, dtype={"problem_id": str})
-
-        summary_answers = self.check_completeness(answers_df)
+        summary_answers = self.check_completeness(answers_df, metadata, descriptions)
         logger.info(f"Answers DataFrame Completeness Summary: {summary_answers}")
 
         output_df = answers_df.copy()
@@ -49,7 +54,11 @@ class EvaluationBasic(EvaluationBase):
         with open(key_path, "r") as f:
             key_dict = json.load(f)
 
-        summary_key = self.check_completeness(pd.Series(key_dict).to_frame())
+        key_df = df = pd.DataFrame({
+            "problem_id": list(key_dict.keys()),
+            "answer": list(key_dict.values())  
+        })
+        summary_key = self.check_completeness(key_df, metadata)
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
         for index, row in answers_df.iterrows():

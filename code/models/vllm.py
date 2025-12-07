@@ -1,4 +1,5 @@
 import json
+import re
 import subprocess
 import time
 from typing import List, Optional, Dict, Type, Any
@@ -104,31 +105,9 @@ class VLLM:
             extra_body={"guided_json": schema.model_json_schema()} if schema else None,
         )
 
-        model_response = response.choices[0].message.content
+        model_response = _parse_response(response.choices[0].message.content)
         return model_response.strip() if model_response else ""
 
-    # currently not in use in the pipeline
-    def ask_structured(
-        self, contents: List[Content], schema: Type[BaseModel]
-    ) -> Optional[BaseModel]:
-        message = self.formatter.user_message(contents)
-
-        response =  self.client.beta.chat.completions.parse(
-            model=self.model_name,
-            messages=message,
-            temperature=self.temperature,
-            max_tokens=self.max_output_tokens,
-            response_format=schema,
-            extra_body=dict(guided_decoding_backend="outlines"),
-            timeout=1800.0
-        )
-
-        model_response = response.choices[0].message
-        if model_response.parsed:
-            return model_response.parsed
-        else:
-            logger.error(f"Failed to parse model response: {model_response}")
-            return None
 
     def stop(self):
         """Stop the running vLLM server."""
@@ -259,3 +238,28 @@ def get_model_architecture(model_name: str) -> Dict[str, Any]:
             "is_multi_modal": False,
             "error": f"Failed to fetch configuration for '{model_name}'. Hugging Face Error: {str(e)}",
         }
+
+def _parse_response(response):
+    if isinstance(response, dict):
+        return response
+
+    if hasattr(response, "dict"):
+        return response.dict()
+
+    if isinstance(response, str):
+        text = response.strip()
+
+        match = re.search(r'\{.*\}', text, re.DOTALL)
+        if match:
+            try:
+                return json.loads(match.group())
+            except json.JSONDecodeError:
+                pass
+
+        try:
+            return json.loads(text)
+        except json.JSONDecodeError:
+            return {"raw": response}
+
+    return {"raw": str(response)}
+    
