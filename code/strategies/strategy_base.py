@@ -218,7 +218,7 @@ class StrategyBase(ABC):
         fieldnames = list(results[0].keys())
 
         write_header = not os.path.exists(output_path)
-        with open(output_path, mode="a", newline="", encoding="utf-8") as f:
+        with open(output_path, mode="w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             if write_header:
                 writer.writeheader()
