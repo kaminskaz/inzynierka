@@ -74,7 +74,10 @@ class StrategyBase(ABC):
                 sample_answer_prompt=self.sample_answer_prompt,
             )
 
-            for problem_entry in os.scandir(self.dataset_dir):
+            entries = list(os.scandir(self.dataset_dir))
+            entries.sort(key=lambda entry: entry.name)
+
+            for problem_entry in entries:
                 try:
                     if not problem_entry.is_dir():
                         continue
