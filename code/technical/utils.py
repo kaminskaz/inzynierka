@@ -40,37 +40,6 @@ def load_all_dataset_configs(config_path="code/preprocessing/dataset_config.json
         )
         raise
 
-def _parse_response(response):
-    if isinstance(response, dict):
-        return response
-
-    if hasattr(response, "dict"):
-        return response.dict()
-
-    if isinstance(response, str):
-        text = response.strip()
-
-        match = re.search(r'\{.*\}', text, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except json.JSONDecodeError:
-                pass
-
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            return {"raw": response}
-
-    return {"raw": str(response)}
-    
-def _get_field(obj, name, default=None):
-    if isinstance(obj, dict):
-        return obj.get(name, default)
-    if isinstance(obj, BaseModel):
-        return getattr(obj, name, default)
-    return default
-
 def make_dir_for_results(
         dataset_name: str, 
         strategy_name: str, 
@@ -129,3 +98,10 @@ def shorten_model_name(model_name: str) -> str:
         short_model_name = model_name
     short_model_name = short_model_name.replace('/', '_')
     return short_model_name
+
+def get_field(obj, name, default=None):
+    if isinstance(obj, dict):
+        return obj.get(name, default)
+    if isinstance(obj, BaseModel):
+        return getattr(obj, name, default)
+    return default

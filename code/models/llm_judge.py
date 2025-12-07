@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
 from code.models.vllm import VLLM
-from code.technical.utils import _parse_response, _get_field
+from code.technical.utils import get_field 
 
 logger = logging.getLogger(__name__)
 
@@ -78,24 +78,9 @@ class LLMJudge(VLLM):
             else:
                 response = self.ask([TextContent(prompt)])
 
-            response = _parse_response(response)
-            similarity_label = _get_field(response, "similarity_label", "No similarity label provided.")
-            reasoning = _get_field(response, "reasoning", "No reasoning provided.")
+            similarity_label = get_field(response, "similarity_label", "No similarity label provided.")
+            reasoning = get_field(response, "reasoning", "No reasoning provided.")
 
-            # if response.similarity_label is None:
-            #     logger.info("Received None similarity_label from LLM.")
-            #     similarity_label = "No similarity label provided."
-            # else:
-            #     similarity_label = response.similarity_label
-            # if response.reasoning is None:
-            #     logger.info("Received None reasoning from LLM.")
-            #     reasoning = "No reasoning provided."
-            # else:
-            #     reasoning = response.reasoning
-
-            # if isinstance(similarity_label, str):
-            #     similarity_label = similarity_label.strip()
-            #     reasoning = reasoning.strip()
             return similarity_label, reasoning
 
         except Exception as e:

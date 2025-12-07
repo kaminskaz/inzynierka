@@ -9,7 +9,7 @@ from code.strategies.strategy_base import StrategyBase
 from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema
 from code.models.vllm import VLLM
 from code.preprocessing.processor_config import ProcessorConfig
-from code.technical.utils import _parse_response, _get_field
+from code.technical.utils import get_field
 
 class DescriptiveStrategy(StrategyBase):
 
@@ -51,9 +51,8 @@ class DescriptiveStrategy(StrategyBase):
             description_response = self.model.ask(
                 contents_to_send_descriptions, schema=DescriptionResponseSchema
             )
-    
-            description_json = _parse_response(description_response)
-            raw_description = _get_field(description_json, 'description', None)
+
+            raw_description = get_field(description_response, 'description', None)
             self.logger.debug(f"Description for choice {index_key}: {raw_description}")
 
             if raw_description:
