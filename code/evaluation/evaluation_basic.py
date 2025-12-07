@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 
 from code.evaluation.evaluation_base import EvaluationBase
-from code.technical.utils import make_dir_for_results
 
 logger = logging.getLogger(__name__)
 

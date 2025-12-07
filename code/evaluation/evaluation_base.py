@@ -36,10 +36,11 @@ class EvaluationBase(ABC):
             dataset_name=dataset_name,
             strategy_name=strategy_name,
             model_name=model_name,
-            version=version
+            version=version,
+            create_dir=False
         )
 
-        if output_all_results_concat_path  is None:
+        if output_all_results_concat_path is None:
             default_dir = results_dir.split("results")[0] + "results"
             output_all_results_concat_path = os.path.join(default_dir, "all_results_concat.csv")
 
@@ -63,14 +64,10 @@ class EvaluationBase(ABC):
                 version=version,
                 evaluation_output_path=evaluation_output_path
             )
-        
+ 
         if concat:
-            csv_path = f"{results_dir}/{evaluation_output_path}.csv"
-
-            Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
-
-            if os.path.exists(csv_path):
-                concat_df = pd.read_csv(csv_path)
+            if os.path.exists(output_all_results_concat_path):
+                concat_df = pd.read_csv(output_all_results_concat_path)
             else:
                 concat_df = pd.DataFrame()
 
@@ -180,7 +177,8 @@ class EvaluationBase(ABC):
             dataset_name=dataset_name,
             strategy_name=strategy_name,
             model_name=model_name,
-            version=version
+            version=version,
+            create_dir=False
         )
         answers_path = f"{results_dir}/results.csv"
         key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
