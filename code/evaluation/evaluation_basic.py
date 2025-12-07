@@ -33,6 +33,10 @@ class EvaluationBasic(EvaluationBase):
 
         if not results_dir or not answers_path or not key_path:
             return
+        
+        print(f"Results directory: {results_dir}")
+        print(f"Answers path: {answers_path}")
+        print(f"Key path: {key_path}")
 
         answers_df = pd.read_csv(answers_path, dtype={"problem_id": str})
 
@@ -65,6 +69,7 @@ class EvaluationBasic(EvaluationBase):
 
             score = self.evaluate_single_answer(answer, key)
             output_df.at[index, "score"] = score
+            output_df.at[index, "key"] = key
 
         output_summaries_path = f"{results_dir}/{evaluation_output_path}_summary.json"
         with open(output_summaries_path, "w") as summary_file:

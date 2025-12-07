@@ -23,13 +23,14 @@ def run_multiple_evaluations(
         judge_prompt: str = None,
         evaluation_output_path: str = "evaluation_results"
     ):
-        evaluator_judge = EvaluationWithJudge()
+        # evaluator_judge = EvaluationWithJudge()
         evaluator_simple = EvaluationBasic()
 
         for d_name in dataset_names:
             d_category = get_dataset_config(d_name).category 
-            for s_name, m_name, ver in zip(strategy_names, dataset_names, model_names, versions):
-                if d_category == "standard":
+            print(f"Evaluating dataset: {d_name} of category {d_category}")
+            for s_name, m_name, ver in zip(strategy_names, model_names, versions):
+                if d_category == "standard" or d_category == "choice_only":
                     evaluator = evaluator_simple
                     evaluator.run_evaluation(
                         dataset_name=d_name,
@@ -39,15 +40,16 @@ def run_multiple_evaluations(
                         evaluation_output_path=evaluation_output_path,
                     )
                 else:
-                    evaluator = evaluator_judge
-                    evaluator.run_evaluation(
-                        dataset_name=d_name,
-                        model_name=m_name,
-                        strategy_name=s_name,
-                        version=ver,
-                        prompt=judge_prompt,
-                        evaluation_output_path=evaluation_output_path,
-                    )
+                    # evaluator = evaluator_judge
+                    # evaluator.run_evaluation(
+                    #     dataset_name=d_name,
+                    #     model_name=m_name,
+                    #     strategy_name=s_name,
+                    #     version=ver,
+                    #     prompt=judge_prompt,
+                    #     evaluation_output_path=evaluation_output_path,
+                    # )
+                    continue
 
 
 def _load_model(

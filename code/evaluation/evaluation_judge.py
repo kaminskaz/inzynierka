@@ -101,6 +101,7 @@ class EvaluationWithJudge(EvaluationBase):
 
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
+            output_df.at[index, "key"] = key
 
         output_summaries_path = f"{results_dir}/{evaluation_output_path}_summary.json"
         with open(output_summaries_path, "w") as summary_file:

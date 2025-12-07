@@ -36,9 +36,10 @@ class EvaluationBase(ABC):
             model_name=model_name,
             version=version
         )
+        print(f"Results directory: {results_dir}")
         if output_all_results_concat_path  is None:
             default_dir = results_dir.split("results")[0] + "results"
-            output_all_results_concat_path  = default_dir / "all_results_concat.csv"
+            output_all_results_concat_path = os.path.join(default_dir, "all_results_concat.csv")
 
         d_category = get_dataset_config(dataset_name).category
 
@@ -52,7 +53,7 @@ class EvaluationBase(ABC):
                 evaluation_output_path=evaluation_output_path
             )
             
-        elif d_category == "standard":
+        elif d_category == "standard" or d_category == "choice_only":
             self.evaluate(
                 strategy_name=strategy_name,
                 dataset_name=dataset_name,
@@ -158,10 +159,12 @@ class EvaluationBase(ABC):
         combined_df.to_csv(all_results_concat_path, index=False)
 
     def get_evaluation_paths(
+            self,
             strategy_name: str,
             dataset_name: str,
             model_name: str,
-            version: str):
+            version: str
+        ):
         
         results_dir = make_dir_for_results(
             dataset_name=dataset_name,
