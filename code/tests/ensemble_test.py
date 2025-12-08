@@ -30,12 +30,6 @@ def run_single_ensemble(
         type_name: str,
         vllm_model_name: Optional[str] = None,
         llm_model_name: Optional[str] = None, 
-        temperature: float=0.5, 
-        max_tokens: int=2048, 
-        max_output_tokens: int=1024, 
-        limit_mm_per_prompt: int=2,
-        custom_args: list = [],
-        local_testing: bool = False,
         model_object: Optional[Any] = None
     ) -> None:
     """
@@ -93,8 +87,6 @@ if __name__ == "__main__":
 
     parser.add_argument('--dataset_name', type=str, required=True, 
                         help='Name of the dataset to use (same as in dataset_config.json)')
-    # parser.add_argument('--members_configuration', type=List[List[str]], required=True, 
-    #                     help='Configuration string/file for the ensemble members')
     parser.add_argument('--members_configuration', type=json_list, required=True, 
                         help='Configuration string/file for the ensemble members')
     parser.add_argument('--ensemble_type', type=str, required=True, 
@@ -134,10 +126,4 @@ if __name__ == "__main__":
         type_name=args.ensemble_type,
         vllm_model_name=args.vllm_model_name if args.vllm_model_name else None,
         llm_model_name=args.llm_model_name if args.llm_model_name else None,
-        temperature=args.temperature,
-        max_tokens=args.max_tokens,
-        max_output_tokens=args.max_output_tokens,
-        limit_mm_per_prompt=args.limit_mm_per_prompt,
-        custom_args=args.custom_args,
-        local_testing=args.local_testing
     )

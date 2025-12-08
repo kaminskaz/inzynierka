@@ -54,12 +54,6 @@ def run_multiple_evaluations(
 
 def _load_model(
         model_name: str, 
-        temperature: float = 1.0, 
-        max_tokens: int = 2048, 
-        max_output_tokens: int = 1536, 
-        limit_mm_per_prompt: int = 2,
-        custom_args: list = [],
-        local_testing: bool = False
     ) -> Any:
     """
     Loads a VLLM model based on the provided model name and parameters.
@@ -124,23 +118,10 @@ def check_data_preprocessed(dataset_name: str) -> bool:
     logger.info(f"Found preprocessed data at: {base_data_path}")
     return True
 
-def run_strategy_tests(model_name: str, 
-        temperature: float, 
-        max_tokens: int, 
-        max_output_tokens: int, 
-        limit_mm_per_prompt: int,
-        custom_args: list = [],
-        local_testing: bool = False
-    ):
+def run_strategy_tests(model_name: str):
     
     model = _load_model(
             model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            max_output_tokens=max_output_tokens,
-            limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args,
-            local_testing=local_testing
         )
     
     datasets = ['bp','cvr','raven','marsvqa']
@@ -157,12 +138,6 @@ def run_single_experiment(
         dataset_name: str,
         strategy_name: str, 
         model_name: Optional[str] = None, 
-        temperature: float=0.5, 
-        max_tokens: int=2048, 
-        max_output_tokens: int=1024, 
-        limit_mm_per_prompt: int=2,
-        custom_args: list = [],
-        local_testing: bool = False,
         model_object: Optional[VLLM] = None
     ) -> None:
     """
@@ -176,13 +151,7 @@ def run_single_experiment(
 
         if not model_object:
             model = _load_model(
-                model_name=model_name,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                max_output_tokens=max_output_tokens,
-                limit_mm_per_prompt=limit_mm_per_prompt,
-                custom_args=custom_args,
-                local_testing=local_testing
+                model_name=model_name
             )
         else:
             model = model_object
@@ -237,22 +206,10 @@ if __name__ == "__main__":
 
 
     # run_strategy_tests(
-    #     model_name=args.model_name,
-    #     temperature=args.temperature,
-    #     max_tokens=args.max_tokens,
-    #     max_output_tokens=args.max_output_tokens,
-    #     limit_mm_per_prompt=args.limit_mm_per_prompt,
-    #     custom_args=args.custom_args,
-    #     local_testing=args.local_testing)
+    #     model_name=args.model_name)
 
     run_single_experiment(
         dataset_name=args.dataset_name,
         strategy_name=args.strategy,
-        model_name=args.model_name,
-        temperature=args.temperature,
-        max_tokens=args.max_tokens,
-        max_output_tokens=args.max_output_tokens,
-        limit_mm_per_prompt=args.limit_mm_per_prompt,
-        custom_args=args.custom_args,
-        local_testing=args.local_testing
+        model_name=args.model_name
         )
