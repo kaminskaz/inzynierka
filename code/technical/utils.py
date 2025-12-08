@@ -148,7 +148,7 @@ def get_model_config(
     """
     Extracts a specific configuration for a given model name and param_set version.
     """
-    model_config_path = "code/technical/configs/model_config.json"
+    model_config_path = "code/technical/configs/models_config.json"
     with open(model_config_path, "r") as f:
         json_data = json.load(f)
 
