@@ -72,6 +72,7 @@ class EvaluationWithJudge(EvaluationBase):
                 model=model_object if model_object else self.judge,
                 response_schema=BongardEvaluationSchema,
             )
+            print(f"Evaluated ID {id_}: Score = {score}, Reasoning = {reasoning}")
 
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
