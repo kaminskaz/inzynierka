@@ -99,6 +99,9 @@ class StrategyBase(ABC):
 
                     self.logger.debug(f"Response for {problem_id}: {response}")
 
+                    # for now fixed width of 3 for problem ids (e.g., 001, 002, ..., 010, etc.)
+                    problem_id = str(problem_id).zfill(3)
+
                     # construct the result dictionary
                     if response:
                         answer = get_field(response, "answer", "")
