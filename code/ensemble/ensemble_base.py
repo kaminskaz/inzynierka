@@ -47,6 +47,7 @@ class EnsembleBase(ABC):
 
         try:
                 results_df = pd.read_csv(path_to_csv)
+                results_df["problem_id"] = results_df["problem_id"].apply(lambda x: str(x).zfill(3))
 
                 with open(path_to_metadata, "r", encoding="utf-8") as f:
                     metadata = json.load(f)
