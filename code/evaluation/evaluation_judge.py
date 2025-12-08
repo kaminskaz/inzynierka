@@ -32,7 +32,7 @@ class EvaluationWithJudge(EvaluationBase):
         key: str,
         model: LLMJudge,
         response_schema: BongardEvaluationSchema,
-    ) -> float:
+    ):
         return model.evaluate_similarity(
             prompt=prompt, 
             answer=answer, 

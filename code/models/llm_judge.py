@@ -21,7 +21,7 @@ class LLMJudge(VLLM):
         self,
         model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
         temperature: float = 0.0,
-        max_tokens: int = 1024,
+        max_tokens: int = 2048,
         max_output_tokens: int = 512,
         chat_template_path: str = "mistral_template.jinja",
         **kwargs,
@@ -80,7 +80,6 @@ class LLMJudge(VLLM):
 
             similarity_label = get_field(response, "similarity_label", "No similarity label provided.")
             reasoning = get_field(response, "reasoning", "No reasoning provided.")
-            print(f"Similarity Label: {similarity_label}\nReasoning: {reasoning}\n")
 
             return similarity_label, reasoning
 
