@@ -18,10 +18,6 @@ class EvaluationBase(ABC):
         pass
 
     @abstractmethod
-    def _iter_answers(self, *args, **kwargs):
-        pass
-
-    @abstractmethod
     def evaluate(self, *args, **kwargs):
         pass
 
