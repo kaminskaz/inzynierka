@@ -41,7 +41,7 @@ python -m code.tests.ensemble_test \
     --vllm_model_name "OpenGVLab/InternVL3-8B" \
     --llm_model_name "mistralai/Mistral-7B-Instruct-v0.3" \
     --temperature 0.5 \
-    --max_tokens 16384 \
+    --max_tokens 12288 \
     --max_output_tokens 4096 \
     --limit_mm_per_prompt 2 \
     --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9

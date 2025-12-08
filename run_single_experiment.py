@@ -5,7 +5,7 @@ import os
 import re
 from pathlib import Path
 from itertools import product
-from typing import Any, List
+from typing import Any, List, Optional
 
 from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
@@ -130,34 +130,6 @@ def check_data_preprocessed(dataset_name: str) -> bool:
     logger.info(f"Found preprocessed data at: {base_data_path}")
     return True
 
-
-def run_single_experiment_on_model(dataset_name: str,
-        strategy_name: str, 
-        model: VLLM)-> None:
-    logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model.get_model_name()}'")
-    try:
-        results_dir = make_dir_for_results(dataset_name, strategy_name, model.get_model_name())
-
-        strategy_factory = StrategyFactory()
-        
-        strategy = strategy_factory.create_strategy(
-            dataset_name=dataset_name,
-            strategy_name=strategy_name,
-            model_object=model,
-            results_dir=results_dir
-        )
-        
-        logger.info("Strategy created successfully. Running experiment...")
-        strategy.run()
-        logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
-
-    except ImportError as e:
-        logger.error(f"Failed to create strategy. Does '{strategy_name}' exist and is it importable? Error: {e}", exc_info=True)
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
-        sys.exit(1)
-
 def run_strategy_tests(model_name: str, 
         temperature: float, 
         max_tokens: int, 
@@ -182,7 +154,7 @@ def run_strategy_tests(model_name: str,
 
     for d in datasets:
         for s in strategies:
-            run_single_experiment_on_model(dataset_name=d, strategy_name=s, model=model)
+            run_single_experiment(dataset_name=d, strategy_name=s, model_object=model)
 
     model.stop()
 
@@ -190,13 +162,14 @@ def run_strategy_tests(model_name: str,
 def run_single_experiment(
         dataset_name: str,
         strategy_name: str, 
-        model_name: str, 
+        model_name: Optional[str] = None, 
         temperature: float=0.5, 
         max_tokens: int=2048, 
         max_output_tokens: int=1024, 
         limit_mm_per_prompt: int=2,
         custom_args: list = [],
-        local_testing: bool = False
+        local_testing: bool = False,
+        model_object: Optional[VLLM] = None
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -207,15 +180,18 @@ def run_single_experiment(
 
         strategy_factory = StrategyFactory()
 
-        model = _load_model(
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            max_output_tokens=max_output_tokens,
-            limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args,
-            local_testing=local_testing
-        )
+        if not model_object:
+            model = _load_model(
+                model_name=model_name,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                max_output_tokens=max_output_tokens,
+                limit_mm_per_prompt=limit_mm_per_prompt,
+                custom_args=custom_args,
+                local_testing=local_testing
+            )
+        else:
+            model = model_object
         
         strategy = strategy_factory.create_strategy(
             dataset_name=dataset_name,
