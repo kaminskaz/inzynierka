@@ -25,7 +25,7 @@ You must output valid JSON. Do not add markdown or conversational text. Two fiel
 - final_answer: The single best answer supported by the visual evidence.
 
 Example:
-{
+{{
     "rationale": "Sample explanation",
     "final_answer": "{sample_answer}"
-}
+}}

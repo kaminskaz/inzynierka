@@ -26,7 +26,7 @@ You must output valid JSON. Do not add markdown or conversational text. Two fiel
 - final_answer: The synthesized, high-quality answer representing the confidence-weighted consensus.
 
 Example:
-{
+{{
     "rationale": "Sample explanation",
     "final_answer": "{sample_answer}"
-}
+}}
