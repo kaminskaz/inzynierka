@@ -48,7 +48,6 @@ class VLLM:
         if self.cpu_local_testing:
             logger.info("CPU-only mode enabled for this request. Setting schema to None for the purpose of local testing.")
 
-
         port = portpicker.pick_unused_port()
         self.api_key = "NOT-USED"
         self.base_url = f"http://localhost:{port}"
