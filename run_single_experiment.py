@@ -24,7 +24,7 @@ def run_multiple_evaluations(
         judge_prompt: str = None,
         evaluation_output_path: str = "evaluation_results"
     ):
-        # evaluator_judge = EvaluationWithJudge()
+        evaluator_judge = EvaluationWithJudge()
         evaluator_simple = EvaluationBasic()
 
         for d_name in dataset_names:
@@ -41,16 +41,15 @@ def run_multiple_evaluations(
                         evaluation_output_path=evaluation_output_path,
                     )
                 else:
-                    # evaluator = evaluator_judge
-                    # evaluator.run_evaluation(
-                    #     dataset_name=d_name,
-                    #     model_name=m_name,
-                    #     strategy_name=s_name,
-                    #     version=ver,
-                    #     prompt=judge_prompt,
-                    #     evaluation_output_path=evaluation_output_path,
-                    # )
-                    continue
+                    evaluator = evaluator_judge
+                    evaluator.run_evaluation(
+                        dataset_name=d_name,
+                        model_name=m_name,
+                        strategy_name=s_name,
+                        version=ver,
+                        prompt=judge_prompt,
+                        evaluation_output_path=evaluation_output_path,
+                    )
 
 
 def _load_model(
