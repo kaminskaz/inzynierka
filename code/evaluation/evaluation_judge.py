@@ -52,6 +52,7 @@ class EvaluationWithJudge(EvaluationBase):
         for index, row in answers_df.iterrows():
             answer = row["answer"]
             id_ = str(row["problem_id"])
+            print(f"Evaluating ID {id_}...")
 
             if answer is None or pd.isna(answer) or answer.strip() == "":
                 output_df.at[index, "score"] = "No answer provided"
@@ -72,7 +73,6 @@ class EvaluationWithJudge(EvaluationBase):
                 model=model_object if model_object else self.judge,
                 response_schema=BongardEvaluationSchema,
             )
-            print(f"Evaluated ID {id_}: Score = {score}, Reasoning = {reasoning}")
 
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
