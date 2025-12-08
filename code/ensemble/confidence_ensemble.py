@@ -8,6 +8,7 @@ from code.technical.response_schema import GeneralEnsembleSchema
 from code.technical.content import TextContent
 from code.technical.utils import get_field, get_dataset_config
 from code.models.llm_judge import LLMJudge
+from string import Template
 
 
 class ConfidenceEnsemble(EnsembleBase):
@@ -52,8 +53,9 @@ class ConfidenceEnsemble(EnsembleBase):
         all_answers_str = "\n".join(f"- {ans} (confidence: {conf})" for ans, conf in zip(answer_list, confidence_list))
 
         schema = GeneralEnsembleSchema
+        template = Template(confidence_prompt)
 
-        prompt_filled = confidence_prompt.format(
+        prompt_filled = template.substitute(
             problem_description=problem_description,
             all_answers=all_answers_str,
             sample_answer=sample_answer
@@ -61,7 +63,7 @@ class ConfidenceEnsemble(EnsembleBase):
 
         response = self.llm.ask(
             [TextContent(prompt_filled)],
-            response_schema=schema,
+            schema=schema,
         )
 
         final_answer = get_field(response, "final_answer")

@@ -105,11 +105,12 @@ class EnsembleBase(ABC):
             ensemble_df = pd.concat([ensemble_df, df], ignore_index=True)
 
             valid_member_idx += 1
-            
+
         self.answers = ensemble_df
         existing_version = self.check_if_ensemble_exists()
         if existing_version:
             self.logger.info(f"Ensemble configuration already exists as version {existing_version}.")
+            return
         else:
             self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create=True)
             self.save_config_to_json(self.ensemble_directory)

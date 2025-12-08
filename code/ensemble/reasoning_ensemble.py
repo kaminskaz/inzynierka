@@ -7,6 +7,7 @@ from code.models.llm_judge import LLMJudge
 from code.technical.content import TextContent
 from code.technical.response_schema import GeneralEnsembleSchema
 from code.technical.utils import get_field
+from string import Template
     
 
 class ReasoningEnsemble(EnsembleBase):
@@ -36,8 +37,10 @@ class ReasoningEnsemble(EnsembleBase):
    
         all_answers_str = "\n".join(f"- {ans} (reasoning: {reas})" for ans, reas in zip(answer_list, reasoning_list))
 
+        template = Template(reasoning_prompt)
+
         schema = GeneralEnsembleSchema
-        prompt_filled = reasoning_prompt.format(
+        prompt_filled = template.substitute(
             problem_description=problem_description,
             all_answers=all_answers_str,
             sample_answer=sample_answer
@@ -45,7 +48,7 @@ class ReasoningEnsemble(EnsembleBase):
 
         response = self.llm.ask(
             [TextContent(prompt_filled)],
-            response_schema=schema,
+            schema=schema,
         )
 
         final_answer = get_field(response, "final_answer")

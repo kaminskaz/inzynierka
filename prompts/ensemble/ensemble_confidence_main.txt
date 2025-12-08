@@ -15,10 +15,10 @@ You are an expert Consensus Adjudicator. Your task is to analyze an open-ended p
 ### Data to Analyze:
 
 **Description of the problem:**
-{problem_description}
+$problem_description
 
 **Answers from the ensemble:**
-{all_answers}
+$all_answers
 
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. Two fields:
@@ -26,7 +26,7 @@ You must output valid JSON. Do not add markdown or conversational text. Two fiel
 - final_answer: The synthesized, high-quality answer representing the confidence-weighted consensus.
 
 Example:
-{{
+{
     "rationale": "Sample explanation",
-    "final_answer": "{sample_answer}"
-}}
+    "final_answer": "$sample_answer"
+}

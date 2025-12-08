@@ -14,10 +14,10 @@ You must determine the single best result based on "Visual Verification & Semant
 ### Data to Analyze:
 
 **Description of the problem:**
-{problem_description}
+$problem_description
 
 **Answers from the ensemble:**
-{all_answers}
+$all_answers
 
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. Two fields:
@@ -25,7 +25,7 @@ You must output valid JSON. Do not add markdown or conversational text. Two fiel
 - final_answer: The single best answer supported by the visual evidence.
 
 Example:
-{{
+{
     "rationale": "Sample explanation",
-    "final_answer": "{sample_answer}"
-}}
+    "final_answer": "$sample_answer"
+}

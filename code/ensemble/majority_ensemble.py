@@ -7,6 +7,7 @@ from code.technical.content import TextContent
 from code.technical.response_schema import GeneralEnsembleSchema
 from code.technical.utils import get_field, get_dataset_config
 from code.models.llm_judge import LLMJudge
+from string import Template
 
 class MajorityEnsemble(EnsembleBase):
     def __init__(self, dataset_name, members_configuration, run_missing = True, type_name = "majority", judge_model: Optional[Any] = None):
@@ -48,15 +49,17 @@ class MajorityEnsemble(EnsembleBase):
         
         all_answers_str = "\n".join(f"- {ans}" for ans in answer_list)
 
+        template = Template(majority_prompt)
+
         schema = GeneralEnsembleSchema
-        prompt_filled = majority_prompt.format(
+        prompt_filled = template.substitute(
             problem_description=problem_description,
             all_answers=all_answers_str,
             sample_answer=sample_answer
         )
         response = self.llm.ask(
             [TextContent(prompt_filled)],
-            response_schema=schema,
+            schema=schema,
         )
 
         final_answer = get_field(response, "final_answer")

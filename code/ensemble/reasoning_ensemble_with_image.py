@@ -8,6 +8,7 @@ from code.models.vllm import VLLM
 from code.technical.content import ImageContent, TextContent
 from code.technical.response_schema import GeneralEnsembleSchema
 from code.technical.utils import get_field
+from string import Template
 
 
 class ReasoningEnsembleWithImage(EnsembleBase):
@@ -37,9 +38,10 @@ class ReasoningEnsembleWithImage(EnsembleBase):
             reasoning_prompt = file.read()
    
         all_answers_str = "\n".join(f"- {ans} (reasoning: {reas})" for ans, reas in zip(answer_list, reasoning_list))
+        template = Template(reasoning_prompt)
 
         schema = GeneralEnsembleSchema
-        prompt_filled = reasoning_prompt.format(
+        prompt_filled = template.substitute(
             problem_description=problem_description,
             all_answers=all_answers_str,
             sample_answer=sample_answer
@@ -47,7 +49,7 @@ class ReasoningEnsembleWithImage(EnsembleBase):
 
         response = self.vllm.ask(
             [TextContent(prompt_filled), ImageContent(question_image_path)],
-            response_schema=schema,
+            schema=schema,
         )
 
         final_answer = get_field(response, "final_answer")
