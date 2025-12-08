@@ -30,7 +30,7 @@ def run_multiple_evaluations(
         for d_name in dataset_names:
             d_category = get_dataset_config(d_name).category 
             for s_name, m_name, ver in product(strategy_names, model_names, versions):
-                print(f"Evaluating dataset: {d_name} of category {d_category} for strategies: {s_name}")
+                logger.info(f"Evaluating dataset: {d_name} of category {d_category} for strategies: {s_name}")
                 if d_category == "standard" or d_category == "choice_only":
                     evaluator = evaluator_simple
                     evaluator.run_evaluation(
@@ -50,6 +50,7 @@ def run_multiple_evaluations(
                         prompt=judge_prompt,
                         evaluation_output_path=evaluation_output_path,
                     )
+        evaluator_judge.judge.stop()
 
 
 def _load_model(

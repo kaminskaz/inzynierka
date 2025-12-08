@@ -59,6 +59,8 @@ class EvaluationBase(ABC):
             return
 
         answers_df = pd.read_csv(answers_path, dtype={"problem_id": str}, encoding="utf-8")
+        # for now fixed width of 3 for problem ids (e.g., 001, 002, ..., 010, etc.)
+        answers_df["problem_id"] = answers_df["problem_id"].apply(lambda x: str(x).zfill(3))
 
         metadata_path = os.path.join(results_dir, "metadata.json")
         with open(metadata_path, "r") as f:
@@ -98,10 +100,8 @@ class EvaluationBase(ABC):
         elif d_category == "standard" or d_category == "choice_only":
             self.evaluate(
                 answers_df=answers_df,
-                dataset_name=dataset_name,
-                model_name=model_name,
-                version=version,
-                evaluation_output_path=evaluation_output_path
+                key_dict=key_dict,
+                output_df=output_df,
             )
         
         output_summaries_path = f"{results_dir}/{evaluation_output_path}_summary.json"

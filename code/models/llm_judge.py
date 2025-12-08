@@ -27,6 +27,8 @@ class LLMJudge(VLLM):
             param_set_number=param_set_number,
         )
 
+        print("Initializing LLMJudge 2")
+
         self.judge_mode = "text_only"
         logger.info(
             f"Initialized LLMJudge for text-only evaluation with model {model_name}"
@@ -40,6 +42,7 @@ class LLMJudge(VLLM):
         response_schema: Optional[Type[BaseModel]]
     ):
         try:
+            print("Evaluating similarity...")
             prompt = (
                 f"{prompt}\n"
                 f"Answer: {answer}\n"
@@ -50,15 +53,16 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
-            
+
             else:
                 response = self.ask([TextContent(prompt)])
 
             similarity_label = get_field(response, "similarity_label", "No similarity label provided.")
             reasoning = get_field(response, "reasoning", "No reasoning provided.")
+            print(f"Similarity Label: {similarity_label}\nReasoning: {reasoning}\n")
 
             return similarity_label, reasoning
 
         except Exception as e:
             logger.error(f"Similarity evaluation failed: {e}")
-            return "None"
+            return None, None

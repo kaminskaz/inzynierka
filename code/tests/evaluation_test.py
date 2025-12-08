@@ -5,11 +5,10 @@ import os
 from pathlib import Path
 import torch
 
-from code.evaluation.evaluation_base import EvaluationBase
 from run_single_experiment import run_multiple_evaluations
 
 def main():
-    print("Evaluation")
+    print("Evaluation", flush=True)
     run_multiple_evaluations(
         strategy_names=["direct", "descriptive", "contrastive", "classification"],
         dataset_names=["bp"],
