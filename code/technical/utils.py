@@ -6,6 +6,7 @@ import torch
 from typing import Any, Dict, Optional
 import logging
 import re
+from code.models.model_config import ModelConfig
 from pydantic import BaseModel
 
 from code.preprocessing.processor_config import ProcessorConfig
@@ -139,3 +140,49 @@ def get_field(obj, name, default=None):
     if isinstance(obj, BaseModel):
         return getattr(obj, name, default)
     return default
+
+def get_model_config(
+    target_model_name: str, 
+    target_version: str
+    ) -> ModelConfig:
+    """
+    Extracts a specific configuration for a given model name and param_set version.
+    """
+    model_config_path = "code/technical/configs/model_config.json"
+    with open(model_config_path, "r") as f:
+        json_data = json.load(f)
+
+    if target_model_name not in json_data:
+        raise ValueError(f"Model '{target_model_name}' not found in configuration.")
+    
+    model_attrs = json_data[target_model_name]
+    
+    param_sets = model_attrs.get("param_sets", {})
+    if target_version not in param_sets:
+        raise ValueError(f"Version '{target_version}' not found for model '{target_model_name}'. Available: {list(param_sets.keys())}")
+
+    target_params = param_sets[target_version]
+    custom_args = target_params.get("custom_args", {})
+
+    config_dict = {
+        "model_name": target_model_name,
+        "model_class": model_attrs.get("model_class"),
+        "max_tokens_limit": model_attrs.get("max_tokens_limit"),
+        "num_params_billions": model_attrs.get("num_params_billions"),
+        "gpu_split": model_attrs.get("gpu_split", False),
+    }
+    
+    config_dict.update({
+        "temperature": target_params.get("temperature"),
+        "max_tokens": target_params.get("max_tokens"),
+        "max_output_tokens": target_params.get("max_output_tokens"),
+        "limit_mm_per_prompt": target_params.get("limit_mm_per_prompt"),
+        "cpu_local_testing": target_params.get("cpu_local_testing"),
+        "chat_template_path": target_params.get("chat_template_path"),
+        "tensor_parallel_size": custom_args.get("tensor_parallel_size"),
+        "gpu_memory_utilization": custom_args.get("gpu_memory_utilization"),
+    })
+    
+    clean_config = {k: v for k, v in config_dict.items() if v is not None}
+
+    return ModelConfig(**clean_config)
