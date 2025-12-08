@@ -67,18 +67,20 @@ class EnsembleBase(ABC):
     def _build_ensemble(self) -> pd.DataFrame:
         
         ensemble_df = pd.DataFrame()
+        valid_member_idx = 0 
 
         for idx, mem in enumerate(self.members_configuration):
             strategy, model_name, version = mem
 
             if self.dataset_name == 'bp' and strategy == 'classification':
                 self.logger.info(
-                    f"Skipping member {idx}: 'classification' strategy is not allowed"
-                    f"for dataset '{self.dataset_name}'."
+                    f"Skipping configuration {idx}: 'classification' strategy is not allowed "
+                    f" for dataset '{self.dataset_name}'."
                 )
                 continue
 
             df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, version)
+            
             if meta is None:
                 self.logger.warning(f"""No metadata found for member {idx} with strategy {strategy}, model {model_name}, version {version}.
                                     Defaulting to version '1'.""")
@@ -92,16 +94,18 @@ class EnsembleBase(ABC):
                 if self.run_missing:
                     self.logger.info(f"Running new for member {idx} with strategy {strategy}, model {model_name}.")
                     run_single_experiment(dataset_name=self.dataset_name, 
-                                          strategy_name=strategy,
-                                          model_name=model_name)
+                                        strategy_name=strategy,
+                                        model_name=model_name)
                     df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, version)
-            
-            self.config[f"member_{idx}"] = meta
+
+            self.config[f"member_{valid_member_idx}"] = meta
 
             df = df.copy()
-            df["member_idx"] = idx
+            df["member_idx"] = valid_member_idx
             ensemble_df = pd.concat([ensemble_df, df], ignore_index=True)
 
+            valid_member_idx += 1
+            
         self.answers = ensemble_df
         existing_version = self.check_if_ensemble_exists()
         if existing_version:

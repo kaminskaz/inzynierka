@@ -22,7 +22,7 @@ class ReasoningEnsemble(EnsembleBase):
             return None
 
         answer_list = single_problem_df["answer"].tolist()
-        reasoning_list = single_problem_df["reasoning"].tolist()
+        reasoning_list = single_problem_df["rationale"].tolist()
 
         final_answer = self.evaluate_reasoning_using_llm(answer_list, reasoning_list)
         return final_answer
