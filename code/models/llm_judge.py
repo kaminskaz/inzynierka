@@ -21,7 +21,7 @@ class LLMJudge(VLLM):
         self,
         model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
         temperature: float = 0.0,
-        max_tokens: int = 1024,
+        max_tokens: int = 2048,
         max_output_tokens: int = 512,
         chat_template_path: str = "mistral_template.jinja",
         **kwargs,
