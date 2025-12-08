@@ -48,15 +48,6 @@ class VLLM:
         if self.cpu_local_testing:
             logger.info("CPU-only mode enabled for this request. Setting schema to None for the purpose of local testing.")
 
-        # model_info = get_model_architecture(model_name)
-        # if not model_info["supported"]:
-        #     logger.critical(
-        #         f"Model '{model_name}' not supported. Reason: {model_info['error']}"
-        #     )
-        #     raise ValueError(f"Model '{model_name}' unsupported.")
-
-        # if not model_info["is_multi_modal"]:
-        #     logger.warning(f"'{model_name}' appears to be text-only.")
 
         port = portpicker.pick_unused_port()
         self.api_key = "NOT-USED"
@@ -205,51 +196,6 @@ def launch_vllm_server(
     logger.debug(f"vLLM log excerpt (last 500 chars): {full_log[-500:]}")
     raise RuntimeError(f"vLLM server for '{model}' failed to start.")
 
-def get_model_architecture(model_name: str) -> Dict[str, Any]:
-    MMM_KEYWORDS = (
-        "vision",
-        "vl",
-        "llava",
-        "fuyu",
-        "qwen2vl",
-        "paligemma",
-        "internvl",
-        "gemma",
-    )
-
-    try:
-        config: PretrainedConfig = AutoConfig.from_pretrained(
-            model_name, trust_remote_code=True
-        )
-        arch_names = getattr(config, "architectures", None)
-        if not arch_names and hasattr(config, "model_type"):
-            arch_names = [config.model_type]
-
-        if not arch_names:
-            return {
-                "supported": False,
-                "is_multi_modal": False,
-                "error": "Missing 'architectures' or 'model_type' in config.json.",
-            }
-
-        is_multi_modal = any(
-            keyword in arch.lower() for arch in arch_names for keyword in MMM_KEYWORDS
-        )
-
-        return {
-            "supported": True,
-            "is_multi_modal": is_multi_modal,
-            "architectures": arch_names,
-            "model_type": getattr(config, "model_type", None),
-            "error": None,
-        }
-
-    except Exception as e:
-        return {
-            "supported": False,
-            "is_multi_modal": False,
-            "error": f"Failed to fetch configuration for '{model_name}'. Hugging Face Error: {str(e)}",
-        }
 
 def _parse_response(response):
     if isinstance(response, dict):
