@@ -32,7 +32,6 @@ class EvaluationWithJudge(EvaluationBase):
         model: LLMJudge,
         response_schema: BongardEvaluationSchema,
     ):
-        print("Evaluating single answer with judge...", flush=True)
         return model.evaluate_similarity(
             prompt=prompt, 
             answer=answer, 
@@ -52,7 +51,6 @@ class EvaluationWithJudge(EvaluationBase):
         for index, row in answers_df.iterrows():
             answer = row["answer"]
             id_ = str(row["problem_id"])
-            print(f"Evaluating ID {id_}...", flush=True)
 
             if answer is None or pd.isna(answer) or answer.strip() == "":
                 output_df.at[index, "score"] = "No answer provided"

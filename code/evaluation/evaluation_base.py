@@ -89,7 +89,6 @@ class EvaluationBase(ABC):
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
         if d_category == "BP":
-            print("Starting evaluation with judge...")
             self.evaluate(
                 answers_df=answers_df,
                 key_dict=key_dict,
@@ -99,7 +98,6 @@ class EvaluationBase(ABC):
             )
             
         elif d_category == "standard" or d_category == "choice_only":
-            print("Starting basic evaluation...")
             self.evaluate(
                 answers_df=answers_df,
                 key_dict=key_dict,
