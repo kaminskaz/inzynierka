@@ -182,6 +182,11 @@ def get_model_config(
         "tensor_parallel_size": custom_args.get("tensor_parallel_size"),
         "gpu_memory_utilization": custom_args.get("gpu_memory_utilization"),
     })
+
+    #if chat_template_path does not exist, set to None
+    chat_template_path = config_dict.get("chat_template_path")
+    if chat_template_path and not os.path.exists(chat_template_path):
+            raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
     
     clean_config = {k: v for k, v in config_dict.items() if v is not None}
 

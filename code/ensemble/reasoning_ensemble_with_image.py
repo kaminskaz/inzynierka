@@ -14,7 +14,7 @@ from string import Template
 class ReasoningEnsembleWithImage(EnsembleBase):
     def __init__(self, dataset_name: str, members_configuration: List[List[str]], run_missing: bool = True, judge_model: Optional[Any] = None, type_name: str = "reasoning_with_image"):
         super().__init__(dataset_name, members_configuration, run_missing, type_name)
-        self.vllm = judge_model if judge_model is not None else VLLM(model_name="OpenGVLab/InternVL3-8B", max_tokens=4096, max_output_tokens=2048)
+        self.vllm = judge_model if judge_model is not None else VLLM(model_name="OpenGVLab/InternVL3-8B")
 
     def evaluate_single_problem(self, problem_id):
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()

@@ -69,13 +69,7 @@ def _load_model(
 
     try:
         vllm_model = VLLM(
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            max_output_tokens=max_output_tokens,
-            limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args,
-            cpu_local_testing=local_testing
+            model_name=model_name
         )
 
         if vllm_model:

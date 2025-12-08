@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
 from code.models.vllm import VLLM
-from code.technical.utils import get_field 
+from code.technical.utils import get_field, get_model_config 
 
 logger = logging.getLogger(__name__)
 
@@ -20,35 +20,11 @@ class LLMJudge(VLLM):
     def __init__(
         self,
         model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
-        temperature: float = 0.0,
-        max_tokens: int = 2048,
-        max_output_tokens: int = 512,
-        chat_template_path: str = "mistral_template.jinja",
-        **kwargs,
+        param_set_number: Optional[int] = None
     ):
-        # forcing text-only evaluation
-        limit_mm_per_prompt = 0
-
-        here = os.path.dirname(os.path.abspath(__file__))
-        code_root = os.path.abspath(os.path.join(here, ".."))
-        chat_template_path = os.path.join(code_root, "technical", "chat_templates", "mistral_template.jinja")
-
-        custom_args = kwargs.get("custom_args", [])
-        custom_args += [
-            "--chat-template",
-            chat_template_path
-        ]
-
-        if not os.path.exists(chat_template_path):
-            raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
-
         super().__init__(
             model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            max_output_tokens=max_output_tokens,
-            limit_mm_per_prompt=limit_mm_per_prompt,
-            custom_args=custom_args
+            param_set_number=param_set_number,
         )
 
         self.judge_mode = "text_only"

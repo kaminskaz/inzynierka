@@ -13,10 +13,7 @@ class ResponseSchema(BaseModel):
 def main():
     print("Preparing VLLM", flush=True)
     vllm = VLLM(
-        model_name="Qwen/Qwen2.5-VL-3B-Instruct",
-        max_output_tokens=1024,
-        max_tokens=2048,
-        cpu_local_testing=True
+        model_name="Qwen/Qwen2.5-VL-3B-Instruct"
     )
 
     print("Test 1: Text-only prompt", flush=True)
@@ -41,8 +38,7 @@ def main():
     print("Test 3: Wrong model name", flush=True)
     try:
         vllm = VLLM(
-            model_name="Qwen/Qwen2.5-VL-1B-Instruct",
-            custom_args=("--tensor-parallel-size", "4"),
+            model_name="Qwen/Qwen2.5-VL-1B-Instruct"
         )
     except Exception as e:
         print("Caught exception as expected:", e, flush=True)

@@ -58,7 +58,7 @@
         "temperature": 0.0,
         "max_tokens": 4096,
         "max_output_tokens": 2048,
-        "chat_template_path": "mistral_template.jinja",
+        "chat_template_path": "code/technical/chat_templates/mistral_template.jinja",
         "limit_mm_per_prompt": 0,
         "cpu_local_testing": false,
         "custom_args": {
@@ -70,7 +70,7 @@
         "temperature": 0.5,
         "max_tokens": 4096,
         "max_output_tokens": 2048,
-        "chat_template_path": "mistral_template.jinja",
+        "chat_template_path": "code/technical/chat_templates/mistral_template.jinja",
         "limit_mm_per_prompt": 0,
         "cpu_local_testing": false,
         "custom_args": {

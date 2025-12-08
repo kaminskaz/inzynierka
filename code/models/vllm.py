@@ -14,6 +14,7 @@ import os
 
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
+from code.technical.utils import get_model_config
 
 logger = logging.getLogger(__name__)
 
@@ -21,24 +22,29 @@ logger = logging.getLogger(__name__)
 class VLLM:
     def __init__(
         self,
-        model_name: str,
-        temperature: float = 0.5,
-        max_tokens: int = 8192,
-        max_output_tokens: int = 4096,
-        limit_mm_per_prompt: int = 2,
-        custom_args: List[str] = [],
-        cpu_local_testing: bool = False
+        model_name: str = "OpenGVLab/InternVL3-8B",
+        param_set_number: Optional[int] = None
     ):
+        config = None
+        if param_set_number is not None:
+            config = get_model_config(
+                model_name, target_version=param_set_number
+            )
+        else:
+            config = get_model_config(model_name, 1)
+            logger.warning(
+                f"No param_set_number provided for model '{model_name}'. Defaulting to version 1."
+            )
 
-        assert max_tokens > max_output_tokens, (
+        assert config.max_tokens > config.max_output_tokens, (
             "max_tokens must be greater than max_output_tokens."
         )        
 
         self.model_name = model_name
-        self.max_tokens = max_tokens
-        self.temperature = temperature
-        self.max_output_tokens = max_output_tokens
-        self.cpu_local_testing = cpu_local_testing
+        self.max_tokens = config.max_tokens
+        self.temperature = config.temperature
+        self.max_output_tokens = config.max_output_tokens
+        self.cpu_local_testing = config.cpu_local_testing
         if self.cpu_local_testing:
             logger.info("CPU-only mode enabled for this request. Setting schema to None for the purpose of local testing.")
 
@@ -65,14 +71,20 @@ class VLLM:
                 "--port",
                 str(port),
                 "--max-model-len",
-                str(max_tokens),
-                "--trust-remote-code",
+                str(config.max_tokens),
+                "--tensor-parallel-size", str(config.tensor_parallel_size),
+                "--gpu-memory-utilization", str(config.gpu_memory_utilization),
                 *(
-                    ("--limit-mm-per-prompt", f'{{"image": {limit_mm_per_prompt}}}')
-                    if limit_mm_per_prompt > 0
+                    ("--chat-template", config.chat_template_path)
+                    if config.chat_template_path
                     else ()
                 ),
-                *custom_args,
+                "--trust-remote-code",
+                *(
+                    ("--limit-mm-per-prompt", f'{{"image": {config.limit_mm_per_prompt}}}')
+                    if config.limit_mm_per_prompt > 0
+                    else ()
+                ),
             ),
         )
 

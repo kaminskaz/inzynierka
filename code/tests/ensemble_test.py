@@ -49,25 +49,14 @@ def run_single_ensemble(
             if type_name == "reasoning_with_image" and vllm_model_name:
                 logger.info(f"Initializing VLLM model '{vllm_model_name}' for reasoning with image ensemble.")
                 model = VLLM(
-                    model_name=vllm_model_name,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    max_output_tokens=max_output_tokens,
-                    limit_mm_per_prompt=limit_mm_per_prompt,
-                    custom_args=custom_args,
-                    cpu_local_testing=local_testing
+                    model_name=vllm_model_name
                 )
 
             elif (get_dataset_config(dataset_name).category == "BP" and llm_model_name) or (type_name == "reasoning" and llm_model_name):
                 logger.info(f"Initializing LLM model '{llm_model_name}' for ensemble.")
                 
                 model = LLMJudge(
-                    model_name=llm_model_name,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    max_output_tokens=max_output_tokens,
-                    custom_args=custom_args,
-                    cpu_local_testing=local_testing
+                    model_name=llm_model_name
                 )
             else:
                 model = None
