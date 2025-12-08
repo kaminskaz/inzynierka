@@ -106,7 +106,7 @@ class VLLM:
         )
 
         model_response = _parse_response(response.choices[0].message.content)
-        return model_response.strip() if model_response else ""
+        return model_response if model_response else {}
 
 
     def stop(self):
