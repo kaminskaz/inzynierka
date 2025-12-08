@@ -42,6 +42,8 @@ class LLMJudge(VLLM):
         if not os.path.exists(chat_template_path):
             raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
 
+        print(f"Initializing LLMJudge with parameters: model_name={model_name}, temperature={temperature}, max_tokens={max_tokens}, max_output_tokens={max_output_tokens}")
+        
         super().__init__(
             model_name=model_name,
             temperature=temperature,
@@ -50,6 +52,8 @@ class LLMJudge(VLLM):
             limit_mm_per_prompt=limit_mm_per_prompt,
             custom_args=custom_args
         )
+
+        print("Initializing LLMJudge 2")
 
         self.judge_mode = "text_only"
         logger.info(
@@ -64,6 +68,7 @@ class LLMJudge(VLLM):
         response_schema: Optional[Type[BaseModel]]
     ):
         try:
+            print("Evaluating similarity...")
             prompt = (
                 f"{prompt}\n"
                 f"Answer: {answer}\n"
@@ -74,7 +79,7 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
-            
+
             else:
                 response = self.ask([TextContent(prompt)])
 

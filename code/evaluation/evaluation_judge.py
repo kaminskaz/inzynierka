@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 class EvaluationWithJudge(EvaluationBase):
     def __init__(self):
-        super().__init__()
         try:
             # na razie na prompcie dla bongarda tylko jeśli się nie poda prompta z zewnątrz
             with open("prompts/evaluation/evaluation_bongard_main.txt", "r") as file:
@@ -33,6 +32,7 @@ class EvaluationWithJudge(EvaluationBase):
         model: LLMJudge,
         response_schema: BongardEvaluationSchema,
     ):
+        print("Evaluating single answer with judge...")
         return model.evaluate_similarity(
             prompt=prompt, 
             answer=answer, 
