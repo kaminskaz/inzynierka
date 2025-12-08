@@ -23,6 +23,7 @@ class EnsembleBase(ABC):
         self.seed = 42
         self.type_name = type_name
         self.ensemble_directory = None
+        self.exists = False
 
         self._build_ensemble()
 
@@ -111,6 +112,7 @@ class EnsembleBase(ABC):
         existing_version = self.check_if_ensemble_exists()
         if existing_version:
             self.logger.info(f"Ensemble configuration already exists as version {existing_version}.")
+            self.exists = True
             return
         else:
             self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create=True)
@@ -118,6 +120,8 @@ class EnsembleBase(ABC):
         return 
 
     def evaluate(self) -> None:
+        if self.exists:
+            return
         results = []
         problem_ids = self.answers["problem_id"].unique()
 
