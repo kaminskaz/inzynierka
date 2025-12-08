@@ -62,7 +62,7 @@ class LLMJudge(VLLM):
         answer: str, 
         key: str, 
         response_schema: Optional[Type[BaseModel]]
-    ) -> float:
+    ):
         try:
             prompt = (
                 f"{prompt}\n"
