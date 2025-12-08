@@ -24,11 +24,11 @@ def run_multiple_evaluations(
         judge_prompt: str = None,
         evaluation_output_path: str = "evaluation_results"
     ):
-        print("Running multiple evaluations...")
+        print("Running multiple evaluations...", flush=True)
         evaluator_judge = EvaluationWithJudge()
-        print("Initialized EvaluationWithJudge.")
+        print("Initialized EvaluationWithJudge.", flush=True)
         evaluator_simple = EvaluationBasic()
-        print("Initialized EvaluationBasic.")
+        print("Initialized EvaluationBasic.", flush=True)
 
         for d_name in dataset_names:
             d_category = get_dataset_config(d_name).category 
