@@ -80,7 +80,6 @@ class LLMJudge(VLLM):
 
             similarity_label = get_field(response, "similarity_label", "No similarity label provided.")
             reasoning = get_field(response, "reasoning", "No reasoning provided.")
-            print(f"Similarity Label: {similarity_label}\nReasoning: {reasoning}\n")
 
             return similarity_label, reasoning
 
