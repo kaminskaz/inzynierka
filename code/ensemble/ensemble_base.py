@@ -121,6 +121,7 @@ class EnsembleBase(ABC):
 
     def evaluate(self) -> None:
         if self.exists:
+            self.logger.info("Ensemble already exists. Skipping evaluation.")
             return
         results = []
         problem_ids = self.answers["problem_id"].unique()
@@ -131,6 +132,8 @@ class EnsembleBase(ABC):
                 "problem_id": problem_id,
                 "ensemble_answer": final_answer
             })
+            results_df = pd.DataFrame(results)
+            self.save_results_to_csv(results_df, self.ensemble_directory)
 
         results_df = pd.DataFrame(results)
         self.save_results_to_csv(results_df, self.ensemble_directory)
@@ -141,7 +144,7 @@ class EnsembleBase(ABC):
 
     def save_results_to_csv(self, results_df: pd.DataFrame, results_dir: str) -> None:
         path_to_csv = os.path.join(results_dir, "ensemble_results.csv")
-        results_df.to_csv(path_to_csv, index=False)
+        results_df.to_csv(path_to_csv, index=False, mode='w')
         self.logger.info(f"Ensemble results saved to {path_to_csv}.")
 
     def save_config_to_json(self, results_dir: str) -> None:

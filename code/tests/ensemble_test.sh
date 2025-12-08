@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -A jrafalko-lab
-#SBATCH --job-name=reasoning_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znaj>
+#SBATCH --job-name=im_reasoning_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znaj>
 #SBATCH --time=2:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slu>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=1 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
@@ -14,7 +14,7 @@
 # ---- PARAMETERS ----
 DATASET_NAME=${1:-bp}
 MEMBERS_CONFIGURATION=${2:-'[["direct", "OpenGVLab/InternVL3-8B", "1"], ["classification", "OpenGVLab/InternVL3-8B", "1"],["descriptive", "OpenGVLab/InternVL3-8B", "1"]]'}
-ENSEMBLE_TYPE=${3:-"reasoning"}
+ENSEMBLE_TYPE=${3:-"reasoning_with_image"}
 
 echo "Ensemble Type: $ENSEMBLE_TYPE"
 echo "Dataset: $DATASET_NAME"
