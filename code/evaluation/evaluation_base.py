@@ -52,6 +52,8 @@ class EvaluationBase(ABC):
             version=version,
             create_dir=False
         )
+        
+        print(f"Results directory for evaluation: {results_dir}")
 
         if output_all_results_concat_path is None:
             default_dir = results_dir.split("results")[0] + "results"
