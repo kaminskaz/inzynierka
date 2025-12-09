@@ -4,9 +4,9 @@ import json
 from code.evaluation.evaluation_judge import EvaluationWithJudge
 from code.evaluation.evaluation_basic import EvaluationBasic
 
-pd.set_option('display.max_colwidth', None) 
 
 def main():
+    pd.set_option('display.max_colwidth', None) 
     print("Test 1: Standard evaluation", flush=True)
     answers_df = pd.read_csv('code/tests/cvr_example_results.csv', dtype={"problem_id": str}, encoding="utf-8")
     key_cvr = {
@@ -36,7 +36,7 @@ def main():
     evaluator_judge.evaluate(answers_df_judge, key_bp, output_df_judge)
     print(output_df_judge)
 
-    print("\nEnsemble evaluation", flush=True)
+    print("\nTest 3: Ensemble evaluation", flush=True)
     answers_df_ensemble = pd.read_csv('code/tests/ensemble_eval_test.csv', dtype={"problem_id": str}, encoding="utf-8")
     key_ensemble = {
         "013": ["Empty picture", "Not empty picture"],

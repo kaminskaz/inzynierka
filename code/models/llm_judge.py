@@ -42,7 +42,6 @@ class LLMJudge(VLLM):
         response_schema: Optional[Type[BaseModel]]
     ):
         try:
-            print("Evaluating similarity...")
             prompt = (
                 f"{prompt}\n"
                 f"Answer: {answer}\n"

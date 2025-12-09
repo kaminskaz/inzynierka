@@ -35,6 +35,11 @@ class EvaluationBasic(EvaluationBase):
                 continue
 
             key = key_dict[id_].strip().upper()
+            if key is None or key == "":
+                logger.info(f"Key for ID {id_} is empty.")
+                output_df.at[index, "score"] = "No key provided for problem id"
+                output_df.at[index, "key"] = "Key missing"
+                continue
 
             score = self.evaluate_single_answer(answer, key)
             output_df.at[index, "score"] = score
