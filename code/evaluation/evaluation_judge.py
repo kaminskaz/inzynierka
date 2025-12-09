@@ -28,11 +28,7 @@ class EvaluationWithJudge(EvaluationBase):
             logger.error(f"Failed to read prompt file: {e}")
         
         self.judge = LLMJudge(
-            model_name=model_name,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            max_output_tokens=max_output_tokens,
-            chat_template_path=chat_template_path
+            model_name=model_name
         )
 
     def evaluate_single_answer(
