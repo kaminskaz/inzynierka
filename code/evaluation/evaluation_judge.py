@@ -14,7 +14,12 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationWithJudge(EvaluationBase):
-    def __init__(self):
+    def __init__(self, 
+                 model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
+                 temperature: float = 0.0,
+                 max_tokens: int = 2048,
+                 max_output_tokens: int = 512,
+                 chat_template_path: str = "mistral_template.jinja"):
         try:
             # na razie na prompcie dla bongarda tylko jeśli się nie poda prompta z zewnątrz
             with open("prompts/evaluation/evaluation_bongard_main.txt", "r") as file:
@@ -22,7 +27,13 @@ class EvaluationWithJudge(EvaluationBase):
         except Exception as e:
             logger.error(f"Failed to read prompt file: {e}")
         
-        self.judge = LLMJudge()
+        self.judge = LLMJudge(
+            model_name=model_name,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            max_output_tokens=max_output_tokens,
+            chat_template_path=chat_template_path
+        )
 
     def evaluate_single_answer(
         self,
