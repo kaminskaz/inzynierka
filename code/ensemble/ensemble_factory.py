@@ -31,7 +31,7 @@ class EnsembleFactory:
 
 
     def create_ensemble(
-        self, dataset_name: str, members_configuration: List[List[str]], run_missing: bool = True, judge_model: Optional[Any] = None, type_name: str = "majority"
+        self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, judge_model: Optional[Any] = None, type_name: str = "majority"
     ) -> EnsembleBase:
         """
         Method to create, configure, and return an ensemble instance.
@@ -40,7 +40,7 @@ class EnsembleFactory:
         Args:
             dataset_name (str): The name of the dataset.
             members_configuration (List[List[str]]): Configuration of ensemble members. (strategy, model, version)
-            run_missing (bool): Whether to run missing experiments.
+            skip_missing (bool): Whether to run missing experiments.
             judge_model (Optional[Any]): The instantiated judge model object (e.g., LLM, VLLM).
         """
         self.logger.info(
@@ -59,7 +59,7 @@ class EnsembleFactory:
             ensemble_instance = ensemble_class(
                 dataset_name=dataset_name,
                 members_configuration=members_configuration,
-                run_missing=run_missing,
+                skip_missing=skip_missing,
                 judge_model=judge_model, 
                 type_name=type_name
             )

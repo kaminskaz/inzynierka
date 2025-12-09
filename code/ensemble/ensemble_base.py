@@ -12,11 +12,11 @@ from run_single_experiment import run_single_experiment
 
 
 class EnsembleBase(ABC):
-    def __init__(self, dataset_name: str, members_configuration: List[List[str]], run_missing: bool = True, type_name: str = ""):
+    def __init__(self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, type_name: str = ""):
         self.logger = logging.getLogger(__name__)
         self.dataset_name = dataset_name
         self.config: Dict[str, Any] = {}
-        self.run_missing = run_missing
+        self.skip_missing = skip_missing
         self.members_configuration = members_configuration
         self.answers = pd.DataFrame()
         self.dataset_config = get_dataset_config(dataset_name)
@@ -92,13 +92,14 @@ class EnsembleBase(ABC):
                     meta = {}
 
             if df.empty:
-                self.logger.warning(f"No data loaded for member {idx} with strategy {strategy}, model {model_name}.")
-                if self.run_missing:
-                    self.logger.info(f"Running new for member {idx} with strategy {strategy}, model {model_name}.")
-                    run_single_experiment(dataset_name=self.dataset_name, 
-                                        strategy_name=strategy,
-                                        model_name=model_name)
-                    df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, version)
+                if self.skip_missing:
+                    self.logger.warning(f"skip_missing set to 'true': Skipping member with strategy {strategy}, model {model_name}.")
+                    continue
+                else:
+                    self.logger.warning(f"""No data loaded for member {idx} with strategy {strategy}, model {model_name}.  
+                                        You can check available configurations in the results/{self.dataset_name} folder""")
+                    raise ValueError(f"""Missing ensemble member configurations and skip_missing set to 'false':
+                                     Please run the missing configuration and restart the process.""")
 
             self.config[f"member_{valid_member_idx}"] = meta
 
