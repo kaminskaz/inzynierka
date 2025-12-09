@@ -3,7 +3,7 @@ import json
 import pandas as pd
 from PIL import Image
 import torch
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 import logging
 import re
 from code.models.model_config import ModelConfig
@@ -101,7 +101,7 @@ def shorten_model_name(model_name: str) -> str:
     short_model_name = short_model_name.replace('/', '_')
     return short_model_name
 
-def get_ensemble_directory(dataset_name, type_name, create: bool = False, version: Optional[str] = None) -> str:
+def get_ensemble_directory(dataset_name: str, type_name: str, create: bool = False, version: Optional[str] = None) -> str:
         # creates a new directory for the ensemble results inside results/ensembles/{dataset_name}/{type_name}/ensemble_ver{version}
         # where {version} is incremented if previous versions exist
         base_results_dir = os.path.join("results", "ensembles", dataset_name, type_name)
@@ -143,7 +143,7 @@ def get_field(obj, name, default=None):
 
 def get_model_config(
     target_model_name: str, 
-    target_version: str
+    param_set_number: Optional[str | int] = None
     ) -> ModelConfig:
     """
     Extracts a specific configuration for a given model name and param_set version.
@@ -153,15 +153,23 @@ def get_model_config(
         json_data = json.load(f)
 
     if target_model_name not in json_data:
-        raise ValueError(f"Model '{target_model_name}' not found in configuration.")
+        raise ValueError(f"""Model '{target_model_name}' not found in configuration. 
+                         Please provide the missing configuration in code/technical/configs/model_config.json""")
     
     model_attrs = json_data[target_model_name]
-    
-    param_sets = model_attrs.get("param_sets", {})
-    if target_version not in param_sets:
-        raise ValueError(f"Version '{target_version}' not found for model '{target_model_name}'. Available: {list(param_sets.keys())}")
+    if param_set_number is None:
+        param_set_number = '1'
+        logger.warning("\n param_set_number not provided. Defaulting to '1'.\n")
 
-    target_params = param_sets[target_version]
+    param_set_number = str(param_set_number)
+    param_sets = model_attrs.get("param_sets", {})
+    if not param_set_number.isdigit():
+        raise ValueError(f"param_set_number must be an integer, or a string with a digit value, got '{param_set_number}'.  Available: {list(param_sets.keys())}")
+    
+    if param_set_number not in param_sets:
+        raise ValueError(f"Version '{param_set_number}' not found for model '{target_model_name}'. Available: {list(param_sets.keys())}")
+
+    target_params = param_sets[param_set_number]
     custom_args = target_params.get("custom_args", {})
 
     config_dict = {

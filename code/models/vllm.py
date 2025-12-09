@@ -25,16 +25,8 @@ class VLLM:
         model_name: str = "OpenGVLab/InternVL3-8B",
         param_set_number: Optional[int] = None
     ):
-        config = None
-        if param_set_number is not None:
-            config = get_model_config(
-                model_name, target_version=param_set_number
-            )
-        else:
-            config = get_model_config(model_name, 1)
-            logger.warning(
-                f"No param_set_number provided for model '{model_name}'. Defaulting to version 1."
-            )
+        config = get_model_config(
+                model_name, param_set_number=param_set_number)
 
         assert config.max_tokens > config.max_output_tokens, (
             "max_tokens must be greater than max_output_tokens."
