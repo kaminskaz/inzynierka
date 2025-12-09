@@ -1,7 +1,7 @@
 {
   "OpenGVLab/InternVL3-8B": {
     "model_class": "VLLM",
-    "max_tokens_limit": 8192,
+    "max_tokens_limit": 32000,
     "num_params_billions": 8,
     "gpu_split": false,
     "param_sets": {
@@ -18,7 +18,7 @@
       },
       "2": {
         "temperature": 0.7,
-        "max_tokens": 8192,
+        "max_tokens": 16384,
         "max_output_tokens": 4096,
         "limit_mm_per_prompt": 2,
         "cpu_local_testing": false,
@@ -31,7 +31,7 @@
   },
   "Qwen/Qwen2.5-VL-72B-Instruct":{
     "model_class": "VLLM",
-    "max_tokens_limit": 16384,
+    "max_tokens_limit": 32768,
     "num_params_billions": 72,
     "gpu_split": true,
     "param_sets": {
@@ -50,7 +50,7 @@
   },
   "mistralai/Mistral-7B-Instruct-v0.3": {
     "model_class": "LLMJudge",
-    "max_tokens_limit": 4096,
+    "max_tokens_limit": 32768,
     "num_params_billions": 7,
     "gpu_split": false,
     "param_sets": {
