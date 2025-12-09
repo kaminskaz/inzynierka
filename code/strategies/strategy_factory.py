@@ -10,14 +10,14 @@ from code.strategies.contrastive_strategy import ContrastiveStrategy
 from code.strategies.direct_strategy import DirectStrategy
 from code.strategies.descriptive_strategy import DescriptiveStrategy
 from code.preprocessing.processor_config import ProcessorConfig
-from code.technical.utils import load_all_dataset_configs, get_dataset_config
+from code.technical.utils import get_dataset_config
 
 class StrategyFactory:
     """
     Factory to create and configure a specific strategy based on its name.
     """
     def __init__(
-        self, config_path: str = "code/preprocessing/dataset_config.json"
+        self, config_path: str = "code/technical/configs/dataset_config.json"
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config_path = Path(config_path)

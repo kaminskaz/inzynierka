@@ -11,7 +11,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config", 
         type=str, 
-        default="code/preprocessing/dataset_config.json",
+        default="code/technical/configs/dataset_config.json",
         help="Path to configuration file"
     )
     parser.add_argument(

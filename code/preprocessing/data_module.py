@@ -18,7 +18,7 @@ class DataModule:
 
     def __init__(
         self,
-        config_path: str = "code/preprocessing/dataset_config.json",
+        config_path: str = "code/technical/configs/dataset_config.json",
         load_from_hf: bool = False,
     ):
         self.config_path = Path(config_path)

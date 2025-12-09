@@ -10,7 +10,7 @@ logger = logging.getLogger("OutputVerifier")
 
 
 def check_processing_outputs(
-    config_path: str = "code/preprocessing_new/dataset_config.json",
+    config_path: str = "code/technical/configs/dataset_config.json",
 ):
     """
     Checks all processed datasets for missing solutions or annotations
@@ -126,5 +126,5 @@ def check_processing_outputs(
 
 if __name__ == "__main__":
     # You can customize the path if it's different
-    DEFAULT_CONFIG_PATH = "code/preprocessing_new/dataset_config.json"
+    DEFAULT_CONFIG_PATH = "code/technical/configs/dataset_config.json"
     check_processing_outputs(DEFAULT_CONFIG_PATH)
