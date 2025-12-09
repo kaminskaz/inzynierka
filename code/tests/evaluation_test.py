@@ -4,6 +4,7 @@ import json
 from code.evaluation.evaluation_judge import EvaluationWithJudge
 from code.evaluation.evaluation_basic import EvaluationBasic
 
+pd.set_option('display.max_colwidth', None) 
 
 def main():
     print("Test 1: Standard evaluation", flush=True)

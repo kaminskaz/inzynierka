@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
 from code.models.vllm import VLLM
-from code.technical.utils import get_field, get_model_config 
+from code.technical.utils import get_field
 
 logger = logging.getLogger(__name__)
 
