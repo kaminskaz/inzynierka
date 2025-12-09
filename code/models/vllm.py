@@ -185,7 +185,7 @@ def launch_vllm_server(
 
     logger.critical(f"Failed to start vLLM server for '{model}'.")
     logger.debug(f"vLLM log excerpt (last 500 chars): {full_log[-500:]}")
-    raise RuntimeError(f"vLLM server for '{model}' failed to start.")
+    raise ValueError(f"vLLM server failed to start. See log file for details.")
 
 
 def _parse_response(response):

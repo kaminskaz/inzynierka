@@ -40,8 +40,6 @@ class EvaluationBasic(EvaluationBase):
             output_df.at[index, "score"] = score
             output_df.at[index, "key"] = key
 
-        
-
     def calculate_metrics(self, evaluated_df):
         total = len(evaluated_df)
         correct = len(evaluated_df[evaluated_df["score"] == "Right"])

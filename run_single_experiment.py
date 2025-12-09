@@ -9,48 +9,12 @@ from typing import Any, List, Optional
 
 from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
-from code.technical.utils import get_dataset_config, make_dir_for_results
+from code.technical.utils import make_dir_for_results
 from code.evaluation.evaluation_basic import EvaluationBasic
 from code.evaluation.evaluation_judge import EvaluationWithJudge
 
 
 logger = logging.getLogger(__name__)
-
-def run_multiple_evaluations(
-        strategy_names: List[str],
-        dataset_names: List[str],
-        model_names: List[str],
-        versions: List[str],
-        judge_prompt: str = None,
-        evaluation_output_path: str = "evaluation_results"
-    ):
-        evaluator_judge = EvaluationWithJudge()
-        evaluator_simple = EvaluationBasic()
-
-        for d_name in dataset_names:
-            d_category = get_dataset_config(d_name).category 
-            for s_name, m_name, ver in product(strategy_names, model_names, versions):
-                logger.info(f"Evaluating dataset: {d_name} of category {d_category} for strategies: {s_name}")
-                if d_category == "standard" or d_category == "choice_only":
-                    evaluator = evaluator_simple
-                    evaluator.run_evaluation(
-                        dataset_name=d_name,
-                        model_name=m_name,
-                        strategy_name=s_name,
-                        version=ver,
-                        evaluation_output_path=evaluation_output_path,
-                    )
-                else:
-                    evaluator = evaluator_judge
-                    evaluator.run_evaluation(
-                        dataset_name=d_name,
-                        model_name=m_name,
-                        strategy_name=s_name,
-                        version=ver,
-                        prompt=judge_prompt,
-                        evaluation_output_path=evaluation_output_path,
-                    )
-        evaluator_judge.judge.stop()
 
 
 def _load_model(
