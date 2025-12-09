@@ -1,5 +1,5 @@
 from code.preprocessing.base_processor import BaseProcessor
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 from code.preprocessing.standard_processor import StandardProcessor
 from code.preprocessing.bongard_processor import BongardProcessor
 
@@ -9,7 +9,7 @@ class ProcessorFactory:
 
     @staticmethod
     def create_processor(
-        dataset_name: str, config: ProcessorConfig, sheet_maker=None
+        config: DatasetConfig, sheet_maker=None
     ) -> BaseProcessor:
         """Create the appropriate processor based on dataset category."""
         if config.category == "BP":

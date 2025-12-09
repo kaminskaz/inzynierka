@@ -5,7 +5,7 @@ import string
 from typing import List, Optional, Dict, Any
 from PIL import Image
 from code.preprocessing.base_processor import BaseProcessor
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 from PIL import Image, ImageDraw, ImageFont
 import random
 
@@ -14,7 +14,7 @@ class StandardProcessor(BaseProcessor):
     """Processor for standard visual reasoning datasets with choice images."""
 
     def __init__(
-        self, config: ProcessorConfig, sheet_maker, output_base_path: str = "data"
+        self, config: DatasetConfig, sheet_maker, output_base_path: str = "data"
     ):
         super().__init__(config, output_base_path)
         self.sheet_maker = sheet_maker

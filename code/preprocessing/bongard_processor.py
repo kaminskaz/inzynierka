@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 from PIL import Image, ImageDraw
 from code.preprocessing.base_processor import BaseProcessor
 from code.preprocessing.standard_sheetmaker import StandardSheetMaker
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 
 
 class BongardProcessor(BaseProcessor):

@@ -6,16 +6,16 @@ import torch
 from typing import Any, Dict, Optional, Union
 import logging
 import re
-from code.models.model_config import ModelConfig
+from code.technical.configs.model_config import ModelConfig
 from pydantic import BaseModel
 
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 
 logger = logging.getLogger(__name__)
 
 
-def get_dataset_config(dataset_name: str, config_path="code/technical/configs/dataset_config.json") -> Optional[ProcessorConfig]:
-    """Gets the ProcessorConfig for a specific dataset."""
+def get_dataset_config(dataset_name: str, config_path="code/technical/configs/dataset_config.json") -> Optional[DatasetConfig]:
+    """Gets the DatasetConfig for a specific dataset."""
     try:
         with open(config_path, "r") as f:
            dataset_configs_raw = json.load(f)
@@ -33,9 +33,9 @@ def get_dataset_config(dataset_name: str, config_path="code/technical/configs/da
         return None
     
     try:
-        return ProcessorConfig.from_dict(raw_config)
+        return DatasetConfig.from_dict(raw_config)
     except Exception as e:
-        logger.error(f"Error creating ProcessorConfig for {dataset_name}: {e}")
+        logger.error(f"Error creating DatasetConfig for {dataset_name}: {e}")
         return None
 
 
@@ -198,3 +198,33 @@ def get_model_config(
     clean_config = {k: v for k, v in config_dict.items() if v is not None}
 
     return ModelConfig(**clean_config)
+
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
+    """Setup logging configuration."""
+
+    # Get the root logger
+    logger = logging.getLogger()
+    logger.setLevel(level)
+
+    # Avoid adding handlers multiple times
+    if not logger.handlers:
+        # Console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(level)
+
+        # File handler
+        file_handler = logging.FileHandler("data_processing.log")
+        file_handler.setLevel(logging.DEBUG)
+
+        # Formatter
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        console_handler.setFormatter(formatter)
+        file_handler.setFormatter(formatter)
+
+        logger.addHandler(console_handler)
+        logger.addHandler(file_handler)
+
+    return logger

@@ -11,7 +11,7 @@ from code.technical.response_schema import (
     ResponseSchema
 )
 from code.models.vllm import VLLM
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 
 
 class ContrastiveStrategy(StrategyBase):
@@ -20,7 +20,7 @@ class ContrastiveStrategy(StrategyBase):
         self,
         dataset_name: str,
         model: VLLM,
-        dataset_config: ProcessorConfig,
+        dataset_config: DatasetConfig,
         results_dir: str,
         strategy_name:str,
     ):

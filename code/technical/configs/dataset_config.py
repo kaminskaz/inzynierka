@@ -3,7 +3,7 @@ from typing import Optional, Dict, Any
 
 
 @dataclass
-class ProcessorConfig:
+class DatasetConfig:
     """Configuration for a dataset processor."""
 
     image_format: str
@@ -24,6 +24,6 @@ class ProcessorConfig:
     expected_num_samples: Optional[int] = None
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "ProcessorConfig":
+    def from_dict(cls, config_dict: Dict[str, Any]) -> "DatasetConfig":
         """Create config from dictionary."""
         return cls(**config_dict)

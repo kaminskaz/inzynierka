@@ -3,19 +3,18 @@ import json
 import random
 import re
 import string
-from code.preprocessing.logging_configuration import setup_logging
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import List, Optional, Dict
 from PIL import Image
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 
 
 class BaseProcessor(ABC):
     """Abstract base class for all dataset processors."""
 
-    def __init__(self, config: ProcessorConfig, output_base_path: str = "data"):
+    def __init__(self, config: DatasetConfig, output_base_path: str = "data"):
         self.config = config
         self.raw_data_path = Path(config.data_folder)
         self.output_base_path = Path(output_base_path)

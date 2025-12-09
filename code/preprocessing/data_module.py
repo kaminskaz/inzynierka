@@ -6,8 +6,7 @@ from typing import Dict, Tuple, Any
 import PIL
 from dotenv import load_dotenv
 from huggingface_hub import snapshot_download, login
-from code.preprocessing.logging_configuration import setup_logging
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 from code.preprocessing.processor_factory import ProcessorFactory
 import logging
 import shutil
@@ -24,7 +23,7 @@ class DataModule:
         self.config_path = Path(config_path)
         self.load_from_hf = load_from_hf
         self.logger = logging.getLogger("DataModule")
-        self.configs: Dict[str, ProcessorConfig] = {}
+        self.configs: Dict[str, DatasetConfig] = {}
         self.raw_config_dicts: Dict[str, Dict[str, Any]] = {}
         self.configs, self.raw_config_dicts = self.load_configs()
         self.processors = {}
@@ -33,7 +32,7 @@ class DataModule:
 
     def load_configs(
         self,
-    ) -> Tuple[Dict[str, ProcessorConfig], Dict[str, Dict[str, Any]]]:
+    ) -> Tuple[Dict[str, DatasetConfig], Dict[str, Dict[str, Any]]]:
         """Load all dataset configurations."""
         try:
             with open(self.config_path, "r") as f:
@@ -43,7 +42,7 @@ class DataModule:
             raw_cfgs = {}
             for name, cfg in config_dict.items():
                 try:
-                    configs[name] = ProcessorConfig.from_dict(cfg)
+                    configs[name] = DatasetConfig.from_dict(cfg)
                     raw_cfgs[name] = cfg  # Store the raw config dict
                 except Exception as e:
                     self.logger.error(f"Error loading config for {name}: {e}")
@@ -65,7 +64,6 @@ class DataModule:
         for dataset_name, config in self.configs.items():
             try:
                 self.processors[dataset_name] = ProcessorFactory.create_processor(
-                    dataset_name,
                     config,
                     sheet_maker if config.category != "BP" else None,
                 )

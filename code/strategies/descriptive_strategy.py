@@ -8,7 +8,7 @@ from code.technical.content import ImageContent, TextContent
 from code.strategies.strategy_base import StrategyBase
 from code.technical.response_schema import DescriptionResponseSchema, ResponseSchema
 from code.models.vllm import VLLM
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 from code.technical.utils import get_field
 
 class DescriptiveStrategy(StrategyBase):
@@ -17,7 +17,7 @@ class DescriptiveStrategy(StrategyBase):
         self,
         dataset_name: str,
         model: VLLM,
-        dataset_config: ProcessorConfig,
+        dataset_config: DatasetConfig,
         results_dir: str,
         strategy_name: str,
     ):

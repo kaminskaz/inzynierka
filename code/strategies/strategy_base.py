@@ -8,7 +8,7 @@ import json
 from dataclasses import asdict, is_dataclass
 from pydantic import BaseModel
 
-from code.preprocessing.processor_config import ProcessorConfig
+from code.technical.configs.dataset_config import DatasetConfig
 from code.models.vllm import VLLM
 from code.technical.response_schema import ResponseSchema
 from code.technical.utils import get_field
@@ -19,13 +19,13 @@ class StrategyBase(ABC):
         self,
         dataset_name: str,
         model: VLLM,
-        dataset_config: ProcessorConfig,
+        dataset_config: DatasetConfig,
         results_dir: str,
         strategy_name: str,
     ):
         self.dataset_name: str = dataset_name
         self.model: VLLM = model
-        self.config: ProcessorConfig = dataset_config
+        self.config: DatasetConfig = dataset_config
         self.strategy_name: str = strategy_name
 
         self.logger = logging.getLogger(self.__class__.__name__)

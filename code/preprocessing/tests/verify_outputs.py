@@ -109,7 +109,7 @@ def check_processing_outputs(
         else:
             missing_annotations = processed_problems - annotation_keys
             if not annotations_path.exists():
-                pass  # Already warned
+                pass  
             elif missing_annotations:
                 logger.warning(
                     f"  Found {len(missing_annotations)} problems missing annotations."
