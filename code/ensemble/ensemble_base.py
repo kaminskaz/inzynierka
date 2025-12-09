@@ -7,7 +7,7 @@ import csv
 import json
 import pandas as pd
 
-from code.technical.utils import get_dataset_config, make_dir_for_results, get_ensemble_directory
+from code.technical.utils import get_dataset_config, get_results_directory, get_ensemble_directory
 from run_single_experiment import run_single_experiment
 
 
@@ -28,7 +28,7 @@ class EnsembleBase(ABC):
         self._build_ensemble()
 
     def get_results_dir(self, dataset_name: str, strategy: str, model_name: str, version: str = '1',) -> str:
-        base_dir = make_dir_for_results(dataset_name, strategy, model_name, version)
+        base_dir = get_results_directory(dataset_name, strategy, model_name, version)
         if not os.path.exists(base_dir):
             self.logger.warning(f"Directory {base_dir} does not exist.")
             return ""
@@ -116,7 +116,7 @@ class EnsembleBase(ABC):
             self.exists = True
             return
         else:
-            self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create=True)
+            self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create_dir=True)
             self.save_config_to_json(self.ensemble_directory)
         return 
 

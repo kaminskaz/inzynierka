@@ -40,7 +40,7 @@ def get_dataset_config(dataset_name: str, config_path="code/technical/configs/da
 
 
 
-def make_dir_for_results(
+def get_results_directory(
         dataset_name: str, 
         strategy_name: str, 
         model_name: str, 
@@ -100,7 +100,12 @@ def shorten_model_name(model_name: str) -> str:
     short_model_name = short_model_name.replace('/', '_')
     return short_model_name
 
-def get_ensemble_directory(dataset_name: str, type_name: str, create: bool = False, version: Optional[str] = None) -> str:
+def get_ensemble_directory(
+        dataset_name: str, 
+        type_name: str, 
+        create_dir: bool = False, 
+        version: Optional[str] = None
+        ) -> str:
         # creates a new directory for the ensemble results inside results/ensembles/{dataset_name}/{type_name}/ensemble_ver{version}
         # where {version} is incremented if previous versions exist
         base_results_dir = os.path.join("results", "ensembles", dataset_name, type_name)
@@ -111,7 +116,7 @@ def get_ensemble_directory(dataset_name: str, type_name: str, create: bool = Fal
         if version is not None:
             dir_name = f"{prefix}ver{version}"
             path = os.path.join(base_results_dir, dir_name)
-            if create:
+            if create_dir:
                 os.makedirs(os.path.join(base_results_dir, f"{prefix}ver{version}"), exist_ok=True)
                 logger.info(f"Ensemble results directory created at: {path} with version specified.")
             return path

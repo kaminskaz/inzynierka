@@ -8,18 +8,14 @@ import os
 from code.evaluation.evaluation_base import EvaluationBase
 from code.models.llm_judge import LLMJudge
 from code.technical.response_schema import BongardEvaluationSchema
-from code.technical.utils import make_dir_for_results
+from code.technical.utils import get_results_directory
 
 logger = logging.getLogger(__name__)
 
 
 class EvaluationWithJudge(EvaluationBase):
     def __init__(self, 
-                 model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
-                 temperature: float = 0.0,
-                 max_tokens: int = 2048,
-                 max_output_tokens: int = 512,
-                 chat_template_path: str = "mistral_template.jinja"):
+                 model_name: str = "mistralai/Mistral-7B-Instruct-v0.3"):
         try:
             # na razie na prompcie dla bongarda tylko jeśli się nie poda prompta z zewnątrz
             with open("prompts/evaluation/evaluation_bongard_main.txt", "r") as file:
@@ -56,7 +52,7 @@ class EvaluationWithJudge(EvaluationBase):
         ):
 
         for index, row in answers_df.iterrows():
-            answer = row["answer"]
+            answer = row["answer"] or row["ensemble_answer"]
             id_ = str(row["problem_id"])
 
             if answer is None or pd.isna(answer) or answer.strip() == "":

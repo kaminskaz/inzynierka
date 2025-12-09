@@ -6,7 +6,7 @@ import logging
 from pydantic import BaseModel
 import pandas as pd
 import os
-from code.technical.utils import make_dir_for_results, shorten_model_name, get_dataset_config
+from code.technical.utils import get_results_directory, shorten_model_name, get_dataset_config, get_ensemble_directory
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -24,17 +24,28 @@ class EvaluationBase(ABC):
     def run_evaluation(
             self, 
             dataset_name,
-            model_name,
             strategy_name,
+            model_name,
             version,
             evaluation_output_path = "evaluation_results", 
             prompt = None,
             model_object = None,
             concat = True, 
-            output_all_results_concat_path = None
+            output_all_results_concat_path = None,
+            ensemble: bool = False
         ):
 
-        results_dir = make_dir_for_results(
+        if ensemble:
+            results_dir = get_ensemble_directory(
+                dataset_name=dataset_name,
+                strategy_name=strategy_name,
+                model_name=model_name,
+                version=version,
+                create_dir=False
+            )
+
+        else:
+            results_dir = get_results_directory(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
             model_name=model_name,
@@ -230,7 +241,7 @@ class EvaluationBase(ABC):
             version: str
         ):
         
-        results_dir = make_dir_for_results(
+        results_dir = get_results_directory(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
             model_name=model_name,

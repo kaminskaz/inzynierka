@@ -22,7 +22,7 @@ class EvaluationBasic(EvaluationBase):
         ):
         
         for index, row in answers_df.iterrows():
-            answer = row["answer"]
+            answer = row["answer"] or row["ensemble_answer"]
             id_ = str(row["problem_id"])
 
             if answer is None or pd.isna(answer) or answer.strip() == "":
