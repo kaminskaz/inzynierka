@@ -27,7 +27,7 @@ export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 cd inzynierka
 
-python -m code.tests.evaluation_test
+python -m code.tests.evaluation_test_fuller_pipeline
 
 rm -rf ${JOB_HF_HOME}
 rm -rf ${JOB_TMPDIR}

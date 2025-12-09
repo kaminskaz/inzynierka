@@ -30,7 +30,7 @@ def main():
         "003": ["Red shapes", "Blue shapes"],
     }
 
-    evaluator_judge = EvaluationWithJudge(model_name='Qwen/Qwen2.5-VL-3B-Instruct')
+    evaluator_judge = EvaluationWithJudge()
     output_df_judge = answers_df_judge.copy()
     evaluator_judge.evaluate(answers_df_judge, key_bp, output_df_judge)
     print(output_df_judge)
@@ -40,10 +40,7 @@ def main():
     key_ensemble = {
         "013": ["Empty picture", "Not empty picture"],
         "043": ["Triangles", "Circles"],
-        "0": ["Red shapes", "Blue shapes"],
-        "013": "Single shape vs Multiple shapes",
-        "043": "Nested shapes vs Non-nested shapes",
-        "066": "Symmetric shapes vs Asymmetric shapes",
+        "066": ["Red shapes", "Blue shapes"],
     }
     output_df_ensemble = answers_df_ensemble.copy()
     evaluator_judge.evaluate(answers_df_ensemble, key_ensemble, output_df_ensemble)
