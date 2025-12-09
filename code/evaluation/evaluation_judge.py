@@ -75,6 +75,19 @@ class EvaluationWithJudge(EvaluationBase):
                 response_schema=BongardEvaluationSchema,
             )
 
+            if score is None:
+                output_df.at[index, "score"] = "LLM evaluation failed"
+                continue
+
+            if reasoning is None:
+                output_df.at[index, "reasoning"] = "LLM reasoning missing"
+
+            if key is None or key == "":
+                logger.info(f"Key for ID {id_} is empty.")
+                output_df.at[index, "score"] = "No key provided for problem id"
+                output_df.at[index, "key"] = "Key missing"
+                continue
+
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
             output_df.at[index, "key"] = key
