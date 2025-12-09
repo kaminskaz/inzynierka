@@ -12,7 +12,8 @@ def main():
         dataset_name="bp",
         strategy_name="direct",
         model_name="InternVL3-8B",
-        version="v1"
+        version="1",
+        ensemble=True
     )
 
 if __name__ == "__main__":
