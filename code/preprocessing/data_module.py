@@ -139,13 +139,14 @@ class DataModule:
     def check_dataset_counts(self) -> bool:
         """
         Check actual downloaded sample counts against 'expected_num_samples' from config.
-        Asks user whether to continue if mismatches are found.
-
+        
         Returns:
-            bool: True to continue processing, False to abort.
+            bool: True if all counts match, False otherwise.
         """
         self.logger.info("Checking dataset sample counts...")
         all_match = True
+        
+        mismatches = []
 
         for dataset_name, config in self.configs.items():
             raw_cfg = self.raw_config_dicts[dataset_name]
@@ -180,35 +181,25 @@ class DataModule:
                 )
 
             if actual == expected:
-                self.logger.warning(
+                self.logger.info(
                     f"{dataset_name}: Found {actual} / {expected} samples (Match)"
                 )
             else:
-                self.logger.warning(
-                    f"{dataset_name}: Found {actual} / {expected} samples (MISMATCH)"
-                )
+                msg = f"{dataset_name}: Found {actual} / {expected} samples (MISMATCH)"
+                self.logger.error(msg)
+                mismatches.append(msg)
                 all_match = False
 
         if all_match:
             self.logger.info("All dataset counts match expected values.")
             return True
         else:
-            self.logger.warning("Some dataset counts do not match expected values.")
-            while True:
-                user_input = (
-                    input("Do you want to continue with processing? (y/n): ")
-                    .strip()
-                    .lower()
-                )
-                if user_input == "y":
-                    self.logger.info(
-                        "User chose to continue processing despite count mismatch."
-                    )
-                    return True
-                if user_input == "n":
-                    self.logger.info("User aborted processing due to count mismatch.")
-                    return False
-                self.logger.warning("Invalid input. Please enter 'y' or 'n'.")
+            self.logger.critical("DATASET VALIDATION FAILED")
+            self.logger.critical("The following datasets have incomplete downloads:")
+            for m in mismatches:
+                self.logger.critical(f" - {m}")
+            self.logger.critical("Please run the download again to fetch missing files.")
+            return False
 
     def process_all(self) -> None:
         """Process all datasets."""
@@ -259,13 +250,14 @@ class DataModule:
         self.logger.info("Checking downloaded dataset counts...")
         try:
             if not self.check_dataset_counts():
-                self.logger.info(
-                    "Pipeline stopped by user due to dataset count mismatch."
+                self.logger.error(
+                    "Pipeline stopped due to dataset count mismatches. "
+                    "Please re-run with download enabled."
                 )
                 return
         except Exception as e:
             self.logger.error(f"Failed to check dataset counts: {e}", exc_info=True)
-            return  # Stop if check fails
+            return 
 
         self.logger.info("Setting up processors...")
         try:
