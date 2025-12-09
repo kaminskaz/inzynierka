@@ -31,7 +31,7 @@ def get_dataset_config_test():
         "xyz"
     ]
 
-    print("\n=== Running pairwise get_model_config tests ===\n")
+    print("\n=== Running pairwise get_dataset_config tests ===\n")
 
     for i, dataset in enumerate(datasets):
         print(f"\n--- Test {i+1}: dataset='{dataset}' ---")

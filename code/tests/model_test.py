@@ -2,8 +2,7 @@
 import os
 import sys
 from pydantic import BaseModel
-
-from code.models.vllm import VLLM, get_model_architecture
+from code.models.vllm import VLLM
 from code.technical.content import ImageContent, TextContent
 
 class ResponseSchema(BaseModel):
@@ -12,16 +11,14 @@ class ResponseSchema(BaseModel):
 
 def main():
     print("Preparing VLLM", flush=True)
-    vllm = VLLM(
-        model_name="Qwen/Qwen2.5-VL-3B-Instruct"
-    )
+    vllm = VLLM(model_name="Qwen/Qwen2.5-VL-3B-Instruct")
 
     print("Test 1: Text-only prompt", flush=True)
     text_content = TextContent("What is the capital of Norway?")
     response1 = vllm.ask([text_content])
     print("Response (text):", response1, flush=True)
 
-    relative_path = "data_raw/bp/006/4.png"
+    relative_path = "data/bp/problems/006/choices/4.png"
     full_path = os.path.abspath(relative_path)
 
     if not os.path.exists(full_path):
@@ -29,35 +26,15 @@ def main():
         return
 
     print("Test 2: Multimodal prompt", flush=True)
-
     text_content = TextContent("What shape do you see?")
     image_content = ImageContent(relative_path)
     response2 = vllm.ask([text_content, image_content], ResponseSchema)
     print("Response (multimodal):", response2, flush=True)
+    
+    vllm.stop()
 
     print("Test 3: Wrong model name", flush=True)
-    try:
-        vllm = VLLM(
-            model_name="Qwen/Qwen2.5-VL-1B-Instruct"
-        )
-    except Exception as e:
-        print("Caught exception as expected:", e, flush=True)
-
-    models_to_test = [
-        "bert-base-uncased",      
-        "google/vit-base-patch16-224", 
-        "Qwen/Qwen2.5-VL-3B-Instruct",  # multimodal
-        "nonexistent-model-xyz"    # invalid model to test exception handling
-    ]
-
-    print(f"Test 4: Model architecture detection", flush=True)
-    for model_name in models_to_test:
-        info = get_model_architecture(model_name)
-        print("Supported:", info["supported"])
-        print("Multi-modal:", info["is_multi_modal"])
-        print("Architectures:", info.get("architectures"))
-        print("Model type:", info.get("model_type"))
-        print("\n")
+    vllm = VLLM(model_name="Qwen/Qwen2.5-VL-1B-Instruct")
 
     vllm.stop()
 
