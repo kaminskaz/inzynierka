@@ -21,7 +21,7 @@ def main():
     evaluator = EvaluationBasic()
     output_df = answers_df.copy()
     evaluator.evaluate(answers_df, key_cvr, output_df)
-    print(output_df)
+    print(output_df.to_string(), flush=True)
 
     print("\nTest 2: Evaluation with judge", flush=True)
     answers_df_judge = pd.read_csv('code/tests/bp_example_results.csv', dtype={"problem_id": str}, encoding="utf-8")
@@ -34,7 +34,7 @@ def main():
     evaluator_judge = EvaluationWithJudge()
     output_df_judge = answers_df_judge.copy()
     evaluator_judge.evaluate(answers_df_judge, key_bp, output_df_judge)
-    print(output_df_judge)
+    print(output_df_judge.to_string(), flush=True)
 
     print("\nTest 3: Ensemble evaluation", flush=True)
     answers_df_ensemble = pd.read_csv('code/tests/ensemble_eval_test.csv', dtype={"problem_id": str}, encoding="utf-8")
@@ -45,7 +45,7 @@ def main():
     }
     output_df_ensemble = answers_df_ensemble.copy()
     evaluator_judge.evaluate(answers_df_ensemble, key_ensemble, output_df_ensemble)
-    print(output_df_ensemble)
+    print(output_df_ensemble.to_string(), flush=True)
 
     evaluator_judge.judge.stop()
 

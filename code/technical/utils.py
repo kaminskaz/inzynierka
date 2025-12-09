@@ -103,8 +103,8 @@ def shorten_model_name(model_name: str) -> str:
 def get_ensemble_directory(
         dataset_name: str, 
         type_name: str, 
+        version: Optional[str] = None,
         create_dir: bool = False, 
-        version: Optional[str] = None
         ) -> str:
         # creates a new directory for the ensemble results inside results/ensembles/{dataset_name}/{type_name}/ensemble_ver{version}
         # where {version} is incremented if previous versions exist

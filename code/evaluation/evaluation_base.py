@@ -26,20 +26,20 @@ class EvaluationBase(ABC):
             dataset_name,
             strategy_name,
             model_name,
-            version,
+            version: Optional[str] = None,
             evaluation_output_path = "evaluation_results", 
             prompt = None,
             model_object = None,
             concat = True, 
             output_all_results_concat_path = None,
-            ensemble: bool = False
+            ensemble: bool = False,
+            type_name: Optional[str] = None
         ):
 
         if ensemble:
             results_dir = get_ensemble_directory(
                 dataset_name=dataset_name,
-                strategy_name=strategy_name,
-                model_name=model_name,
+                type_name=type_name,
                 version=version,
                 create_dir=False
             )
