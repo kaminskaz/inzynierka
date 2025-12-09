@@ -1,4 +1,4 @@
-from code.technical.utils import get_model_config
+from code.technical.utils import get_model_config, get_dataset_config
 import pprint
 
 def pretty_print_config(config):
@@ -44,7 +44,26 @@ def get_model_config_test():
             print(f"ERROR: {e}")
     print("\n=== Test complete ===")
 
+def get_dataset_config_test():
+    datasets = [
+        "raven",
+        "cvr",
+        "xyz"
+    ]
+
+    print("\n=== Running pairwise get_dataset_config tests ===\n")
+
+    for i, dataset in enumerate(datasets):
+        print(f"\n--- Test {i+1}: dataset='{dataset}' ---")
+        try:
+            config = get_dataset_config(dataset)
+            pretty_print_config(config)
+        except Exception as e:
+            print(f"ERROR: {e}")
+    print("\n=== Test complete ===")
+
 if __name__ == "__main__":
+    get_dataset_config_test()
     get_model_config_test()
 
 

@@ -29,10 +29,8 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
-    # Setup logging with specified level
     logger = setup_logging(getattr(logging, args.log_level))
     
-    # Create and run data module
     data_module = DataModule(
         config_path=args.config,
         load_from_hf=args.download

@@ -27,7 +27,6 @@ class DataModule:
         self.raw_config_dicts: Dict[str, Dict[str, Any]] = {}
         self.configs, self.raw_config_dicts = self.load_configs()
         self.processors = {}
-
         load_dotenv()
 
     def load_configs(
