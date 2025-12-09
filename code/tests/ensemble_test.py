@@ -60,7 +60,7 @@ def run_single_ensemble(
         ensemble = ensemble_factory.create_ensemble(
             dataset_name=dataset_name,
             members_configuration=members_configuration,
-            run_missing=True,
+            skip_missing=True,
             judge_model=model,
             type_name=type_name
         )
