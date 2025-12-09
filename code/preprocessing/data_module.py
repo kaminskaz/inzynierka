@@ -128,7 +128,7 @@ class DataModule:
                 repo_id=repo_id,
                 repo_type=repo_type,
                 local_dir=str(data_path),
-                max_workers=3,
+                max_workers=1,
             )
             self.logger.info(f"Download (or resume) complete for {repo_id}")
 
