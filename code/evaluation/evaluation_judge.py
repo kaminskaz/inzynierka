@@ -62,6 +62,7 @@ class EvaluationWithJudge(EvaluationBase):
             if id_ not in key_dict:
                 logger.info(f"ID {id_} not found in key file.")
                 output_df.at[index, "score"] = "Problem id not found in key"
+                output_df.at[index, "key"] = "Key missing"
                 continue
 
             left_rule, right_rule = key_dict[id_]
@@ -81,12 +82,6 @@ class EvaluationWithJudge(EvaluationBase):
 
             if reasoning is None:
                 output_df.at[index, "reasoning"] = "LLM reasoning missing"
-
-            if key is None or key == "":
-                logger.info(f"Key for ID {id_} is empty.")
-                output_df.at[index, "score"] = "No key provided for problem id"
-                output_df.at[index, "key"] = "Key missing"
-                continue
 
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning

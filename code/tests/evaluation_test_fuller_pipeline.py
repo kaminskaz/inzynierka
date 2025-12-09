@@ -6,15 +6,24 @@ from code.evaluation.evaluation_base import EvaluationBase
 
 
 def main():
-    print("Test: Evaluation", flush=True)
     evaluator = EvaluationBasic()
+    print("Test: Single model evaluation", flush=True)
     evaluator.run_evaluation(
         dataset_name="bp",
         strategy_name="direct",
         model_name="InternVL3-8B",
+        version="1"
+    )
+    print("Single model evaluation completed.", flush=True) 
+
+    print("\nTest: Ensemble evaluation", flush=True)
+    evaluator.run_evaluation(
+        dataset_name="bp",
+        type_name="majority",
         version="1",
         ensemble=True
     )
+    print("Ensemble evaluation completed.", flush=True)
 
 if __name__ == "__main__":
     main()

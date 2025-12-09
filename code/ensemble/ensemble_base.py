@@ -155,7 +155,6 @@ class EnsembleBase(ABC):
         self.logger.info(f"Ensemble configuration saved to {path_to_json}.")
 
     def check_if_ensemble_exists(self) -> Optional[str]:
-        print(f"Checking if ensemble exists for dataset {self.dataset_name} and type {self.type_name}")
         base_results_dir = os.path.join("results", "ensembles", self.dataset_name, self.type_name)
         if not os.path.exists(base_results_dir):
             return None

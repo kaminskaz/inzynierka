@@ -24,8 +24,8 @@ class EvaluationBase(ABC):
     def run_evaluation(
             self, 
             dataset_name,
-            strategy_name,
-            model_name,
+            strategy_name: Optional[str] = None,
+            model_name: Optional[str] = None,
             version: Optional[str] = None,
             evaluation_output_path = "evaluation_results", 
             prompt = None,
@@ -37,6 +37,9 @@ class EvaluationBase(ABC):
         ):
 
         if ensemble:
+            if type_name is None:
+                raise ValueError("type_name is required when ensemble=True")
+            
             results_dir = get_ensemble_directory(
                 dataset_name=dataset_name,
                 type_name=type_name,
@@ -45,6 +48,11 @@ class EvaluationBase(ABC):
             )
 
         else:
+            if strategy_name is None:
+                raise ValueError("strategy_name is required when ensemble=False")
+            if model_name is None:
+                raise ValueError("model_name is required when ensemble=False")
+            
             results_dir = get_results_directory(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
