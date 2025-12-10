@@ -11,7 +11,7 @@ from code.models.llm_judge import LLMJudge
 from code.strategies.strategy_factory import StrategyFactory
 from code.ensemble.ensemble_factory import EnsembleFactory
 from code.models.vllm import VLLM
-from code.technical.utils import get_dataset_config, make_dir_for_results
+from code.technical.utils import get_dataset_config, get_results_directory
 from code.evaluation.evaluation_basic import EvaluationBasic
 from code.evaluation.evaluation_judge import EvaluationWithJudge
 

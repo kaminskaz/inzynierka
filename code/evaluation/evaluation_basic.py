@@ -22,7 +22,7 @@ class EvaluationBasic(EvaluationBase):
         ):
         
         for index, row in answers_df.iterrows():
-            answer = row["answer"]
+            answer = row["answer"] or row["ensemble_answer"]
             id_ = str(row["problem_id"])
 
             if answer is None or pd.isna(answer) or answer.strip() == "":
@@ -32,6 +32,7 @@ class EvaluationBasic(EvaluationBase):
             if id_ not in key_dict:
                 logger.info(f"ID {id_} not found in key file.")
                 output_df.at[index, "score"] = "Problem id not found in key"
+                output_df.at[index, "key"] = "Key missing"
                 continue
 
             key = key_dict[id_].strip().upper()

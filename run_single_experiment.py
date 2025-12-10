@@ -9,7 +9,7 @@ from typing import Any, List, Optional
 
 from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
-from code.technical.utils import make_dir_for_results
+from code.technical.utils import get_results_directory
 from code.evaluation.evaluation_basic import EvaluationBasic
 from code.evaluation.evaluation_judge import EvaluationWithJudge
 
@@ -110,7 +110,7 @@ def run_single_experiment(
     """
     logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
     try:
-        results_dir = make_dir_for_results(dataset_name, strategy_name, model_name)
+        results_dir = get_results_directory(dataset_name, strategy_name, model_name)
 
         strategy_factory = StrategyFactory()
 

@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from code.technical.content import Content, ImageContent, TextContent
 from code.technical.prompt_formatter import PromptFormatter
 from code.models.vllm import VLLM
-from code.technical.utils import get_field, get_model_config 
+from code.technical.utils import get_field
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,6 @@ class LLMJudge(VLLM):
         response_schema: Optional[Type[BaseModel]]
     ):
         try:
-            print("Evaluating similarity...")
             prompt = (
                 f"{prompt}\n"
                 f"Answer: {answer}\n"
@@ -59,7 +58,6 @@ class LLMJudge(VLLM):
 
             similarity_label = get_field(response, "similarity_label", "No similarity label provided.")
             reasoning = get_field(response, "reasoning", "No reasoning provided.")
-            print(f"Similarity Label: {similarity_label}\nReasoning: {reasoning}\n")
 
             return similarity_label, reasoning
 

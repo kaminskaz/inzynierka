@@ -6,7 +6,7 @@ import logging
 from pydantic import BaseModel
 import pandas as pd
 import os
-from code.technical.utils import make_dir_for_results, shorten_model_name, get_dataset_config
+from code.technical.utils import get_results_directory, shorten_model_name, get_dataset_config, get_ensemble_directory
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -24,17 +24,36 @@ class EvaluationBase(ABC):
     def run_evaluation(
             self, 
             dataset_name,
-            model_name,
-            strategy_name,
-            version,
+            strategy_name: Optional[str] = None,
+            model_name: Optional[str] = None,
+            version: Optional[str] = None,
             evaluation_output_path = "evaluation_results", 
             prompt = None,
             model_object = None,
             concat = True, 
-            output_all_results_concat_path = None
+            output_all_results_concat_path = None,
+            ensemble: bool = False,
+            type_name: Optional[str] = None
         ):
 
-        results_dir = make_dir_for_results(
+        if ensemble:
+            if type_name is None:
+                raise ValueError("type_name is required when ensemble=True")
+            
+            results_dir = get_ensemble_directory(
+                dataset_name=dataset_name,
+                type_name=type_name,
+                version=version,
+                create_dir=False
+            )
+
+        else:
+            if strategy_name is None:
+                raise ValueError("strategy_name is required when ensemble=False")
+            if model_name is None:
+                raise ValueError("model_name is required when ensemble=False")
+            
+            results_dir = get_results_directory(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
             model_name=model_name,
@@ -88,7 +107,7 @@ class EvaluationBase(ABC):
         summary_key = self.check_completeness(key_df, metadata)
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
-        if d_category == "BP":
+        if d_category == "BP" or type_name == "reasoning" or type_name == "reasoning_with_judge":
             self.evaluate(
                 answers_df=answers_df,
                 key_dict=key_dict,
@@ -97,7 +116,7 @@ class EvaluationBase(ABC):
                 model_object=model_object
             )
             
-        elif d_category == "standard" or d_category == "choice_only":
+        else:
             self.evaluate(
                 answers_df=answers_df,
                 key_dict=key_dict,
@@ -230,7 +249,7 @@ class EvaluationBase(ABC):
             version: str
         ):
         
-        results_dir = make_dir_for_results(
+        results_dir = get_results_directory(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
             model_name=model_name,
