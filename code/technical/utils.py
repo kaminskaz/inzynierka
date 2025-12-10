@@ -57,7 +57,7 @@ def get_results_directory(
         os.makedirs(base_results_dir, exist_ok=True)
 
     short_model_name = shorten_model_name(model_name)
-    prefix = os.path.join(dataset_name, strategy_name, short_model_name)
+    prefix = os.path.join(base_results_dir, dataset_name, strategy_name, short_model_name)
 
     if version is not None:
         dir_name = os.path.join(prefix, f"ver{version}")
