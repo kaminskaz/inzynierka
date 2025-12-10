@@ -65,13 +65,9 @@ class EvaluationBase(ABC):
             default_dir = results_dir.split("results")[0] + "results"
             output_all_results_concat_path = os.path.join(default_dir, "all_results_concat.csv")
 
-        d_category = get_dataset_config(dataset_name).category
-
-        results_dir, answers_path, key_path = self.get_evaluation_paths(
-            strategy_name,
+        answers_path, key_path = self.get_evaluation_paths(
             dataset_name,
-            model_name,
-            version
+            results_dir
         )
 
         if not results_dir or not answers_path or not key_path:
@@ -175,8 +171,6 @@ class EvaluationBase(ABC):
         if descriptions:
             json_summary = {}
 
-            max_inner_count = max(len(inner) for inner in descriptions.values())
-
             incomplete_ids = {}
             for outer_id, inner_dict in descriptions.items():
                 missing_inner = sorted(
@@ -234,19 +228,11 @@ class EvaluationBase(ABC):
 
     def get_evaluation_paths(
             self,
-            strategy_name: str,
             dataset_name: str,
-            model_name: str,
-            version: str
+            results_dir: str
         ):
         
-        results_dir = get_results_directory(
-            dataset_name=dataset_name,
-            strategy_name=strategy_name,
-            model_name=model_name,
-            version=version,
-            create_dir=False
-        )
+        
         answers_path = f"{results_dir}/results.csv"
         key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
 
