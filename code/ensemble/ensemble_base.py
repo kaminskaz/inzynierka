@@ -8,7 +8,7 @@ import json
 import pandas as pd
 
 from code.technical.utils import get_dataset_config, get_results_directory, get_ensemble_directory
-from run_single_experiment import run_single_experiment
+from code.tests.strategy_test import run_single_experiment
 
 
 class EnsembleBase(ABC):

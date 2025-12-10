@@ -37,8 +37,8 @@ mkdir -p ${JOB_TMPDIR}
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
-cd /mnt/evafs/groups/jrafalko-lab/inzynierka/
-python run_single_experiment.py \
+cd /mnt/evafs/groups/jrafalko-lab/inzynierka/code/tests
+python strategy_test.py \
     --dataset_name "$DATASET_NAME" \
     --strategy "$STRATEGY" \
     --model_name "$MODEL_NAME" \
