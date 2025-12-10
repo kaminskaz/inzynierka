@@ -60,8 +60,6 @@ class EvaluationBase(ABC):
             version=version,
             create_dir=False
         )
-        
-        print(f"Results directory for evaluation: {results_dir}")
 
         if output_all_results_concat_path is None:
             default_dir = results_dir.split("results")[0] + "results"
@@ -109,7 +107,7 @@ class EvaluationBase(ABC):
         summary_key = self.check_completeness(key_df, metadata)
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
-        if d_category == "BP":
+        if d_category == "BP" or type_name == "reasoning" or type_name == "reasoning_with_judge":
             self.evaluate(
                 answers_df=answers_df,
                 key_dict=key_dict,
@@ -118,7 +116,7 @@ class EvaluationBase(ABC):
                 model_object=model_object
             )
             
-        elif d_category == "standard" or d_category == "choice_only":
+        else:
             self.evaluate(
                 answers_df=answers_df,
                 key_dict=key_dict,
