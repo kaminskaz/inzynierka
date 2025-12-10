@@ -60,8 +60,7 @@ def get_results_directory(
     prefix = os.path.join(base_results_dir, dataset_name, strategy_name, short_model_name)
 
     if version is not None:
-        dir_name = os.path.join(prefix, f"ver{version}")
-        path = os.path.join(base_results_dir, dir_name)
+        path = os.path.join(prefix, f"ver{version}")
 
         if create_dir:
             os.makedirs(path, exist_ok=True)
@@ -108,7 +107,6 @@ def get_ensemble_directory(
         ) -> str:
         # creates a new directory for the ensemble results inside results/ensembles/{dataset_name}/{type_name}/ensemble_ver{version}
         # where {version} is incremented if previous versions exist
-        print(f"Checking if ensemble exists for dataset {dataset_name} and type {type_name}", flush=True)
         base_results_dir = os.path.join("results", "ensembles", dataset_name, type_name)
         os.makedirs(base_results_dir, exist_ok=True)
         prefix = f"ensemble_"

@@ -12,21 +12,26 @@ class EvaluationFactory():
         self.evaluator_map: dict[Tuple[Optional[str], Optional[bool], Optional[str]], Type[EvaluationBase]] = {
             # single model evaluations
             ("bp", False, None): EvaluationWithJudge,               
-            ("standard", False, None): EvaluationBasic,                
-            ("choice_only", False, None): EvaluationBasic,                 
+            ("raven", False, None): EvaluationBasic,                
+            ("cvr", False, None): EvaluationBasic, 
+            ("marsvqa", False, None): EvaluationBasic,                
             # ensemble evaluations
             ("bp", True, "majority"): EvaluationWithJudge,               
-            ("standard", True, "majority"): EvaluationBasic,                
-            ("choice_only", True, "majority"): EvaluationBasic,
+            ("raven", True, "majority"): EvaluationBasic,                
+            ("cvr", True, "majority"): EvaluationBasic,
+            ("marsvqa", True, "majority"): EvaluationBasic,
             ("bp", True, "confidence"): EvaluationWithJudge,               
-            ("standard", True, "confidence"): EvaluationBasic,                
-            ("choice_only", True, "confidence"): EvaluationBasic,
+            ("raven", True, "confidence"): EvaluationBasic,                
+            ("cvr", True, "confidence"): EvaluationBasic,
+            ("marsvqa", True, "confidence"): EvaluationBasic,
             ("bp", True, "reasoning"): EvaluationWithJudge,               
-            ("standard", True, "reasoning"): EvaluationWithJudge,                        
-            ("choice_only", True, "reasoning"): EvaluationWithJudge,           
+            ("raven", True, "reasoning"): EvaluationWithJudge,                        
+            ("cvr", True, "reasoning"): EvaluationWithJudge,   
+            ("marsvqa", True, "reasoning"): EvaluationWithJudge,   
             ("bp", True, "reasoning_with_image"): EvaluationWithJudge,               
-            ("standard", True, "reasoning_with_image"): EvaluationWithJudge,                        
-            ("choice_only", True, "reasoning_with_image"): EvaluationWithJudge,           
+            ("raven", True, "reasoning_with_image"): EvaluationWithJudge,                        
+            ("cvr", True, "reasoning_with_image"): EvaluationWithJudge, 
+            ("marsvqa", True, "reasoning_with_image"): EvaluationWithJudge,          
 
         }
     

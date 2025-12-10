@@ -12,6 +12,10 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 class EvaluationBase(ABC):
+    def __init__(self, model_object: Optional[Type] = None, model_name: Optional[str] = None):
+        self.judge = None
+        self.model_object = model_object
+        self.model_name = model_name
 
     @abstractmethod
     def evaluate_single_answer(self, *args, **kwargs) -> float:
@@ -59,17 +63,18 @@ class EvaluationBase(ABC):
             model_name=model_name,
             version=version,
             create_dir=False
-        )
+            )
 
         if output_all_results_concat_path is None:
             default_dir = results_dir.split("results")[0] + "results"
             output_all_results_concat_path = os.path.join(default_dir, "all_results_concat.csv")
 
         answers_path, key_path = self.get_evaluation_paths(
-            dataset_name,
-            results_dir
+            dataset_name=dataset_name,
+            results_dir=results_dir,
+            ensemble=ensemble
         )
-
+        
         if not results_dir or not answers_path or not key_path:
             return
 
@@ -78,16 +83,18 @@ class EvaluationBase(ABC):
         answers_df["problem_id"] = answers_df["problem_id"].apply(lambda x: str(x).zfill(3))
 
         metadata_path = os.path.join(results_dir, "metadata.json")
-        with open(metadata_path, "r") as f:
-            metadata = json.load(f)
-        
-        if metadata["strategy"] == "descriptive" or metadata["strategy"] == "contrastive":
-            with open(os.path.join(results_dir, "descriptions.json"), "r") as f:
-                descriptions = json.load(f)
-        else:
-            descriptions = None
 
-        summary_answers = self.check_completeness(answers_df, metadata, descriptions)
+        descriptions = None
+        if not ensemble:
+            with open(metadata_path, "r") as f:
+                metadata = json.load(f)
+            
+            if metadata["strategy"] == "descriptive" or metadata["strategy"] == "contrastive":
+                with open(os.path.join(results_dir, "descriptions.json"), "r") as f:
+                    descriptions = json.load(f)
+
+        expected_num_samples = get_dataset_config(dataset_name).expected_num_samples
+        summary_answers = self.check_completeness(answers_df, expected_num_samples, descriptions)
         logger.info(f"Answers DataFrame Completeness Summary: {summary_answers}")
 
         output_df = answers_df.copy()
@@ -100,14 +107,16 @@ class EvaluationBase(ABC):
             "problem_id": list(key_dict.keys()),
             "answer": list(key_dict.values())  
         })
-        summary_key = self.check_completeness(key_df, metadata)
+
+        summary_key = self.check_completeness(key_df, expected_num_samples)
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
         self.evaluate(
             answers_df=answers_df,
             key_dict=key_dict,
             output_df=output_df,
-            prompt=prompt if hasattr(self, "judge") else None
+            prompt=prompt,
+            model_object=model_object
         )
             
         output_summaries_path = f"{results_dir}/{evaluation_output_path}_summary.json"
@@ -129,25 +138,20 @@ class EvaluationBase(ABC):
         logger.info(f"Results saved to {output_path}")
  
         if concat:
-            if os.path.exists(output_all_results_concat_path):
-                concat_df = pd.read_csv(output_all_results_concat_path)
-            else:
-                concat_df = pd.DataFrame()
-
             self.append_to_all_results_concat(
+                output_df,
+                output_all_results_concat_path,
                 dataset_name,
+                version,
                 model_name,
                 strategy_name,
-                version,
-                concat_df,
-                output_all_results_concat_path
             )
 
     @abstractmethod
     def calculate_metrics(self, *args, **kwargs) -> dict:
         pass
 
-    def check_completeness(self, df, metadata, descriptions = None) -> dict:
+    def check_completeness(self, df, expected_num_samples, descriptions = None) -> dict:
         summary = {}
 
         summary["row_ids_with_any_missing"] = df.index[df.isna().any(axis=1)].tolist()
@@ -156,7 +160,6 @@ class EvaluationBase(ABC):
         summary["missing_count_per_column"] = df.isna().sum().to_dict()
         summary["missing_ratio_per_column"] = df.isna().mean().to_dict()
 
-        expected_num_samples = metadata["config"]["expected_num_samples"]
         summary["expected_num_samples"] = expected_num_samples
 
         # num_digits = len(str(expected_num_samples - 1)) 
@@ -188,22 +191,28 @@ class EvaluationBase(ABC):
     
     def append_to_all_results_concat(
             self, 
-            dataset_name,
-            model_name,
-            strategy_name,
-            version, 
-            df, 
-            all_results_concat_path
+            results_df: pd.DataFrame,
+            all_results_concat_path: str,
+            dataset_name: str,
+            model_name: Optional[str] = None,
+            strategy_name: Optional[str] = None,
+            version: Optional[str]= None,
+            ensemble: bool = False
         ):
-        df["dataset_name"]  = dataset_name
-        df["model_name"]    = shorten_model_name(model_name)
-        df["strategy_name"] = strategy_name
-        df["version"]       = version
+        
+        results_df["dataset_name"]  = dataset_name
+        if ensemble:
+            results_df["model_name"] = "Ensemble"
+        else:
+            results_df["model_name"] = model_name
+        results_df["strategy_name"] = strategy_name
+        results_df["version"]       = version
+
         if os.path.exists(all_results_concat_path):
             existing_df  = pd.read_csv(all_results_concat_path)
-            combined_df  = pd.concat([existing_df, df ], ignore_index=True)
+            combined_df  = pd.concat([existing_df, results_df], ignore_index=True)
         else:
-            combined_df  = df
+            combined_df  = results_df
 
         meta_cols = [
             "reasoning",
@@ -229,13 +238,17 @@ class EvaluationBase(ABC):
     def get_evaluation_paths(
             self,
             dataset_name: str,
-            results_dir: str
+            results_dir: str,
+            ensemble: bool = False
         ):
-        
-        
-        answers_path = f"{results_dir}/results.csv"
-        key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
 
+        if ensemble:
+            answers_path = f"{results_dir}/ensemble_results.csv"
+        else:
+            answers_path = f"{results_dir}/results.csv"
+        
+        key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
+            
         if not results_dir or not os.path.exists(results_dir):
             logger.error("Results directory is not provided or does not exist.")
             results_dir = None
@@ -248,4 +261,4 @@ class EvaluationBase(ABC):
             logger.error("Key path is not provided or does not exist.")
             key_path = None
 
-        return results_dir, answers_path, key_path
+        return answers_path, key_path

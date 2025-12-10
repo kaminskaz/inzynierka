@@ -1,3 +1,4 @@
+from typing import Any
 import pandas as pd
 import json
 import logging
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationBasic(EvaluationBase):
+    
     def evaluate_single_answer(self, answer: str, key: str) -> float:
         score = "Right" if answer == key else "Wrong"
         return score
@@ -18,16 +20,14 @@ class EvaluationBasic(EvaluationBase):
             self, 
             answers_df: pd.DataFrame, 
             key_dict: dict,
-            output_df: pd.DataFrame
+            output_df: pd.DataFrame,
+            **kwargs
         ):
         
         for index, row in answers_df.iterrows():
-            answer = row["answer"] or row["ensemble_answer"]
+            answer = row.get("answer") or row.get("ensemble_answer")
             id_ = str(row["problem_id"])
 
-            if answer is None or pd.isna(answer) or answer.strip() == "":
-                output_df.at[index, "score"] = "No answer provided"
-                continue
 
             if id_ not in key_dict:
                 logger.info(f"ID {id_} not found in key file.")
@@ -36,6 +36,11 @@ class EvaluationBasic(EvaluationBase):
                 continue
 
             key = key_dict[id_].strip().upper()
+
+            if answer is None or pd.isna(answer) or answer.strip() == "":
+                output_df.at[index, "score"] = "No answer provided"
+                output_df.at[index, "key"] = key
+                continue
 
             score = self.evaluate_single_answer(answer, key)
             output_df.at[index, "score"] = score

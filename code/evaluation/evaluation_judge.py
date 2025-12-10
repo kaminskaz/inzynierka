@@ -60,14 +60,10 @@ class EvaluationWithJudge(EvaluationBase):
             prompt: str = None,
             model_object: Any = None
         ):
-
+        
         for index, row in answers_df.iterrows():
-            answer = row["answer"] or row["ensemble_answer"]
+            answer = row.get("answer") or row.get("ensemble_answer")
             id_ = str(row["problem_id"])
-
-            if answer is None or pd.isna(answer) or answer.strip() == "":
-                output_df.at[index, "score"] = "No answer provided"
-                continue
 
             if id_ not in key_dict:
                 logger.info(f"ID {id_} not found in key file.")
@@ -78,6 +74,12 @@ class EvaluationWithJudge(EvaluationBase):
             left_rule, right_rule = key_dict[id_]
             key = f"{left_rule} vs. {right_rule}"
 
+            if answer is None or pd.isna(answer) or answer.strip() == "":
+                output_df.at[index, "score"] = "No answer provided"
+                output_df.at[index, "key"] = key
+                continue
+
+            print(f"Evaluating problem_id {id_} with answer: {answer} and key: {key}", flush=True)
             score, reasoning = self.evaluate_single_answer(
                 prompt=prompt if prompt else self.prompt,
                 answer=answer,
