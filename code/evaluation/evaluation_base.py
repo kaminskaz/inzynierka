@@ -139,12 +139,13 @@ class EvaluationBase(ABC):
  
         if concat:
             self.append_to_all_results_concat(
-                output_df,
-                output_all_results_concat_path,
-                dataset_name,
-                version,
-                model_name,
-                strategy_name,
+                results_df=output_df,
+                all_results_concat_path=output_all_results_concat_path,
+                dataset_name=dataset_name,
+                model_name=model_name,
+                strategy_name=strategy_name,
+                version=version,
+                ensemble=ensemble,
             )
 
     @abstractmethod
