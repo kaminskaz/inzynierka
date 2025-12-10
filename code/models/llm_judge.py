@@ -27,8 +27,6 @@ class LLMJudge(VLLM):
             param_set_number=param_set_number,
         )
 
-        print("Initializing LLMJudge 2")
-
         self.judge_mode = "text_only"
         logger.info(
             f"Initialized LLMJudge for text-only evaluation with model {model_name}"
@@ -52,6 +50,9 @@ class LLMJudge(VLLM):
                 response = self.ask(
                     [TextContent(prompt)], response_schema
                 )
+            
+            elif self.cpu_local_testing:
+                response = self.ask([TextContent(prompt)])
 
             else:
                 response = self.ask([TextContent(prompt)])

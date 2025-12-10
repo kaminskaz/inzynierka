@@ -45,7 +45,7 @@ def main():
     }
     output_df_ensemble = answers_df_ensemble.copy()
     evaluator_judge.evaluate(answers_df_ensemble, key_ensemble, output_df_ensemble)
-    print(output_df_ensemble.drop(columns=["reasoning"]), flush=True)
+    print(output_df_ensemble, flush=True)
 
     evaluator_judge.judge.stop()
 

@@ -107,22 +107,13 @@ class EvaluationBase(ABC):
         summary_key = self.check_completeness(key_df, metadata)
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
-        if d_category == "BP" or type_name == "reasoning" or type_name == "reasoning_with_judge":
-            self.evaluate(
-                answers_df=answers_df,
-                key_dict=key_dict,
-                output_df=output_df,
-                prompt=prompt,
-                model_object=model_object
-            )
+        self.evaluate(
+            answers_df=answers_df,
+            key_dict=key_dict,
+            output_df=output_df,
+            prompt=prompt if hasattr(self, "judge") else None
+        )
             
-        else:
-            self.evaluate(
-                answers_df=answers_df,
-                key_dict=key_dict,
-                output_df=output_df,
-            )
-        
         output_summaries_path = f"{results_dir}/{evaluation_output_path}_summary.json"
         with open(output_summaries_path, "w") as summary_file:
             json.dump({
