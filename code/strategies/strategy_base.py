@@ -60,7 +60,7 @@ class StrategyBase(ABC):
         """
         pass
 
-    def run(self) -> None:
+    def run(self, restart_problem_id: Optional[str] = None) -> None:
             """
             Main execution loop (Template Method).
             Common to all strategies.
@@ -77,6 +77,26 @@ class StrategyBase(ABC):
 
             entries = list(os.scandir(self.dataset_dir))
             entries.sort(key=lambda entry: entry.name)
+
+            if restart_problem_id is not None:
+                self.logger.info(
+                    f"Restarting from problem ID: {restart_problem_id}"
+                )
+                restart_index = next(
+                    (
+                        i
+                        for i, entry in enumerate(entries)
+                        if entry.name == restart_problem_id
+                    ),
+                    None,
+                )
+                if restart_index is not None:
+                    entries = entries[restart_index:]
+                else:
+                    self.logger.warning(
+                        f"Restart problem ID {restart_problem_id} not found. "
+                        f"Starting from the beginning."
+                    )
 
             for problem_entry in entries:
                 try:

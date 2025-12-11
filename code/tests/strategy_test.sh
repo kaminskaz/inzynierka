@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -A jrafalko-lab
 #SBATCH --job-name=inz # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
-#SBATCH --time=20:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja tw>
+#SBATCH --time=5:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja tw>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=1 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
 #SBATCH --cpus-per-gpu=8 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze mi>
@@ -16,11 +16,12 @@
 DATASET_NAME=${1:-cvr}
 STRATEGY=${2:-direct}
 MODEL_NAME=${3:-"OpenGVLab/InternVL3-8B"}
+RESTART_PROBLEM_ID=${4:-""}
 
 echo "Dataset: $DATASET_NAME"
 echo "Strategy: $STRATEGY"
 echo "Model: $MODEL_NAME"
-
+echo "Restart Problem ID: $RESTART_PROBLEM_ID"
 
 export PYTHONFAULTHANDLER=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -45,6 +46,7 @@ python strategy_test.py \
     --temperature 0.5 \
     --max_tokens 16384 \
     --max_output_tokens 4096 \
+    --restart_problem_id "$RESTART_PROBLEM_ID" \
     --limit_mm_per_prompt 2 \
     --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9
     # --debug

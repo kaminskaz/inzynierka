@@ -103,7 +103,8 @@ def run_single_experiment(
         dataset_name: str,
         strategy_name: str, 
         model_name: Optional[str] = None, 
-        model_object: Optional[VLLM] = None
+        model_object: Optional[VLLM] = None,
+        restart_problem_id: Optional[str] = None,
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -129,7 +130,7 @@ def run_single_experiment(
         )
         
         logger.info("Strategy created successfully. Running experiment...")
-        strategy.run()
+        strategy.run(restart_problem_id=restart_problem_id)
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
         model.stop()
@@ -151,6 +152,7 @@ if __name__ == "__main__":
     parser.add_argument('--max_tokens', type=int, default=2048, help='Maximum tokens for the model (if applicable)')
     parser.add_argument('--max_output_tokens', type=int, default=1536, help='Maximum output tokens for the model (if applicable)')
     parser.add_argument('--limit_mm_per_prompt', type=int, default=2, help='Limit of multimodal inputs per prompt (if applicable)')
+    parser.add_argument('--restart_problem_id', type=str, default=None, help='Problem ID to restart from (if applicable)')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
@@ -176,5 +178,6 @@ if __name__ == "__main__":
     run_single_experiment(
         dataset_name=args.dataset_name,
         strategy_name=args.strategy,
-        model_name=args.model_name
+        model_name=args.model_name,
+        restart_problem_id=args.restart_problem_id
         )
