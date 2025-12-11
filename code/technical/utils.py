@@ -103,12 +103,13 @@ def get_ensemble_directory(
         dataset_name: str, 
         type_name: str, 
         version: Optional[str] = None,
-        create_dir: bool = False, 
+        create_dir: bool = True, 
         ) -> str:
         # creates a new directory for the ensemble results inside results/ensembles/{dataset_name}/{type_name}/ensemble_ver{version}
         # where {version} is incremented if previous versions exist
         base_results_dir = os.path.join("results", "ensembles", dataset_name, type_name)
-        os.makedirs(base_results_dir, exist_ok=True)
+        if create_dir:
+            os.makedirs(base_results_dir, exist_ok=True)
         prefix = f"ensemble_"
 
         # get if version is provided
@@ -130,7 +131,7 @@ def get_ensemble_directory(
         new_version = max(existing_versions, default=0) + 1
         new_dir_name = f"{prefix}ver{new_version}"
         new_dir_path = os.path.join(base_results_dir, new_dir_name)
-        if create:
+        if create_dir:
             os.makedirs(new_dir_path, exist_ok=True)
             logger.info(f"Ensemble results directory created at: {new_dir_path}")
             return new_dir_path

@@ -37,10 +37,10 @@
     "param_sets": {
       "1": {
         "temperature": 0.5,
-        "max_tokens": 2048,
-        "max_output_tokens": 1024,
+        "max_tokens": 1024,
+        "max_output_tokens": 512,
         "limit_mm_per_prompt": 2,
-        "cpu_local_testing": false,
+        "cpu_local_testing": true,
         "custom_args": {
           "tensor_parallel_size": 1,
           "gpu_memory_utilization": 0.9

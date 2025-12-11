@@ -7,6 +7,7 @@ import csv
 import json
 from dataclasses import asdict, is_dataclass
 from pydantic import BaseModel
+import time
 
 from code.technical.configs.dataset_config import DatasetConfig
 from code.models.vllm import VLLM
@@ -125,6 +126,7 @@ class StrategyBase(ABC):
                     results.append(result)
 
                     self.save_raw_answers_to_csv(results)
+                    time.sleep(0.3)
 
                 except Exception as e:
                     self.logger.error(f"Error processing {problem_entry.name}: {e}")

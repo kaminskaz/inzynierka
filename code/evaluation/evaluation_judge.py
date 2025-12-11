@@ -79,7 +79,6 @@ class EvaluationWithJudge(EvaluationBase):
                 output_df.at[index, "key"] = key
                 continue
 
-            print(f"Evaluating problem_id {id_} with answer: {answer} and key: {key}", flush=True)
             score, reasoning = self.evaluate_single_answer(
                 prompt=prompt if prompt else self.prompt,
                 answer=answer,
@@ -87,6 +86,8 @@ class EvaluationWithJudge(EvaluationBase):
                 model=model_object if model_object else self.judge,
                 response_schema=BongardEvaluationSchema,
             )
+
+            output_df.at[index, "key"] = key
 
             if score is None:
                 output_df.at[index, "score"] = "LLM evaluation failed"
@@ -97,18 +98,21 @@ class EvaluationWithJudge(EvaluationBase):
 
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
-            output_df.at[index, "key"] = key
-
+            
 
     def calculate_metrics(self, evaluated_df):
         total = len(evaluated_df)
         correct = len(evaluated_df[evaluated_df["score"] == "Right"])
         accuracy = correct / total if total > 0 else 0.0
 
-        bin_counts = evaluated_df.groupby("score")["confidence"].size().to_dict() if "score" in evaluated_df.columns else {}
-
-        avg_confidence = evaluated_df.groupby("score")["confidence"].mean().to_dict() if "confidence" in evaluated_df.columns else {}
-        median_confidence = evaluated_df.groupby("score")["confidence"].median().to_dict() if "confidence" in evaluated_df.columns else {}
+        if {"score", "confidence"}.issubset(evaluated_df.columns):
+            bin_counts = evaluated_df.groupby("score")["confidence"].size().to_dict()
+            avg_confidence = evaluated_df.groupby("score")["confidence"].mean().to_dict()
+            median_confidence = evaluated_df.groupby("score")["confidence"].median().to_dict()
+        else:
+            bin_counts = {}
+            avg_confidence = {}
+            median_confidence = {}
 
         return {
             "total": total,

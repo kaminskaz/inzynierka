@@ -50,6 +50,13 @@ class EvaluationBase(ABC):
                 version=version,
                 create_dir=False
             )
+            if os.path.exists(os.path.join(results_dir, "ensemble_config.json")):
+                with open(os.path.join(results_dir, "ensemble_config.json"), "r") as f:
+                    metadata = json.load(f)
+                    model_name =  metadata.get("ensemble_model", None)
+            else:
+                logger.warning("Ensemble config file not found, model_name will be set to None.")
+                model_name = None
 
         else:
             if strategy_name is None:
@@ -195,19 +202,23 @@ class EvaluationBase(ABC):
             results_df: pd.DataFrame,
             all_results_concat_path: str,
             dataset_name: str,
-            model_name: Optional[str] = None,
+            model_name: str = None,
             strategy_name: Optional[str] = None,
             version: Optional[str]= None,
+            type_name: Optional[str]= None,
             ensemble: bool = False
         ):
         
         results_df["dataset_name"]  = dataset_name
-        if ensemble:
-            results_df["model_name"] = "Ensemble"
-        else:
-            results_df["model_name"] = model_name
+        results_df["model_name"] = model_name
         results_df["strategy_name"] = strategy_name
-        results_df["version"]       = version
+        results_df["version"] = version
+        results_df["type_name"] = type_name
+
+        if ensemble:
+            results_df["ensemble"] = "Ensemble"
+        else:
+            results_df["ensemble"] = "Single Model"
 
         if os.path.exists(all_results_concat_path):
             existing_df  = pd.read_csv(all_results_concat_path)
@@ -227,9 +238,8 @@ class EvaluationBase(ABC):
             if col not in combined_df.columns:
                 combined_df[col] = ""
 
-
         other_cols = [c for c in combined_df.columns if c not in meta_cols]
-        final_order = meta_cols + other_cols
+        final_order = other_cols + meta_cols
 
         combined_df = combined_df[final_order]
         combined_df = combined_df.drop_duplicates(subset=["problem_id", "dataset_name", "model_name", "strategy_name", "version"], keep='last')

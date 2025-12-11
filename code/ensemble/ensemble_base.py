@@ -24,6 +24,7 @@ class EnsembleBase(ABC):
         self.type_name = type_name
         self.ensemble_directory = None
         self.exists = False
+        self.config["ensemble_model"] = ""
 
         self._build_ensemble()
 
@@ -115,15 +116,16 @@ class EnsembleBase(ABC):
             self.logger.info(f"Ensemble configuration already exists as version {existing_version}.")
             self.exists = True
             return
-        else:
-            self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create_dir=True)
-            self.save_config_to_json(self.ensemble_directory)
         return 
 
     def evaluate(self) -> None:
         if self.exists:
             self.logger.info("Ensemble already exists. Skipping evaluation.")
             return
+        
+        self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create_dir=True)
+        self.save_config_to_json(self.ensemble_directory)
+
         results = []
         problem_ids = self.answers["problem_id"].unique()
 
