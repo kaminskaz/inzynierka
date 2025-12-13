@@ -125,7 +125,7 @@ def launch_vllm_server(
     other_args: tuple = (),
     env: Optional[Dict[str, str]] = None,
 ) -> subprocess.Popen:
-    command = ["vllm", "serve", model, "--api-key", api_key, *other_args]
+    command = ["vllm", "serve", model, "--api-key", api_key, "--log-level", "debug" *other_args]
     logger.info(f"Starting vLLM server for model '{model}'...")
     logger.debug(f"Command: {' '.join(command)}")
 
