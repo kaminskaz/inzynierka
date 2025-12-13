@@ -73,7 +73,7 @@ class VLLM:
         self.client = openai.OpenAI(
             base_url=f"{self.base_url}/v1",
             api_key=self.api_key,
-            timeout=1800
+            timeout=300
         )
         self.formatter = PromptFormatter()
         logger.info(
