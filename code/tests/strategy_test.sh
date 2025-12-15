@@ -34,9 +34,9 @@ export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 cd /mnt/evafs/groups/jrafalko-lab/inzynierka
 
-tmux new-session -d -s llm
+tmux new-session -d -s llm -n server
 
-tmux send-keys -t llm  'python -m code.tests.strategy_test \
+tmux send-keys -t llm:0  'python -m code.tests.strategy_test \
     --dataset_name "$DATASET_NAME" \
     --strategy "$STRATEGY" \
     --model_name "$MODEL_NAME" \
@@ -47,7 +47,7 @@ tmux send-keys -t llm  'python -m code.tests.strategy_test \
     --limit_mm_per_prompt 2 \
     --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9' C-m
 
-tmux split-window -h -t llm
-tmux send-keys -t llm 'nvitop' C-m
+tmux new-window -t llm:1 -n monitor
+tmux send-keys -t llm:1 'nvitop' C-m
 
 tmux detach -s llm
