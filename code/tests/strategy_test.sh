@@ -32,10 +32,9 @@ echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
-cd inzynierka
+cd /mnt/evafs/groups/jrafalko-lab/inzynierka
 
 tmux new-session -d -s llm
-
 
 tmux send-keys -t llm  'python -m code.tests.strategy_test \
     --dataset_name "$DATASET_NAME" \
