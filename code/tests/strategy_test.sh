@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH -A jrafalko-lab
 #SBATCH --job-name=inz # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znajduje mój task
-#SBATCH --time=5:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja tw>
+#SBATCH --time=1:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slurm ubja tw>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=1 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
-#SBATCH --cpus-per-gpu=5 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze mi>
+#SBATCH --cpus-per-gpu=4 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze mi>
 #SBATCH --mem=128gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
 #SBATCH --partition=short # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma>
 #SBATCH --mail-type=ALL
@@ -29,18 +29,15 @@ export VLLM_LOGGING_LEVEL=DEBUG
 
 echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES}"
 
-export JOB_HF_HOME="/mnt/evafs/groups/jrafalko-lab/huggingface_${SLURM_JOB_ID}"
-mkdir -p ${JOB_HF_HOME}
-
-export JOB_TMPDIR="/mnt/evafs/groups/jrafalko-lab/tmp_${SLURM_JOB_ID}"
-mkdir -p ${JOB_TMPDIR}
-
-
 source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 cd inzynierka
-python -m code.tests.strategy_test \
+
+tmux new-session -d -s llm
+
+
+tmux send-keys -t llm  'python -m code.tests.strategy_test \
     --dataset_name "$DATASET_NAME" \
     --strategy "$STRATEGY" \
     --model_name "$MODEL_NAME" \
@@ -49,8 +46,9 @@ python -m code.tests.strategy_test \
     --max_output_tokens 4096 \
     --restart_problem_id "$RESTART_PROBLEM_ID" \
     --limit_mm_per_prompt 2 \
-    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9
-    # --debug
+    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9' C-m
 
-rm -rf ${JOB_HF_HOME}
-rm -rf ${JOB_TMPDIR}
+tmux split-window -h -t llm
+tmux send-keys -t llm 'nvitop' C-m
+
+tmux detach -s llm
