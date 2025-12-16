@@ -23,11 +23,13 @@ class StrategyBase(ABC):
         dataset_config: DatasetConfig,
         results_dir: str,
         strategy_name: str,
+        param_set_number: Optional[int] = None,
     ):
         self.dataset_name: str = dataset_name
         self.model: VLLM = model
         self.config: DatasetConfig = dataset_config
         self.strategy_name: str = strategy_name
+        self.param_set_number: Optional[int] = param_set_number
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.results_dir = results_dir
@@ -267,7 +269,7 @@ class StrategyBase(ABC):
             "dataset": self.dataset_name,
             "strategy": self.strategy_name,
             "model": self.model.get_model_name(),
-            "version": self.version,
+            "param_set_number": self.param_set_number,
             "config": config_data,
             "problem_description_prompt": problem_description_prompt,
             "sample_answer_prompt": sample_answer_prompt,

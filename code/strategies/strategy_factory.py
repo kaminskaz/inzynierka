@@ -36,7 +36,7 @@ class StrategyFactory:
 
 
     def create_strategy(
-        self, dataset_name: str, strategy_name: str, model_object: Any, results_dir: str
+        self, dataset_name: str, strategy_name: str, model_object: Any, results_dir: str, param_set_number: Optional[int] = None
     ) -> StrategyBase:
         """
         Method to create, configure, and return a strategy instance.
@@ -73,6 +73,7 @@ class StrategyFactory:
                 dataset_config=dataset_config,
                 results_dir=results_dir,
                 strategy_name=strategy_name.lower(),
+                param_set_number=param_set_number
             )
             self.logger.info(f"Successfully created: {strategy_class.__name__}")
             return strategy_instance

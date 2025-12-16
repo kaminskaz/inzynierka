@@ -133,7 +133,8 @@ def run_single_experiment(
             dataset_name=dataset_name,
             strategy_name=strategy_name,
             model_object=model,
-            results_dir=results_dir
+            results_dir=results_dir,
+            param_set_number=param_set_number
         )
         
         logger.info("Strategy created successfully. Running experiment...")
