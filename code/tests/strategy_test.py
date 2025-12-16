@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 def _load_model(
         model_name: str, 
+        param_set_number: Optional[int] = None
     ) -> Any:
     """
     Loads a VLLM model based on the provided model name and parameters.
@@ -28,7 +29,8 @@ def _load_model(
 
     try:
         vllm_model = VLLM(
-            model_name=model_name
+            model_name=model_name,
+            param_set_number=param_set_number
         )
 
         if vllm_model:
@@ -106,6 +108,7 @@ def run_single_experiment(
         model_object: Optional[VLLM] = None,
         restart_problem_id: Optional[str] = None,
         restart_version: Optional[str] = None,
+        param_set_number: Optional[int] = None,
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -120,7 +123,8 @@ def run_single_experiment(
 
         if not model_object:
             model = _load_model(
-                model_name=model_name
+                model_name=model_name,
+                param_set_number=param_set_number
             )
         else:
             model = model_object
@@ -157,6 +161,7 @@ if __name__ == "__main__":
     parser.add_argument('--limit_mm_per_prompt', type=int, default=2, help='Limit of multimodal inputs per prompt (if applicable)')
     parser.add_argument('--restart_problem_id', type=str, default=None, help='Problem ID to restart from (if applicable)')
     parser.add_argument('--restart_version', type=str, default=None, help='Version of the model-strategy-dataset combination to be restarted (if applicable)')
+    parser.add_argument('--param_set_number', type=int, default=None, help='Parameter set number to use for the experiment (if applicable)')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
@@ -184,5 +189,6 @@ if __name__ == "__main__":
         strategy_name=args.strategy,
         model_name=args.model_name,
         restart_problem_id=args.restart_problem_id,
-        restart_version = args.restart_version
+        restart_version = args.restart_version,
+        param_set_number = args.param_set_number
         )

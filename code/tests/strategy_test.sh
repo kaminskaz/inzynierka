@@ -34,9 +34,6 @@ python -m code.tests.strategy_test \
     --dataset_name "$DATASET_NAME" \
     --strategy "$STRATEGY" \
     --model_name "$MODEL_NAME" \
-    --temperature 0.5 \
-    --max_tokens 16384 \
-    --max_output_tokens 4096 \
     --restart_problem_id "$RESTART_PROBLEM_ID" \
-    --limit_mm_per_prompt 2 \
-    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9
+    --param_set_number "$PARAM_SET_NUMBER"
+    
