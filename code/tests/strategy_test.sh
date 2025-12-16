@@ -7,10 +7,6 @@
 #SBATCH --cpus-per-gpu=4 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawać zawsze mi>
 #SBATCH --mem=128gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
 #SBATCH --partition=short # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać shot i long ma>
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user=01180698@pw.edu.pl
-# Debugging flags
-
 
 # ---- PARAMETERS ----
 DATASET_NAME=${1:-cvr}
@@ -34,9 +30,7 @@ export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 cd /mnt/evafs/groups/jrafalko-lab/inzynierka
 
-tmux new-session -d -s llm -n server
-
-tmux send-keys -t llm:0  'python -m code.tests.strategy_test \
+python -m code.tests.strategy_test \
     --dataset_name "$DATASET_NAME" \
     --strategy "$STRATEGY" \
     --model_name "$MODEL_NAME" \
@@ -45,9 +39,4 @@ tmux send-keys -t llm:0  'python -m code.tests.strategy_test \
     --max_output_tokens 4096 \
     --restart_problem_id "$RESTART_PROBLEM_ID" \
     --limit_mm_per_prompt 2 \
-    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9' C-m
-
-tmux new-window -t llm:1 -n monitor
-tmux send-keys -t llm:1 'nvitop' C-m
-
-tmux detach -s llm
+    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9
