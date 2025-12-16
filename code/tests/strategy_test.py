@@ -105,6 +105,7 @@ def run_single_experiment(
         model_name: Optional[str] = None, 
         model_object: Optional[VLLM] = None,
         restart_problem_id: Optional[str] = None,
+        restart_version: Optional[str] = None,
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -112,6 +113,8 @@ def run_single_experiment(
     logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
     try:
         results_dir = get_results_directory(dataset_name, strategy_name, model_name)
+        if restart_problem_id is not None:
+            results_dir = get_results_directory(dataset_name=dataset_name, strategy_name=strategy_name, model_name=model_name, version=restart_version, create_dir=False)
 
         strategy_factory = StrategyFactory()
 
@@ -153,6 +156,7 @@ if __name__ == "__main__":
     parser.add_argument('--max_output_tokens', type=int, default=1536, help='Maximum output tokens for the model (if applicable)')
     parser.add_argument('--limit_mm_per_prompt', type=int, default=2, help='Limit of multimodal inputs per prompt (if applicable)')
     parser.add_argument('--restart_problem_id', type=str, default=None, help='Problem ID to restart from (if applicable)')
+    parser.add_argument('--restart_version', type=str, default=None, help='Version of the model-strategy-dataset combination to be restarted (if applicable)')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
@@ -179,5 +183,6 @@ if __name__ == "__main__":
         dataset_name=args.dataset_name,
         strategy_name=args.strategy,
         model_name=args.model_name,
-        restart_problem_id=args.restart_problem_id
+        restart_problem_id=args.restart_problem_id,
+        restart_version = args.restart_version
         )

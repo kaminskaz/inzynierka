@@ -60,108 +60,157 @@ class StrategyBase(ABC):
         """
         pass
 
+    def _load_existing_results(self, csv_path: str) -> List[dict]:
+        """Helper to read existing CSV results into a list of dicts."""
+        existing_data = []
+        try:
+            with open(csv_path, mode="r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                existing_data = list(reader)
+            self.logger.info(f"Loaded {len(existing_data)} existing results from {csv_path}")
+        except Exception as e:
+            self.logger.error(f"Failed to load existing results from {csv_path}: {e}")
+        return existing_data
+
     def run(self, restart_problem_id: Optional[str] = None) -> None:
-            """
-            Main execution loop (Template Method).
-            Common to all strategies.
-            """
-            results = []
-            all_descriptions_data = {}
+        """
+        Main execution loop (Template Method).
+        Common to all strategies.
+        """
+        results = []
+        all_descriptions_data = {}
+
+        self.save_metadata(
+            question_prompt=self.question_prompt,
+            problem_description_prompt=self.problem_description_prompt,
+            describe_prompt=self.descriptions_prompt,
+            sample_answer_prompt=self.sample_answer_prompt,
+        )
+
+        # CHECK FOR EXISTING RESULTS
+        output_path = os.path.join(self.results_dir, "results.csv")
+        if os.path.exists(output_path):
+            results = self._load_existing_results(output_path)
             
-            self.save_metadata(
-                question_prompt=self.question_prompt,
-                problem_description_prompt=self.problem_description_prompt,
-                describe_prompt=self.descriptions_prompt,
-                sample_answer_prompt=self.sample_answer_prompt,
-            )
-
-            entries = list(os.scandir(self.dataset_dir))
-            entries.sort(key=lambda entry: entry.name)
-
-            if restart_problem_id is not None:
-                self.logger.info(
-                    f"Restarting from problem ID: {restart_problem_id}"
-                )
-                restart_index = next(
-                    (
-                        i
-                        for i, entry in enumerate(entries)
-                        if entry.name == restart_problem_id
-                    ),
-                    None,
-                )
-                if restart_index is not None:
-                    entries = entries[restart_index:]
-                else:
-                    self.logger.warning(
-                        f"Restart problem ID {restart_problem_id} not found. "
-                        f"Starting from the beginning."
+            # If restarting, we must clean 'results' to remove any overlap with the restart point
+            if restart_problem_id:
+                # Keep only results strictly before the restart_problem_id (lexicographically)
+                # This assumes problem_ids are sortable (e.g. 001, 002)
+                original_count = len(results)
+                results = [r for r in results if r['problem_id'] < restart_problem_id]
+                filtered_count = len(results)
+                if original_count != filtered_count:
+                    self.logger.info(
+                        f"Filtered existing results from {original_count} to {filtered_count} "
+                        f"to avoid overlap with restart_problem_id {restart_problem_id}"
                     )
 
-            for problem_entry in entries:
-                try:
-                    if not problem_entry.is_dir():
-                        continue
-                    problem_id = problem_entry.name
+        entries = list(os.scandir(self.dataset_dir))
+        entries.sort(key=lambda entry: entry.name)
 
-                    response, problem_id, problem_descriptions = (
-                        self._execute_problem(problem_id)
-                    )
-
-                    self.logger.debug(f"Raw response for {problem_id}: {response}")
-
-                    if problem_descriptions:
-                        all_descriptions_data[problem_id] = problem_descriptions
-                        #  descriptions incrementally
-                        if self.descriptions_path:
-                            self.save_descriptions_to_json(
-                                self.descriptions_path, all_descriptions_data
-                            )
-
-                    self.logger.debug(f"Response for {problem_id}: {response}")
-
-                    # for now fixed width of 3 for problem ids (e.g., 001, 002, ..., 010, etc.)
-                    problem_id = str(problem_id).zfill(3)
-
-                    # construct the result dictionary
-                    if response:
-                        answer = get_field(response, "answer", "")
-                        confidence = get_field(response, "confidence", "")
-                        rationale = get_field(response, "rationale", "")
-
-                        result = {
-                            "problem_id": problem_id,
-                            "answer": answer,
-                            "confidence": confidence,
-                            "rationale": rationale,
-                        }
-                    else:
-                        result = {
-                            "problem_id": problem_id,
-                            "answer": "",
-                            "confidence": "",
-                            "rationale": "",
-                        }
-
-                    results.append(result)
-
-                    self.save_raw_answers_to_csv(results)
-                    time.sleep(0.3)
-
-                except Exception as e:
-                    self.logger.error(f"Error processing {problem_entry.name}: {e}")
-
-            self.save_raw_answers_to_csv(results)
-
-            if all_descriptions_data and self.descriptions_path:
-                self.save_descriptions_to_json(
-                    self.descriptions_path, all_descriptions_data
-                )
-
+        if restart_problem_id is not None:
             self.logger.info(
-                f"{self.strategy_name} run completed for dataset: {self.dataset_name} "
-                f"using model: {self.model.get_model_name()}"
+                f"Restarting from problem ID: {restart_problem_id}"
             )
+            restart_index = next(
+                (
+                    i
+                    for i, entry in enumerate(entries)
+                    if entry.name == restart_problem_id
+                ),
+                None,
+            )
+            if restart_index is not None:
+                entries = entries[restart_index:]
+            else:
+                self.logger.warning(
+                    f"Restart problem ID {restart_problem_id} not found. "
+                    f"Starting from the beginning."
+                )
+
+        for problem_entry in entries:
+            try:
+                if not problem_entry.is_dir():
+                    continue
+                problem_id = problem_entry.name
+
+                response, problem_id, problem_descriptions = (
+                    self._execute_problem(problem_id)
+                )
+
+                self.logger.debug(f"Raw response for {problem_id}: {response}")
+
+                if problem_descriptions:
+                    all_descriptions_data[problem_id] = problem_descriptions
+                    #  descriptions incrementally
+                    if self.descriptions_path:
+                        self.save_descriptions_to_json(
+                            self.descriptions_path, all_descriptions_data
+                        )
+
+                self.logger.debug(f"Response for {problem_id}: {response}")
+
+                # for now fixed width of 3 for problem ids (e.g., 001, 002, ..., 010, etc.)
+                problem_id = str(problem_id).zfill(3)
+
+                # construct the result dictionary
+                if response:
+                    answer = get_field(response, "answer", "")
+                    confidence = get_field(response, "confidence", "")
+                    rationale = get_field(response, "rationale", "")
+
+                    result = {
+                        "problem_id": problem_id,
+                        "answer": answer,
+                        "confidence": confidence,
+                        "rationale": rationale,
+                    }
+                else:
+                    result = {
+                        "problem_id": problem_id,
+                        "answer": "",
+                        "confidence": "",
+                        "rationale": "",
+                    }
+
+                results.append(result)
+
+                # Save incrementally (optional, can result in temporary duplicates in CSV until final cleanup)
+                self.save_raw_answers_to_csv(results)
+                time.sleep(0.3)
+
+            except Exception as e:
+                self.logger.error(f"Error processing {problem_entry.name}: {e}")
+
+        # --- DEDUPLICATION LOGIC START ---
+        # Before the final save, we deduplicate results based on 'problem_id'.
+        # By converting to a dict keyed by problem_id, we keep the last occurrence 
+        # (which is the most recent run).
+        if results:
+            self.logger.info("Running pre-save deduplication...")
+            unique_results_map = {r["problem_id"]: r for r in results}
+            
+            # If size changed, we found duplicates
+            if len(unique_results_map) < len(results):
+                self.logger.info(f"Removed {len(results) - len(unique_results_map)} duplicate entries.")
+            
+            results = list(unique_results_map.values())
+            
+            # Sort again by problem_id to ensure clean output
+            results.sort(key=lambda x: x["problem_id"])
+        # --- DEDUPLICATION LOGIC END ---
+
+        self.save_raw_answers_to_csv(results)
+
+        if all_descriptions_data and self.descriptions_path:
+            self.save_descriptions_to_json(
+                self.descriptions_path, all_descriptions_data
+            )
+
+        self.logger.info(
+            f"{self.strategy_name} run completed for dataset: {self.dataset_name} "
+            f"using model: {self.model.get_model_name()}"
+        )
 
     def get_prompt(self, prompt_type: str) -> str:
         try:
@@ -218,6 +267,7 @@ class StrategyBase(ABC):
             "dataset": self.dataset_name,
             "strategy": self.strategy_name,
             "model": self.model.get_model_name(),
+            "version": self.version,
             "config": config_data,
             "problem_description_prompt": problem_description_prompt,
             "sample_answer_prompt": sample_answer_prompt,
@@ -243,11 +293,9 @@ class StrategyBase(ABC):
 
         fieldnames = list(results[0].keys())
 
-        write_header = not os.path.exists(output_path)
         with open(output_path, mode="w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
-            if write_header:
-                writer.writeheader()
+            writer.writeheader()
             writer.writerows(results)
 
         self.logger.info(f"Saved {len(results)} results to {output_path}")
