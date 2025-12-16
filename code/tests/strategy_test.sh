@@ -13,11 +13,13 @@ DATASET_NAME=${1:-cvr}
 STRATEGY=${2:-direct}
 MODEL_NAME=${3:-"OpenGVLab/InternVL3-8B"}
 RESTART_PROBLEM_ID=${4:-""}
+PARAM_SET_NUMBER=${5:-"1"}
 
 echo "Dataset: $DATASET_NAME"
 echo "Strategy: $STRATEGY"
 echo "Model: $MODEL_NAME"
 echo "Restart Problem ID: $RESTART_PROBLEM_ID"
+echo "Parameter Set Number: $PARAM_SET_NUMBER"
 
 export PYTHONFAULTHANDLER=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
