@@ -31,7 +31,7 @@ class EnsembleFactory:
 
 
     def create_ensemble(
-        self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, judge_model: Optional[Any] = None, type_name: str = "majority"
+        self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, judge_model: Optional[Any] = None, type_name: str = "majority", prompt_number: int = 1
     ) -> EnsembleBase:
         """
         Method to create, configure, and return an ensemble instance.
@@ -61,7 +61,8 @@ class EnsembleFactory:
                 members_configuration=members_configuration,
                 skip_missing=skip_missing,
                 judge_model=judge_model, 
-                type_name=type_name
+                type_name=type_name,
+                prompt_number=prompt_number
             )
             self.logger.info(f"Successfully created: {ensemble_class.__name__}")
             return ensemble_instance

@@ -38,6 +38,7 @@ python -m code.tests.ensemble_test \
     --dataset_name "$DATASET_NAME" \
     --members_configuration "$MEMBERS_CONFIGURATION" \
     --ensemble_type "$ENSEMBLE_TYPE" \
+    --prompt_number "1" \
     --vllm_model_name "OpenGVLab/InternVL3-8B" \
     --llm_model_name "mistralai/Mistral-7B-Instruct-v0.3" \
     --temperature 0.5 \

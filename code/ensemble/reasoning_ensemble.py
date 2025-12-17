@@ -31,7 +31,7 @@ class ReasoningEnsemble(EnsembleBase):
         
     def evaluate_reasoning_using_llm(self, answer_list, reasoning_list):
         problem_description = self.config.get("problem_description_prompt", "")
-        reasoning_prompt_path = "prompts/ensemble/ensemble_reasoning_main.txt"
+        reasoning_prompt_path = self.get_ensemble_prompt_path(prompt_number=self.prompt_number)
         sample_answer =self.config.get("sample_answer_structure", "")  
         with open(reasoning_prompt_path, "r", encoding="utf-8") as file:
             reasoning_prompt = file.read()

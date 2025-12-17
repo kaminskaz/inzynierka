@@ -18,12 +18,15 @@ class EvaluationWithJudge(EvaluationBase):
                  model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
                  model_object: Any = None,
                  param_set_number: int = None,
-                 prompt: str = None):
+                 prompt: str = None,
+                 prompt_number: int = 1):
+        self.prompt_number = prompt_number
         try:
             if prompt is not None:
                 self.prompt = prompt
             else:
-                with open("prompts/evaluation/evaluation_bongard_main.txt", "r") as file:
+                prompt_path = os.path.join("prompts", "evaluation", f"evaluation_bongard_{self.prompt_number}.txt")
+                with open(prompt_path, "r") as file:
                     self.prompt = file.read()
         except Exception as e:
             logger.error(f"Failed to read prompt file: {e}")

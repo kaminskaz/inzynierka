@@ -23,23 +23,25 @@ class StrategyBase(ABC):
         results_dir: str,
         strategy_name: str,
         param_set_number: Optional[int] = None,
+        prompt_number: Optional[int] = 1
     ):
         self.dataset_name: str = dataset_name
         self.model: VLLM = model
         self.config: DatasetConfig = dataset_config
         self.strategy_name: str = strategy_name
         self.param_set_number: Optional[int] = param_set_number
+        self.prompt_number = prompt_number
 
         self.logger = logging.getLogger(self.__class__.__name__)
         self.results_dir = results_dir
         self.data_dir = "data"
         self.dataset_dir = os.path.join(self.data_dir, self.dataset_name, "problems")
-        self.problem_description_prompt = self.get_prompt("problem_description_main")
-        self.sample_answer_prompt = self.get_prompt("sample_answers_main")
-        self.question_prompt = self.get_prompt("question_main")
+        self.problem_description_prompt = self.get_prompt(f"problem_description_{self.prompt_number}")
+        self.sample_answer_prompt = self.get_prompt(f"sample_answers_{self.prompt_number}")
+        self.question_prompt = self.get_prompt(f"question_{self.prompt_number}")
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
         self.descriptions_prompt = None
-        self.example_prompt = self.get_prompt("example_main")
+        self.example_prompt = self.get_prompt(f"example_{prompt_number}")
 
         # path for descriptions, to be set by subclasses if needed - for contrastive and descriptive
         self.descriptions_path: Optional[str] = None
@@ -167,7 +169,7 @@ class StrategyBase(ABC):
             current_dir = os.path.dirname(os.path.abspath(__file__))
             repo_root = os.path.dirname(os.path.dirname(current_dir))
 
-            if prompt_type == "problem_description_main" or prompt_type == "sample_answers_main":
+            if prompt_type.startswith(("problem_description", "sample_answers")):
                 prompt_path = os.path.join(
                     repo_root, "prompts", self.dataset_name, f"{prompt_type}.txt"
                 )

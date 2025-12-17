@@ -23,10 +23,11 @@ class ContrastiveStrategy(StrategyBase):
         dataset_config: DatasetConfig,
         results_dir: str,
         strategy_name:str,
+        prompt_number: int
     ):
-        super().__init__(dataset_name, model, dataset_config, results_dir,strategy_name)
+        super().__init__(dataset_name, model, dataset_config, results_dir,strategy_name, prompt_number=prompt_number)
 
-        self.descriptions_prompt = self.get_prompt("describe_main")
+        self.descriptions_prompt = self.get_prompt(f"describe_{self.prompt_number}")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
     def run_single_problem(
@@ -48,7 +49,7 @@ class ContrastiveStrategy(StrategyBase):
                     choice_image_input_2 = self.get_choice_image(
                         problem_id, image_index=i + 6
                     )
-                    description_example_bp = self.get_prompt("contrast_example_main")
+                    description_example_bp = self.get_prompt(f"contrast_example_{self.prompt_number}")
                     contents_to_send_descriptions = [
                         TextContent(f"{descriptions_prompt}\n{description_example_bp}"),
                         ImageContent(choice_image_input_1),
@@ -66,7 +67,7 @@ class ContrastiveStrategy(StrategyBase):
                     choice_image_input = self.get_blackout_image(
                         problem_id, image_index=string_index
                     )
-                    description_example = self.get_prompt("contrast_example_main")
+                    description_example = self.get_prompt(f"contrast_example_{self.prompt_number}")
                     contents_to_send_descriptions = [
                         TextContent(f"{descriptions_prompt}\n{description_example}"),
                         ImageContent(choice_image_input),

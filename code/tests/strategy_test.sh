@@ -15,12 +15,14 @@ MODEL_NAME=${3:-"OpenGVLab/InternVL3-8B"}
 RESTART_PROBLEM_ID=${4:-""}
 RESTART_VERSION=${5:=""}
 PARAM_SET_NUMBER=${5:-"1"}
+PROMPT_NUMBER=${6:-"1"}
 
 echo "Dataset: $DATASET_NAME"
 echo "Strategy: $STRATEGY"
 echo "Model: $MODEL_NAME"
 echo "Restart Problem ID: $RESTART_PROBLEM_ID"
 echo "Parameter Set Number: $PARAM_SET_NUMBER"
+echo "Prompt Number: $PROMPT_NUMBER"
 
 export PYTHONFAULTHANDLER=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -43,7 +45,8 @@ do
         --model_name "$MODEL_NAME" \
         --restart_problem_id "$RESTART_PROBLEM_ID" \
         --restart_version "$RESTART_VERSION" \
-        --param_set_number "$PARAM_SET_NUMBER"
+        --param_set_number "$PARAM_SET_NUMBER" \
+        --prompt_number "$PROMPT_NUMBER"
         
    status=$?
 

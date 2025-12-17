@@ -46,7 +46,7 @@ class ConfidenceEnsemble(EnsembleBase):
         
     def evaluate_confidence_using_llm(self, answer_list, confidence_list):
         problem_description = self.config.get("problem_description_prompt", "")
-        confidence_prompt_path = "prompts/ensemble/ensemble_confidence_main.txt"
+        confidence_prompt_path = self.get_ensemble_prompt_path(prompt_number=self.prompt_number)
         sample_answer =self.config.get("sample_answer_structure", "")
         with open(confidence_prompt_path, "r", encoding="utf-8") as file:
             confidence_prompt = file.read()

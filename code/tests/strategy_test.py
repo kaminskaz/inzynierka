@@ -103,6 +103,7 @@ def run_single_experiment(
         restart_problem_id: Optional[str] = None,
         restart_version: Optional[str] = None,
         param_set_number: Optional[int] = None,
+        prompt_number: Optional[int]=1,
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -137,7 +138,8 @@ def run_single_experiment(
             strategy_name=strategy_name,
             model_object=model,
             results_dir=results_dir,
-            param_set_number=param_set_number
+            param_set_number=param_set_number,
+            prompt_number=prompt_number
         )
         
         logger.info("Strategy created successfully. Running experiment...")
@@ -162,6 +164,7 @@ if __name__ == "__main__":
     parser.add_argument('--restart_problem_id', type=str, default=None, help='Problem ID to restart from (if applicable)')
     parser.add_argument('--restart_version', type=str, default=None, help='Version of the model-strategy-dataset combination to be restarted (if applicable)')
     parser.add_argument('--param_set_number', type=int, default=None, help='Parameter set number to use for the experiment (if applicable)')
+    parser.add_argument('--prompt_number', type=int, default=1, help='Prompt number to use')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
@@ -186,5 +189,6 @@ if __name__ == "__main__":
         model_name=args.model_name,
         restart_problem_id=args.restart_problem_id,
         restart_version = args.restart_version,
-        param_set_number = args.param_set_number
+        param_set_number = args.param_set_number,
+        prompt_number= args.prompt_number
         )

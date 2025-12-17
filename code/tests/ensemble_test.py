@@ -30,7 +30,8 @@ def run_single_ensemble(
         type_name: str,
         vllm_model_name: Optional[str] = None,
         llm_model_name: Optional[str] = None, 
-        model_object: Optional[Any] = None
+        model_object: Optional[Any] = None,
+        prompt_number: Optional[int] = 1
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -62,7 +63,8 @@ def run_single_ensemble(
             members_configuration=members_configuration,
             skip_missing=True,
             judge_model=model,
-            type_name=type_name
+            type_name=type_name,
+            prompt_number=prompt_number
         )
         
         logger.info("Ensemble created successfully. Running ensemble...")
@@ -83,14 +85,14 @@ def run_single_ensemble(
 import argparse
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run a single experiment')
-
+    parser = argparse.ArgumentParser(description='Run a single ensemble experiment')
     parser.add_argument('--dataset_name', type=str, required=True, 
                         help='Name of the dataset to use (same as in dataset_config.json)')
     parser.add_argument('--members_configuration', type=json_list, required=True, 
                         help='Configuration string/file for the ensemble members')
     parser.add_argument('--ensemble_type', type=str, required=True, 
                         help='The type of ensemble method to apply')
+    parser.add_argument('--prompt_number', type=int, default=1, required = False),
     parser.add_argument('--vllm_model_name', type=str, required=False, 
                         help='Name of the VLLM model (e.g., OpenGVLab/InternVL3-8B)')
     parser.add_argument('--llm_model_name', type=str, required=False, 
@@ -126,4 +128,5 @@ if __name__ == "__main__":
         type_name=args.ensemble_type,
         vllm_model_name=args.vllm_model_name if args.vllm_model_name else None,
         llm_model_name=args.llm_model_name if args.llm_model_name else None,
+        prompt_number=args.prompt_number if args.prompt_number else None
     )

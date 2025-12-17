@@ -44,7 +44,7 @@ class MajorityEnsemble(EnsembleBase):
     def evaluate_majority_using_llm(self, answer_list):
         problem_description = self.config.get("problem_description_prompt", "")
         sample_answer =self.config.get("sample_answer_structure", "")
-        majority_prompt_path = "prompts/ensemble/ensemble_majority_main.txt"
+        majority_prompt_path = self.get_ensemble_prompt_path(prompt_number=self.prompt_number)
         with open(majority_prompt_path, "r", encoding="utf-8") as file:
             majority_prompt = file.read()
         

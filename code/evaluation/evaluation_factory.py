@@ -36,7 +36,8 @@ class EvaluationFactory():
         ensemble: bool = False,
         type_name: Optional[str] = None,
         model_object: Optional[Any] = None,
-        model_name: Optional[str] = 'mistralai/Mistral-7B-Instruct-v0.3'
+        model_name: Optional[str] = 'mistralai/Mistral-7B-Instruct-v0.3',
+        prompt_number: Optional[int] = 1
     ) -> EvaluationBase:
         
         if ensemble and type_name is None:
@@ -47,4 +48,11 @@ class EvaluationFactory():
             ensemble=ensemble,
             type_name=type_name
         )
-        return evaluator_cls(model_object=model_object, model_name=model_name)
+
+        # bez sensu może ale nie wiem jak to sensowniej tutaj dodać
+        evaluator = evaluator_cls(model_object=model_object, model_name=model_name)
+
+        if isinstance(evaluator, EvaluationWithJudge) and prompt_number is not None:
+            evaluator.prompt_number = prompt_number
+            
+        return evaluator

@@ -12,10 +12,11 @@ from code.tests.strategy_test import run_single_experiment
 
 
 class EnsembleBase(ABC):
-    def __init__(self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, type_name: str = ""):
+    def __init__(self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, type_name: str = "", prompt_number: int = 1):
         self.logger = logging.getLogger(__name__)
         self.dataset_name = dataset_name
         self.config: Dict[str, Any] = {}
+        self.prompt_number = prompt_number
         self.skip_missing = skip_missing
         self.members_configuration = members_configuration
         self.answers = pd.DataFrame()
@@ -188,3 +189,12 @@ class EnsembleBase(ABC):
             else:
                 return False
         return len(other_metas) == 0
+    
+    def get_ensemble_prompt_path(self, prompt_number: int = 1):
+        prompt_path = os.path.join("prompts", "ensemble", f"ensemble_{self.type_name}_{prompt_number}.txt")
+        
+        if not os.path.exists(prompt_path):
+            self.logger.warning(f"Prompt file not found: {prompt_path}")
+            return ""
+
+        return prompt_path

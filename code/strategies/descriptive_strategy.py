@@ -20,10 +20,11 @@ class DescriptiveStrategy(StrategyBase):
         dataset_config: DatasetConfig,
         results_dir: str,
         strategy_name: str,
+        prompt_number: int
     ):
-        super().__init__(dataset_name, model, dataset_config, results_dir, strategy_name)
+        super().__init__(dataset_name, model, dataset_config, results_dir, strategy_name, prompt_number=prompt_number)
 
-        self.descriptions_prompt = self.get_prompt("describe_main")
+        self.descriptions_prompt = self.get_prompt(f"describe_{self.prompt_number}")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
     def run_single_problem(
@@ -42,7 +43,7 @@ class DescriptiveStrategy(StrategyBase):
                 choice_image_input = self.get_choice_image(problem_id, image_index=i)
                 index_key = i
 
-            describe_example_prompt = self.get_prompt("describe_example_main")
+            describe_example_prompt = self.get_prompt(f"describe_example_{self.prompt_number}")
             contents_to_send_descriptions = [
                 TextContent(f"{descriptions_prompt}\n{describe_example_prompt}"),
                 ImageContent(choice_image_input),
