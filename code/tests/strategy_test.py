@@ -1,18 +1,12 @@
 import argparse
 import sys
 import logging
-import os
-import re
 from pathlib import Path
-from itertools import product
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from code.strategies.strategy_factory import StrategyFactory
 from code.models.vllm import VLLM
 from code.technical.utils import get_results_directory
-from code.evaluation.evaluation_basic import EvaluationBasic
-from code.evaluation.evaluation_judge import EvaluationWithJudge
-
 
 logger = logging.getLogger(__name__)
 
@@ -115,9 +109,18 @@ def run_single_experiment(
     """
     logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
     try:
-        results_dir = get_results_directory(dataset_name, strategy_name, model_name)
         if restart_problem_id is not None:
-            results_dir = get_results_directory(dataset_name=dataset_name, strategy_name=strategy_name, model_name=model_name, version=restart_version, create_dir=False)
+            target_version = restart_version if restart_version else "latest"
+            
+            results_dir = get_results_directory(
+                dataset_name=dataset_name, 
+                strategy_name=strategy_name, 
+                model_name=model_name, 
+                version=target_version, 
+                create_dir=False
+            )
+        else:
+            results_dir = get_results_directory(dataset_name, strategy_name, model_name)
 
         strategy_factory = StrategyFactory()
 
@@ -176,10 +179,6 @@ if __name__ == "__main__":
         logger.error(f"Data for '{args.dataset_name}' is not preprocessed or is missing.")
         logger.error("Please run the data preprocessing pipeline first.")
         sys.exit(1)
-
-
-    # run_strategy_tests(
-    #     model_name=args.model_name)
 
     run_single_experiment(
         dataset_name=args.dataset_name,

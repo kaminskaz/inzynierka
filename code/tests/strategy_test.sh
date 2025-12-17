@@ -13,6 +13,7 @@ DATASET_NAME=${1:-cvr}
 STRATEGY=${2:-direct}
 MODEL_NAME=${3:-"OpenGVLab/InternVL3-8B"}
 RESTART_PROBLEM_ID=${4:-""}
+RESTART_VERSION=${5:=""}
 PARAM_SET_NUMBER=${5:-"1"}
 
 echo "Dataset: $DATASET_NAME"
@@ -32,10 +33,25 @@ export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 cd /mnt/evafs/groups/jrafalko-lab/inzynierka
 
-python -m code.tests.strategy_test \
-    --dataset_name "$DATASET_NAME" \
-    --strategy "$STRATEGY" \
-    --model_name "$MODEL_NAME" \
-    --restart_problem_id "$RESTART_PROBLEM_ID" \
-    --param_set_number "$PARAM_SET_NUMBER"
+for i in {1..10}
+do
+   echo "Starting run $i of 10..."
+   
+   python -m code.tests.strategy_test \
+        --dataset_name "$DATASET_NAME" \
+        --strategy "$STRATEGY" \
+        --model_name "$MODEL_NAME" \
+        --restart_problem_id "$RESTART_PROBLEM_ID" \
+        --restart_version "$RESTART_VERSION" \
+        --param_set_number "$PARAM_SET_NUMBER"
+        
+   status=$?
+
+   if [ $status -eq 2 ]; then
+      echo "Exit code 2 detected. Terminating loop - all problems processed."
+      exit 2
+   elif [ $status -ne 0 ]; then
+      echo "Run $i failed with exit code $status, but continuing to next iteration..."
+   fi
+done
     

@@ -39,36 +39,41 @@ def get_dataset_config(dataset_name: str, config_path="code/technical/configs/da
         return None
 
 
-
 def get_results_directory(
-        dataset_name: str, 
-        strategy_name: str, 
-        model_name: str, 
-        version: Optional[str] = None,
-        create_dir: bool = True
-        ) -> str:
-    """
-    Creates a new versioned results directory for the given dataset and strategy.
-    If previous versions exist, increments the version number.
-    """
+    dataset_name: str, 
+    strategy_name: str, 
+    model_name: str, 
+    version: Optional[str] = None,
+    create_dir: bool = True
+) -> str:
     base_results_dir = "results"
-
-    if create_dir:
-        os.makedirs(base_results_dir, exist_ok=True)
-
     short_model_name = shorten_model_name(model_name)
     prefix = os.path.join(base_results_dir, dataset_name, strategy_name, short_model_name)
 
-    if version is not None:
-        path = os.path.join(prefix, f"ver{version}")
+    if version == "latest":
+        existing_versions = []
+        if os.path.isdir(prefix):
+            for entry in os.scandir(prefix):
+                if entry.is_dir() and entry.name.startswith("ver"):
+                    try:
+                        ver_num = int(entry.name.replace("ver", ""))
+                        existing_versions.append(ver_num)
+                    except ValueError:
+                        continue
+        
+        if not existing_versions:
+            raise FileNotFoundError(f"No existing versions found in {prefix} to restart from.")
+        
+        latest_ver = max(existing_versions)
+        return os.path.join(prefix, f"ver{latest_ver}")
 
+    if version is not None and version != "":
+        path = os.path.join(prefix, f"ver{version}")
         if create_dir:
             os.makedirs(path, exist_ok=True)
-
         return path
 
     existing_versions = []
-
     if os.path.isdir(prefix):
         for entry in os.scandir(prefix):
             if entry.is_dir() and entry.name.startswith("ver"):
@@ -79,8 +84,7 @@ def get_results_directory(
                     pass
 
     new_version = max(existing_versions, default=0) + 1
-    new_dir_name = f"ver{new_version}"
-    new_dir_path = os.path.join(prefix, new_dir_name)
+    new_dir_path = os.path.join(prefix, f"ver{new_version}")
 
     if create_dir:
         os.makedirs(new_dir_path, exist_ok=True)

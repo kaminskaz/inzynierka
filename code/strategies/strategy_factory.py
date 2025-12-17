@@ -9,7 +9,6 @@ from code.strategies.classification_strategy import ClassificationStrategy
 from code.strategies.contrastive_strategy import ContrastiveStrategy
 from code.strategies.direct_strategy import DirectStrategy
 from code.strategies.descriptive_strategy import DescriptiveStrategy
-from code.technical.configs.dataset_config import DatasetConfig
 from code.technical.utils import get_dataset_config
 
 class StrategyFactory:
