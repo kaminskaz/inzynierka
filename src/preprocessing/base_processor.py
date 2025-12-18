@@ -34,19 +34,13 @@ class BaseProcessor(ABC):
 
     def is_already_processed(self, problem_id: str) -> bool:
         """Check if a problem has already been processed."""
-        output_path = (
-            self.output_base_path
-            / self.dataset_name
-            / "problems"
-            / problem_id
-            / "question_panel.png"
-        )
+        output_path = os.path.join(self.output_base_path, self.dataset_name, "problems", problem_id, "question_panel.png")
         return output_path.exists()
 
     def get_output_dir(self, subfolder: str) -> Path:
         """Get output directory path."""
-        path = self.output_base_path / self.dataset_name / subfolder
-        path.mkdir(parents=True, exist_ok=True)
+        path = os.path.join(self.output_base_path, self.dataset_name, subfolder)
+        os.makedirs(path, exist_ok=True)
         return path
 
     def save_sheet(
@@ -59,16 +53,16 @@ class BaseProcessor(ABC):
     ) -> None:
         """Save the generated question panel image."""
         # Directory structure: data/<dataset_name>/<problem_id>/
-        output_dir = self.output_base_path / self.dataset_name / "problems" / problem_id
-        output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir = os.path.join(self.output_base_path, self.dataset_name, "problems", problem_id)
+        os.makedirs(output_dir, exist_ok=True)
         if classification_panel:
-            save_path = output_dir / "classification_panel.png"
+            save_path = os.path.join(output_dir, "classification_panel.png")
         elif switched and not choice_panel:
-            save_path = output_dir / "question_panel_switched.png"
+            save_path = os.path.join(output_dir, "question_panel_switched.png")
         elif choice_panel:
-            save_path = output_dir / "choice_panel.png"
+            save_path = os.path.join(output_dir, "choice_panel.png")
         else:
-            save_path = output_dir / "question_panel.png"
+            save_path = os.path.join(output_dir, "question_panel.png")
         sheet.save(save_path)
         self.logger.debug(
             f"Saved question panel for problem {problem_id} to {save_path}"
@@ -76,10 +70,10 @@ class BaseProcessor(ABC):
 
     def save_json(self, data: Dict, filename: str) -> None:
         """Save dataset-level JSON metadata inside jsons/ folder."""
-        json_dir = self.output_base_path / self.dataset_name / "jsons"
-        json_dir.mkdir(parents=True, exist_ok=True)
+        json_dir = os.path.join(self.output_base_path, self.dataset_name, "jsons")
+        os.makedirs(json_dir, exist_ok=True)
 
-        file_path = json_dir / filename
+        file_path = os.path.join(json_dir, filename)
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
 
@@ -95,7 +89,7 @@ class BaseProcessor(ABC):
 
             for fname in os.listdir(directory):
                 if pattern in fname or fname.endswith(pattern):
-                    return Image.open(directory / fname).convert("RGB")
+                    return Image.open(os.path.join(directory, fname)).convert("RGB")
 
             return None
         except Exception as e:
@@ -128,26 +122,21 @@ class BaseProcessor(ABC):
     ) -> None:
         """Save labeled choice and question images into data/<dataset>/problems/<problem_id>/"""
 
-        base_dir = (
-            self.output_base_path
-            / self.dataset_name
-            / "problems"
-            / problem_id_standardized
-        )
-        base_dir.mkdir(parents=True, exist_ok=True)
+        base_dir = os.path.join(self.output_base_path, self.dataset_name, "problems", problem_id_standardized)
+        os.makedirs(base_dir, exist_ok=True)
 
-        choices_dir = base_dir / "choices"
-        choices_dir.mkdir(parents=True, exist_ok=True)
+        choices_dir = os.path.join(base_dir, "choices")
+        os.makedirs(choices_dir, exist_ok=True)
 
         for i, img in enumerate(choice_images):
             if img is None:
                 continue
             label = string.ascii_uppercase[i] if letters else str(i)
-            out_path = choices_dir / f"{label}.{self.config.image_format.lstrip('.')}"
+            out_path = os.path.join(choices_dir, f"{label}.{self.config.image_format.lstrip('.')}")
             img.save(out_path)
             self.logger.debug(f"Saved choice {label} to {out_path}")
 
         if question_image is not None:
-            q_path = base_dir / f"question.{self.config.image_format.lstrip('.')}"
+            q_path = os.path.join(base_dir, f"question.{self.config.image_format.lstrip('.')}")
             question_image.save(q_path)
             self.logger.debug(f"Saved question image to {q_path}")

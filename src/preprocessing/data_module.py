@@ -17,7 +17,7 @@ class DataModule:
 
     def __init__(
         self,
-        config_path: str = "src/technical/configs/dataset_config.json",
+        config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json"),
         load_from_hf: bool = False,
     ):
         self.config_path = Path(config_path)
@@ -114,8 +114,8 @@ class DataModule:
 
     def download_from_hf(self, repo_id: str, repo_type: str = "dataset") -> None:
         """Download or resume downloading a dataset from HuggingFace."""
-        data_path = Path("data_raw") / repo_id.split("/")[-1]
-        data_path.mkdir(parents=True, exist_ok=True)
+        data_path = os.path.join("data_raw", repo_id.split("/")[-1])
+        os.makedirs(data_path, exist_ok=True)
 
         self.logger.info(f"Checking existing data for {repo_id} in {data_path}...")
 
@@ -172,7 +172,7 @@ class DataModule:
                         [
                             p
                             for p in os.listdir(raw_data_path)
-                            if (raw_data_path / p).is_dir()
+                            if os.path.isdir(os.path.join(raw_data_path, p))
                         ]
                     )
             except Exception as e:
@@ -242,7 +242,7 @@ class DataModule:
             self.logger.info(f"--- Checking: {dataset_name} ---")
 
             # 1. Get list of all processed problem IDs from the file system
-            problem_dir = Path("data") / dataset_name / "problems"
+            problem_dir = os.path.join("data", dataset_name, "problems")
             if not problem_dir.exists():
                 self.logger.warning(f"  No 'problems' directory found for {dataset_name}.")
                 continue
@@ -259,17 +259,17 @@ class DataModule:
                 self.logger.error(f"  Failed to list processed problems: {e}")
                 continue
 
-            json_dir = Path("data") / dataset_name / "jsons"
+            json_dir = os.path.join("data", dataset_name, "jsons")
             solution_keys = set()
             annotation_keys = set()
 
             # 2. Load solutions
             if dataset_name == "BP":
-                solutions_path = json_dir / "bp_solutions.json"
+                solutions_path = os.path.join(json_dir, "bp_solutions.json")
             else:
-                solutions_path = json_dir / f"{dataset_name}_solutions.json"
+                solutions_path = os.path.join(json_dir, f"{dataset_name}_solutions.json")
 
-            if solutions_path.exists():
+            if os.path.exists(solutions_path):
                 try:
                     with open(solutions_path, "r", encoding="utf-8") as f:
                         solutions_data = json.load(f)
@@ -283,8 +283,8 @@ class DataModule:
             has_annotations_config = bool(config_data.get("annotations_folder"))
 
             if has_annotations_config:
-                annotations_path = json_dir / f"{dataset_name}_annotations.json"
-                if annotations_path.exists():
+                annotations_path = os.path.join(json_dir, f"{dataset_name}_annotations.json")
+                if os.path.exists(annotations_path):
                     try:
                         with open(annotations_path, "r", encoding="utf-8") as f:
                             annotations_data = json.load(f)

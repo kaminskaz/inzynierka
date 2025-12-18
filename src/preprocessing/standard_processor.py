@@ -37,8 +37,8 @@ class StandardProcessor(BaseProcessor):
 
     def load_existing_json(self, filename: str) -> Dict[str, Any]:
         """Loads an existing JSON metadata file if it exists."""
-        json_path = self.output_base_path / self.dataset_name / "jsons" / filename
-        if json_path.exists():
+        json_path = os.path.join(self.output_base_path, self.dataset_name, "jsons", filename)
+        if os.path.exists(json_path):
             try:
                 with open(json_path, "r", encoding="utf-8") as f:
                     return json.load(f)
@@ -58,7 +58,7 @@ class StandardProcessor(BaseProcessor):
         problems = [
             p
             for p in os.listdir(self.raw_data_path)
-            if (self.raw_data_path / p).is_dir()
+            if os.path.isdir(os.path.join(self.raw_data_path, p))
         ]
 
         self.logger.info(f"Found {len(problems)} problems to process")
@@ -67,9 +67,9 @@ class StandardProcessor(BaseProcessor):
         newly_processed_problem_ids = set()
 
         for problem_id in problems:
-            problem_path = self.raw_data_path / problem_id
+            problem_path = os.path.join(self.raw_data_path, problem_id)
 
-            if not problem_path.is_dir():
+            if not os.path.isdir(problem_path):
                 continue
 
             # Standardize problem ID first
@@ -262,18 +262,14 @@ class StandardProcessor(BaseProcessor):
     def load_choice_images(self, problem_id: str) -> List[Optional[Image.Image]]:
         """Load choice images for a problem."""
         images = []
-        choice_dir = (
-            self.raw_data_path
-            / problem_id
-            / self.config.choice_images_folder.lstrip("/")
-        )
+        choice_dir = os.path.join(self.raw_data_path, problem_id, self.config.choice_images_folder.lstrip("/"))
 
         for i in range(self.config.num_choices):
             pattern = self.evaluate_regex(self.config.regex_choice_number, i)
 
             # Try loading by exact filename first
-            exact_path = choice_dir / pattern
-            if exact_path.exists():
+            exact_path = os.path.join(choice_dir, pattern)
+            if os.path.exists(exact_path):
                 try:
                     images.append(Image.open(exact_path).convert("RGB"))
                     continue
@@ -291,11 +287,7 @@ class StandardProcessor(BaseProcessor):
         if not self.config.question_images_folder:
             return None
 
-        question_dir = (
-            self.raw_data_path
-            / problem_id
-            / self.config.question_images_folder.lstrip("/")
-        )
+        question_dir = os.path.join(self.raw_data_path, problem_id, self.config.question_images_folder.lstrip("/"))
         return self.load_image_by_pattern(question_dir, self.config.image_format)
 
     def get_answer_info(self, problem_id: str) -> Dict[str, Any]:
@@ -306,11 +298,7 @@ class StandardProcessor(BaseProcessor):
 
     def load_answer_from_image(self, problem_id: str) -> Dict[str, Any]:
         """Load answer from answer image file."""
-        answer_dir = (
-            self.raw_data_path
-            / problem_id
-            / self.config.answer_images_folder.lstrip("/")
-        )
+        answer_dir = os.path.join(self.raw_data_path, problem_id, self.config.answer_images_folder.lstrip("/"))
 
         try:
             for fname in os.listdir(answer_dir):
@@ -330,11 +318,9 @@ class StandardProcessor(BaseProcessor):
         if not self.config.annotations_folder:
             return None
 
-        annot_path = (
-            self.raw_data_path / problem_id / self.config.annotations_folder.lstrip("/")
-        )
+        annot_path = os.path.join(self.raw_data_path, problem_id, self.config.annotations_folder.lstrip("/"))
 
-        if not annot_path.exists():
+        if not os.path.exists(annot_path):
             return None
 
         try:
@@ -407,14 +393,14 @@ class StandardProcessor(BaseProcessor):
         Assumes choice_images is the *final* list (i.e., already shuffled).
         """
         blackout_image_list = []
-        blackout_dir = (
-            self.output_base_path
-            / "cvr"
-            / "problems"
-            / problem_id_standardized
-            / "blackout"
+        blackout_dir = os.path.join(
+            self.output_base_path,
+            "cvr",
+            "problems",
+            problem_id_standardized,
+            "blackout"
         )
-        blackout_dir.mkdir(parents=True, exist_ok=True)
+        os.makedirs(blackout_dir, exist_ok=True)
 
         num_choices = len(choice_images)
         for i in range(num_choices):
@@ -427,7 +413,7 @@ class StandardProcessor(BaseProcessor):
                     no_label=True,  # do not label choices
                 )
                 label = string.ascii_uppercase[i]
-                out_path = blackout_dir / f"{label}.png"
+                out_path = os.path.join(blackout_dir, f"{label}.png")
                 sheet.save(out_path)
                 blackout_image_list.append(sheet)
                 self.logger.debug(

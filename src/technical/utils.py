@@ -14,7 +14,10 @@ from src.technical.configs.dataset_config import DatasetConfig
 logger = logging.getLogger(__name__)
 
 
-def get_dataset_config(dataset_name: str, config_path="src/technical/configs/dataset_config.json") -> Optional[DatasetConfig]:
+def get_dataset_config(
+        dataset_name: str,
+        config_path=os.path.join("src", "technical", "configs", "dataset_config.json")
+    ) -> Optional[DatasetConfig]:
     """Gets the DatasetConfig for a specific dataset."""
     try:
         with open(config_path, "r") as f:
@@ -156,7 +159,7 @@ def get_model_config(
     """
     Extracts a specific configuration for a given model name and param_set version.
     """
-    model_config_path = "src/technical/configs/models_config.json"
+    model_config_path = os.path.join("src", "technical", "configs", "models_config.json")
     with open(model_config_path, "r") as f:
         json_data = json.load(f)
 

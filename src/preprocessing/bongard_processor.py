@@ -19,15 +19,15 @@ class BongardProcessor(BaseProcessor):
         problems = [
             p
             for p in os.listdir(self.raw_data_path)
-            if (self.raw_data_path / p).is_dir()
+            if os.path.isdir(os.path.join(self.raw_data_path, p))
         ]
 
         self.logger.info(f"Found {len(problems)} problems to process")
         classification_solutions = {}
         for problem_id in problems:
-            problem_path = self.raw_data_path / problem_id
+            problem_path = os.path.join(self.raw_data_path, problem_id)
 
-            if not problem_path.is_dir():
+            if not os.path.isdir(problem_path):
                 continue
 
             # Standardize ID first
@@ -116,10 +116,10 @@ class BongardProcessor(BaseProcessor):
     def load_choice_images(self, problem_id: str) -> List[Optional[Image.Image]]:
         """Load all 12 images for a Bongard problem."""
         images = []
-        problem_path = self.raw_data_path / problem_id
+        problem_path = os.path.join(self.raw_data_path, problem_id)
 
         for i in range(self.config.num_choices):
-            image_path = problem_path / f"{i}.png"
+            image_path = os.path.join(problem_path, f"{i}.png")
             try:
                 images.append(Image.open(image_path).convert("RGB"))
             except Exception as e:
@@ -248,7 +248,7 @@ class BongardProcessor(BaseProcessor):
 
     def process_solutions(self) -> None:
         """Process and renumber solutions from raw data."""
-        raw_solutions_path = self.raw_data_path / "bp_solutions.json"
+        raw_solutions_path = os.path.join(self.raw_data_path, "bp_solutions.json")
 
         if not raw_solutions_path.exists():
             self.logger.warning(f"Solutions file not found: {raw_solutions_path}")

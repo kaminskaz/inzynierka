@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import os
 
 from src.evaluation.evaluation_judge import EvaluationWithJudge
 from src.evaluation.evaluation_basic import EvaluationBasic
@@ -8,7 +9,8 @@ from src.evaluation.evaluation_basic import EvaluationBasic
 def main():
     pd.set_option('display.max_colwidth', None) 
     print("Test 1: Standard evaluation", flush=True)
-    answers_df = pd.read_csv('src/tests/cvr_example_results.csv', dtype={"problem_id": str}, encoding="utf-8")
+    cvr_path = os.path.join('src', 'tests', 'cvr_example_results.csv')
+    answers_df = pd.read_csv(cvr_path, dtype={"problem_id": str}, encoding="utf-8")
     key_cvr = {
         "000": "C",
         "002": "A",
@@ -24,7 +26,8 @@ def main():
     print(output_df.drop(columns=["rationale"]), flush=True)
 
     print("\nTest 2: Evaluation with judge", flush=True)
-    answers_df_judge = pd.read_csv('src/tests/bp_example_results.csv', dtype={"problem_id": str}, encoding="utf-8")
+    bp_path = os.path.join('src', 'tests', 'bp_example_results.csv')
+    answers_df_judge = pd.read_csv(bp_path, dtype={"problem_id": str}, encoding="utf-8")
     key_bp = {
         "001": ["Empty picture", "Not empty picture"],
         "002": ["Triangles", "Circles"],
@@ -37,7 +40,8 @@ def main():
     print(output_df_judge.drop(columns=["rationale"]), flush=True)
 
     print("\nTest 3: Ensemble evaluation", flush=True)
-    answers_df_ensemble = pd.read_csv('src/tests/ensemble_eval_test.csv', dtype={"problem_id": str}, encoding="utf-8")
+    ensemble_path = os.path.join('src', 'tests', 'ensemble_eval_test.csv')
+    answers_df_ensemble = pd.read_csv(ensemble_path, dtype={"problem_id": str}, encoding="utf-8")
     key_ensemble = {
         "013": ["Empty picture", "Not empty picture"],
         "043": ["Triangles", "Circles"],

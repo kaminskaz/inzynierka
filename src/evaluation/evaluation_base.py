@@ -126,7 +126,7 @@ class EvaluationBase(ABC):
             model_object=model_object
         )
             
-        output_summaries_path = f"{results_dir}/{evaluation_output_path}_summary.json"
+        output_summaries_path = os.path.join(results_dir, f"{evaluation_output_path}_summary.json")
         with open(output_summaries_path, "w") as summary_file:
             json.dump({
                 "answers_completeness": summary_answers,
@@ -135,12 +135,12 @@ class EvaluationBase(ABC):
         logger.info(f"Summaries saved to {output_summaries_path}")
 
         metrics = self.calculate_metrics(output_df)
-        metrics_path = f"{results_dir}/{evaluation_output_path}_metrics.json"
+        metrics_path = os.path.join(results_dir, f"{evaluation_output_path}_metrics.json")
         with open(metrics_path, "w") as metrics_file:
             json.dump(metrics, metrics_file, indent=4)
         logger.info(f"Metrics saved to {metrics_path}")
 
-        output_path = f"{results_dir}/{evaluation_output_path}.csv"
+        output_path = os.path.join(results_dir, f"{evaluation_output_path}.csv")
         output_df.to_csv(output_path, index=False)
         logger.info(f"Results saved to {output_path}")
  
@@ -254,11 +254,11 @@ class EvaluationBase(ABC):
         ):
 
         if ensemble:
-            answers_path = f"{results_dir}/ensemble_results.csv"
+            answers_path = os.path.join(results_dir, "ensemble_results.csv")
         else:
-            answers_path = f"{results_dir}/results.csv"
+            answers_path = os.path.join(results_dir, "results.csv")
         
-        key_path = f"data/{dataset_name}/jsons/{dataset_name}_solutions.json"
+        key_path = os.path.join("data", dataset_name, "jsons", f"{dataset_name}_solutions.json")
             
         if not results_dir or not os.path.exists(results_dir):
             logger.error("Results directory is not provided or does not exist.")

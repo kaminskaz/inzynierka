@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 from src.preprocessing.data_module import DataModule
 from src.technical.utils import setup_logging
 
@@ -11,7 +12,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--config", 
         type=str, 
-        default="src/technical/configs/dataset_config.json",
+        default=os.path.join("src", "technical", "configs", "dataset_config.json"),
         help="Path to configuration file"
     )
     parser.add_argument(

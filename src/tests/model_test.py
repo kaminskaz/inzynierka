@@ -18,7 +18,7 @@ def main():
     response1 = vllm.ask([text_content])
     print("Response (text):", response1, flush=True)
 
-    relative_path = "data/bp/problems/006/choices/4.png"
+    relative_path = os.path.join("data", "bp", "problems", "006", "choices", "4.png")
     full_path = os.path.abspath(relative_path)
 
     if not os.path.exists(full_path):

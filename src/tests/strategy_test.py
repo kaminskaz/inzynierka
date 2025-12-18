@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 import logging
 from pathlib import Path
@@ -56,23 +57,23 @@ def check_data_preprocessed(dataset_name: str) -> bool:
     - At least one .json file in the jsons/ directory.
     """
     logger.info(f"Checking for preprocessed data for dataset: {dataset_name}...")
-    base_data_path = Path("data") / dataset_name
-    problems_path = base_data_path / "problems"
-    jsons_path = base_data_path / "jsons"
+    base_data_path = os.path.join("data", dataset_name)
+    problems_path = os.path.join(base_data_path, "problems")
+    jsons_path = os.path.join(base_data_path, "jsons")
 
-    if not base_data_path.exists():
+    if not os.path.exists(base_data_path):
         logger.error(f"Data directory not found: {base_data_path}")
         return False
     
-    if not problems_path.exists():
+    if not os.path.exists(problems_path):
         logger.error(f"Standardized 'problems' directory not found: {problems_path}")
         return False
 
-    if not jsons_path.exists():
+    if not os.path.exists(jsons_path):
         logger.error(f"Standardized 'jsons' directory not found: {jsons_path}")
         return False
     
-    if not any(jsons_path.glob("*.json")):
+    if not any(fname.endswith(".json") for fname in os.listdir(jsons_path)):
             logger.error(f"No JSON metadata files found in: {jsons_path}")
             return False
 

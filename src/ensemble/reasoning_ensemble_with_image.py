@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import random
 from typing import Dict, Any, List, Optional
@@ -26,7 +27,7 @@ class ReasoningEnsembleWithImage(EnsembleBase):
 
         answer_list = single_problem_df["answer"].tolist()
         reasoning_list = single_problem_df["rationale"].tolist()
-        image_path = (f"data/{self.dataset_name}/problems/{problem_id}/question_panel.png")
+        image_path = os.path.join("data", self.dataset_name, "problems", str(problem_id), "question_panel.png")
 
         final_answer = self.evaluate_reasoning_using_llm(answer_list, reasoning_list, question_image_path=image_path)
         return final_answer

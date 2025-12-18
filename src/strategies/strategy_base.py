@@ -263,21 +263,17 @@ class StrategyBase(ABC):
                 f"(category: '{self.config.category}'). Returning None."
             )
             return None
-        image_path = f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/choice_panel.png"
+        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choice_panel.png")
         return image_path
 
     def get_choice_image(self, problem_id: str, image_index: Union[str, int]) -> str:
         if not self.verify_choice_index(image_index):
             return ""
-        image_path = (
-            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/choices/{image_index}.png"
-        )
+        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choices", f"{image_index}.png")
         return image_path
 
     def get_question_panel(self, problem_id: str) -> str:
-        image_path = (
-            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/question_panel.png"
-        )
+        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question_panel.png")
         return image_path
 
     def get_question_image(self, problem_id: str) -> str:
@@ -291,7 +287,7 @@ class StrategyBase(ABC):
                 f"(category: '{self.config.category}'). Returning None."
             )
             return ""
-        image_path = f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/question.png"
+        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question.png")
         return image_path
 
     def get_blackout_image(self, problem_id: str, image_index: Union[str, int]) -> str:
@@ -303,15 +299,11 @@ class StrategyBase(ABC):
             return ""
         if not self.verify_choice_index(image_index):
             return ""
-        image_path = (
-            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/blackout/{image_index}.png"
-        )
+        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "blackout", f"{image_index}.png")
         return image_path
 
     def get_classification_panel(self, problem_id: str) -> str:
-        image_path = (
-            f"{self.data_dir}/{self.dataset_name}/problems/{problem_id}/classification_panel.png"
-        )
+        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "classification_panel.png")
         return image_path
 
     def get_list_of_choice_images(
