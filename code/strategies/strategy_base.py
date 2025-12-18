@@ -103,6 +103,7 @@ class StrategyBase(ABC):
                     f"Dataset {self.dataset_name} is already fully processed "
                     f"({len(results)}/{self.config.expected_num_samples}). Exiting pipeline."
                 )
+                self.model.stop()
                 sys.exit(2) 
 
         entries = [e for e in os.scandir(self.dataset_dir) if e.is_dir()]
@@ -151,6 +152,7 @@ class StrategyBase(ABC):
                     self.logger.critical("Fatal error encountered. Terminating pipeline to prevent further failures.")
                     if results:
                         self.save_raw_answers_to_csv(results)
+                    self.model.stop()
                     sys.exit(1)
                 continue
 

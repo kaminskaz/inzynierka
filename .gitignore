@@ -15,7 +15,7 @@
 *.temp
 
 # Foldery środowisk wirtualnych Pythona
-venv/
+.venv/
 env/
 
 # Pliki konfiguracyjne lokalne

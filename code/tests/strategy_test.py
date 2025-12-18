@@ -150,9 +150,11 @@ def run_single_experiment(
 
     except ImportError as e:
         logger.error(f"Failed to create strategy. Does '{strategy_name}' exist and is it importable? Error: {e}", exc_info=True)
+        model.stop()
         sys.exit(1)
     except Exception as e:
         logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
+        model.stop()
         sys.exit(1)
     
 
@@ -163,7 +165,7 @@ if __name__ == "__main__":
     parser.add_argument('--model_name', type=str, required=True, help='Name of the model to use for the experiment')
     parser.add_argument('--restart_problem_id', type=str, default=None, help='Problem ID to restart from (if applicable)')
     parser.add_argument('--restart_version', type=str, default=None, help='Version of the model-strategy-dataset combination to be restarted (if applicable)')
-    parser.add_argument('--param_set_number', type=int, default=None, help='Parameter set number to use for the experiment (if applicable)')
+    parser.add_argument('--param_set_number', type=int, default=1, help='Parameter set number to use for the experiment (if applicable)')
     parser.add_argument('--prompt_number', type=int, default=1, help='Prompt number to use')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')

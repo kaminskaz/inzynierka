@@ -23,9 +23,10 @@ class ContrastiveStrategy(StrategyBase):
         dataset_config: DatasetConfig,
         results_dir: str,
         strategy_name:str,
-        prompt_number: int
+        prompt_number: int,
+        param_set_number: Optional[int]=None,
     ):
-        super().__init__(dataset_name, model, dataset_config, results_dir,strategy_name, prompt_number=prompt_number)
+        super().__init__(dataset_name, model, dataset_config, results_dir,strategy_name, prompt_number=prompt_number, param_set_number=param_set_number)
 
         self.descriptions_prompt = self.get_prompt(f"describe_{self.prompt_number}")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
