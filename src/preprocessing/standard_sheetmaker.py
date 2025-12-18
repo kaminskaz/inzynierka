@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import random
@@ -187,14 +188,8 @@ class StandardSheetMaker:
 
             results.append(base)
 
-        output_dir = (
-            output_base_path
-            / dataset_name
-            / "problems"
-            / problem_id_standardized
-            / "filled_choices"
-        )
-        output_dir.mkdir(parents=True, exist_ok=True)
+        output_dir = os.path.join(output_base_path, dataset_name, "problems", problem_id_standardized, "filled_choices")
+        os.makedirs(output_dir, exist_ok=True)
 
         for i, img in enumerate(results):
             label = chr(ord("A") + i)
