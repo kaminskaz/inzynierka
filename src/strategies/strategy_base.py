@@ -37,7 +37,7 @@ class StrategyBase(ABC):
         self.data_dir = "data"
         self.dataset_dir = os.path.join(self.data_dir, self.dataset_name, "problems")
         self.problem_description_prompt = self.get_prompt(f"problem_description_{self.prompt_number}")
-        self.sample_answer_prompt = self.get_prompt(f"sample_answers_{self.prompt_number}")
+        self.sample_answer_prompt = self.get_prompt(f"sample_answer_{self.prompt_number}")
         self.question_prompt = self.get_prompt(f"question_{self.prompt_number}")
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
         self.descriptions_prompt = None
@@ -171,7 +171,7 @@ class StrategyBase(ABC):
             current_dir = os.path.dirname(os.path.abspath(__file__))
             repo_root = os.path.dirname(os.path.dirname(current_dir))
 
-            if prompt_type.startswith(("problem_description", "sample_answers")):
+            if prompt_type.startswith(("problem_description", "sample_answer")):
                 prompt_path = os.path.join(
                     repo_root, "prompts", self.dataset_name, f"{prompt_type}.txt"
                 )
