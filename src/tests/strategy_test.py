@@ -109,9 +109,12 @@ def run_single_experiment(
     Initializes and runs a single experiment strategy.
     """
     logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
+    
+    model = model_object 
+    
     try:
-        if restart_problem_id is not None:
-            target_version = restart_version if restart_version else "latest"
+        if restart_problem_id and restart_problem_id.strip():
+            target_version = restart_version if (restart_version and restart_version.strip()) else "latest"
             
             results_dir = get_results_directory(
                 dataset_name=dataset_name, 
@@ -125,13 +128,14 @@ def run_single_experiment(
 
         strategy_factory = StrategyFactory()
 
-        if not model_object:
+        if not model:
             model = _load_model(
                 model_name=model_name,
                 param_set_number=param_set_number
             )
-        else:
-            model = model_object
+        
+        if model is None:
+            raise RuntimeError(f"Failed to initialize model: {model_name}")
         
         strategy = strategy_factory.create_strategy(
             dataset_name=dataset_name,
@@ -148,13 +152,10 @@ def run_single_experiment(
 
         model.stop()
 
-    except ImportError as e:
-        logger.error(f"Failed to create strategy. Does '{strategy_name}' exist and is it importable? Error: {e}", exc_info=True)
-        model.stop()
-        sys.exit(1)
     except Exception as e:
         logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
-        model.stop()
+        if model is not None and hasattr(model, 'stop'):
+            model.stop()
         sys.exit(1)
     
 

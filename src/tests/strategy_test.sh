@@ -13,9 +13,9 @@ DATASET_NAME=${1:-cvr}
 STRATEGY=${2:-descriptive}
 MODEL_NAME=${3:-"OpenGVLab/InternVL3-8B"}
 RESTART_PROBLEM_ID=${4:-""}
-RESTART_VERSION=${5:=""}
-PARAM_SET_NUMBER=${5:-"1"}
-PROMPT_NUMBER=${6:-"1"}
+RESTART_VERSION=${5:-""}
+PARAM_SET_NUMBER=${6:-"1"}
+PROMPT_NUMBER=${7:-"1"}
 
 echo "Dataset: $DATASET_NAME"
 echo "Strategy: $STRATEGY"
