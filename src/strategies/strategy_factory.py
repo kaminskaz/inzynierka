@@ -16,7 +16,7 @@ class StrategyFactory:
     Factory to create and configure a specific strategy based on its name.
     """
     def __init__(
-        self, config_path: str = "code/technical/configs/dataset_config.json"
+        self, config_path: str = "src/technical/configs/dataset_config.json"
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config_path = Path(config_path)
