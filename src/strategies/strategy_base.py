@@ -43,24 +43,17 @@ class StrategyBase(ABC):
         self.descriptions_prompt = None
         self.example_prompt = self.get_prompt(f"example_{prompt_number}")
 
-        # path for descriptions, to be set by subclasses if needed - for contrastive and descriptive
+        # path for descriptions, to be set by subclasses if needed
         self.descriptions_path: Optional[str] = None
 
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
 
     @abstractmethod
     def run_single_problem(self, *args, **kwargs) -> Any:
-        """
-        This method's signature will vary by strategy, so it remains abstract
-        but will be called by the subclass's _execute_problem, not by the base run().
-        """
         pass
 
     @abstractmethod
     def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:  # type: ignore
-        """
-        The core logic for processing a single problem.
-        """
         pass
 
     def _load_existing_results(self, csv_path: str) -> List[dict]:
@@ -69,7 +62,11 @@ class StrategyBase(ABC):
         try:
             with open(csv_path, mode="r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
-                existing_data = list(reader)
+                # Verify that 'problem_id' exists in the header
+                if reader.fieldnames and "problem_id" in reader.fieldnames:
+                    existing_data = list(reader)
+                else:
+                    self.logger.warning(f"CSV at {csv_path} is missing 'problem_id' header.")
             self.logger.info(f"Loaded {len(existing_data)} existing results from {csv_path}")
         except Exception as e:
             self.logger.error(f"Failed to load existing results from {csv_path}: {e}")
@@ -77,7 +74,7 @@ class StrategyBase(ABC):
 
     def run(self, restart_problem_id: str = "") -> None:
         """
-        Main execution loop (Template Method).
+        Main execution loop with robust handling for empty results or missing files.
         """
         results = []
         all_descriptions_data = {}
@@ -92,8 +89,12 @@ class StrategyBase(ABC):
         output_path = os.path.join(self.results_dir, "results.csv")
         if os.path.exists(output_path):
             raw_results = self._load_existing_results(output_path)
-            # Keeps only the last entry for any problem_id
-            unique_results_map = {r['problem_id']: r for r in raw_results}
+
+            unique_results_map = {
+                r['problem_id']: r 
+                for r in raw_results 
+                if r.get('problem_id') is not None
+            }
             results = list(unique_results_map.values())
             
             self.logger.info(f"Loaded {len(results)} unique results from existing CSV.")
@@ -104,17 +105,17 @@ class StrategyBase(ABC):
                     f"({len(results)}/{self.config.expected_num_samples}). Exiting pipeline."
                 )
                 self.model.stop()
-                sys.exit(2) 
+                sys.exit(2)
 
         entries = [e for e in os.scandir(self.dataset_dir) if e.is_dir()]
         entries.sort(key=lambda entry: entry.name)
         
-        processed_ids = {r['problem_id'] for r in results}
+        processed_ids = {r['problem_id'] for r in results if 'problem_id' in r}
 
         if restart_problem_id:
             self.logger.info(f"Restarting from problem ID: {restart_problem_id}")
             entries = [e for e in entries if e.name >= restart_problem_id]
-            results = [r for r in results if r['problem_id'] < restart_problem_id]
+            results = [r for r in results if r.get('problem_id', '') < restart_problem_id]
         elif processed_ids:
             last_id = max(processed_ids)
             entries = [e for e in entries if e.name > last_id]
@@ -147,9 +148,8 @@ class StrategyBase(ABC):
                 self.logger.error(f"Error processing {problem_entry.name}: {error_msg}")
                 
                 fatal_errors = ["Request timed out"]
-                
                 if any(msg in error_msg for msg in fatal_errors):
-                    self.logger.critical("Fatal error encountered. Terminating pipeline to prevent further failures.")
+                    self.logger.critical("Fatal error encountered. Terminating pipeline.")
                     if results:
                         self.save_raw_answers_to_csv(results)
                     self.model.stop()
@@ -157,7 +157,7 @@ class StrategyBase(ABC):
                 continue
 
         if results:
-            unique_results_map = {r["problem_id"]: r for r in results}
+            unique_results_map = {r["problem_id"]: r for r in results if "problem_id" in r}
             results = sorted(unique_results_map.values(), key=lambda x: x["problem_id"])
             self.save_raw_answers_to_csv(results)
 
@@ -193,25 +193,15 @@ class StrategyBase(ABC):
             return prompt
 
         except Exception as e:
-            self.logger.exception(
-                f"Error reading prompt for strategy '{self.strategy_name}' and dataset '{self.dataset_name}': {e}"
-            )
+            self.logger.exception(f"Error reading prompt: {e}")
             return ""
 
-    def save_metadata(
-        self,
-        question_prompt: str,
-        problem_description_prompt: str,
-        sample_answer_prompt: Optional[str] = None,
-        describe_prompt: Optional[str] = None,
-    ) -> None:
-        """Save dataset, strategy, model, and config info into a metadata file."""
-
-        # FIX: CLEAN SERIALIZATION FOR DATACLASS
+    def save_metadata(self, question_prompt: str, problem_description_prompt: str, 
+                      sample_answer_prompt: Optional[str] = None, 
+                      describe_prompt: Optional[str] = None) -> None:
         if is_dataclass(self.config):
             config_data = asdict(self.config)
         else:
-            # Fallback for non-dataclass objects
             try:
                 config_data = vars(self.config)
             except Exception:
@@ -233,11 +223,11 @@ class StrategyBase(ABC):
             with open(metadata_path, "w", encoding="utf-8") as f:
                 json.dump(metadata, f, ensure_ascii=False, indent=4)
             self.logger.info(f"Saved metadata to {metadata_path}")
-
         except Exception as e:
             self.logger.exception(f"Failed to save metadata: {e}")
 
     def save_raw_answers_to_csv(self, results: List[dict]) -> None:
+        """Saves results to CSV. Correctly handles empty result sets by using predefined headers."""
         if not results:
             self.logger.warning("No results to save.")
             return
@@ -245,120 +235,63 @@ class StrategyBase(ABC):
         output_path = os.path.join(self.results_dir, "results.csv")
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-        fieldnames = list(results[0].keys())
+        fieldnames = ["problem_id", "answer", "confidence", "rationale"]
 
         with open(output_path, mode="w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(results)
+            cleaned_results = [{k: r.get(k, "") for k in fieldnames} for r in results]
+            writer.writerows(cleaned_results)
 
         self.logger.info(f"Saved {len(results)} results to {output_path}")
 
-    # FUNCTIONS FOR GETTING IMAGES AND PANELS
-
+    # --- Image Handling Methods ---
     def get_choice_panel(self, problem_id: str) -> Optional[str]:
         if hasattr(self.config, "category") and self.config.category != "standard":
-            self.logger.warning(
-                f"get_choice_panel called for non-standard dataset "
-                f"(category: '{self.config.category}'). Returning None."
-            )
             return None
-        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choice_panel.png")
-        return image_path
+        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choice_panel.png")
 
     def get_choice_image(self, problem_id: str, image_index: Union[str, int]) -> str:
         if not self.verify_choice_index(image_index):
             return ""
-        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choices", f"{image_index}.png")
-        return image_path
+        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choices", f"{image_index}.png")
 
     def get_question_panel(self, problem_id: str) -> str:
-        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question_panel.png")
-        return image_path
+        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question_panel.png")
 
     def get_question_image(self, problem_id: str) -> str:
-        if (
-            hasattr(self, "config")
-            and hasattr(self.config, "category")
-            and self.config.category != "standard"
-        ):
-            self.logger.warning(
-                f"get_question_image called for non-standard dataset "
-                f"(category: '{self.config.category}'). Returning None."
-            )
+        if hasattr(self.config, "category") and self.config.category != "standard":
             return ""
-        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question.png")
-        return image_path
+        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question.png")
 
     def get_blackout_image(self, problem_id: str, image_index: Union[str, int]) -> str:
         if hasattr(self.config, "category") and self.config.category != "choice_only":
-            self.logger.warning(
-                f"get_blackout_image called for non-choice_only dataset "
-                f"(category: '{self.config.category}'). Returning None."
-            )
             return ""
         if not self.verify_choice_index(image_index):
             return ""
-        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "blackout", f"{image_index}.png")
-        return image_path
+        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "blackout", f"{image_index}.png")
 
     def get_classification_panel(self, problem_id: str) -> str:
-        image_path = os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "classification_panel.png")
-        return image_path
-
-    def get_list_of_choice_images(
-        self, problem_id: str, image_indices: List[Union[str, int]]
-    ) -> List[str]:
-        if not all(isinstance(index, (str, int)) for index in image_indices):
-            self.logger.error(
-                f"Image indices list contained mixed types: {image_indices}. "
-                f"All indices must be str or int. Returning empty list."
-            )
-            return []
-        images = []
-        for index in image_indices:
-            images.append(self.get_choice_image(problem_id, index))
-        return images
+        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "classification_panel.png")
 
     def verify_choice_index(self, image_index: Union[str, int]) -> bool:
         if not hasattr(self.config, "category"):
-            self.logger.error(
-                "Config object has no 'category' attribute. Cannot verify index."
-            )
             return False
         try:
-            if (
-                self.config.category == "standard"
-                or self.config.category == "choice_only"
-            ):
-                valid_indices = [
-                    chr(i) for i in range(ord("A"), ord("A") + self.config.num_choices)
-                ]
-                if not isinstance(image_index, str):
-                    return False
+            if self.config.category in ["standard", "choice_only"]:
+                valid_indices = [chr(i) for i in range(ord("A"), ord("A") + self.config.num_choices)]
+                return isinstance(image_index, str) and image_index in valid_indices
             elif self.config.category == "BP":
-                valid_indices = [i for i in range(self.config.num_choices)]
-                if not isinstance(image_index, int):
-                    return False
-            else:
-                return False
-
-            if image_index not in valid_indices:
-                return False
-        except AttributeError as e:
-            self.logger.exception(f"Config is missing an attribute: {e}")
+                valid_indices = list(range(self.config.num_choices))
+                return isinstance(image_index, int) and image_index in valid_indices
             return False
-        return True
+        except Exception:
+            return False
 
-    def save_descriptions_to_json(
-        self, descriptions_path: str, all_descriptions_data: dict
-    ):
+    def save_descriptions_to_json(self, descriptions_path: str, all_descriptions_data: dict):
         try:
-            directory = os.path.dirname(descriptions_path)
-            if directory:
-                os.makedirs(directory, exist_ok=True)
+            os.makedirs(os.path.dirname(descriptions_path), exist_ok=True)
             with open(descriptions_path, "w", encoding="utf-8") as f:
                 json.dump(all_descriptions_data, f, indent=4)
-            self.logger.info(f"Saved descriptions to {descriptions_path}")
         except Exception as e:
-            self.logger.error(f"Error in save_descriptions_to_json: {e}")
+            self.logger.error(f"Error saving descriptions: {e}")
