@@ -134,7 +134,7 @@ class EnsembleBase(ABC):
             final_answer = self.evaluate_single_problem(problem_id)
             results.append({
                 "problem_id": problem_id,
-                "ensemble_answer": final_answer
+                "answer": final_answer
             })
             results_df = pd.DataFrame(results)
             self.save_results_to_csv(results_df, self.ensemble_directory)

@@ -10,7 +10,13 @@ from src.models.llm_judge import LLMJudge
 from string import Template
 
 class MajorityEnsemble(EnsembleBase):
-    def __init__(self, dataset_name, members_configuration, skip_missing = True, type_name = "majority", judge_model: Optional[Any] = None):
+    def __init__(
+            self, 
+            dataset_name, 
+            members_configuration, 
+            skip_missing = True, 
+            type_name = "majority", 
+            judge_model: Optional[LLMJudge] = None):
         super().__init__(dataset_name, members_configuration, skip_missing, type_name)
         if get_dataset_config(dataset_name).category == "BP":
             self.llm = judge_model if judge_model is not None else LLMJudge()

@@ -21,11 +21,10 @@ class EvaluationBasic(EvaluationBase):
             answers_df: pd.DataFrame, 
             key_dict: dict,
             output_df: pd.DataFrame,
-            **kwargs
         ):
         
         for index, row in answers_df.iterrows():
-            answer = row.get("answer") or row.get("ensemble_answer")
+            answer = row.get("answer")
             id_ = str(row["problem_id"])
 
 

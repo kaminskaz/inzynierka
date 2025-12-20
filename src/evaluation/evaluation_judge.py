@@ -14,12 +14,14 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationWithJudge(EvaluationBase):
-    def __init__(self, 
-                 model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
-                 model_object: Any = None,
-                 param_set_number: int = None,
-                 prompt: str = None,
-                 prompt_number: int = 1):
+    def __init__(
+            self, 
+            model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
+            model_object: Any = None,
+            param_set_number: int = None,
+            prompt: str = None,
+            prompt_number: int = 1
+        ):
         self.prompt_number = prompt_number
         try:
             if prompt is not None:
@@ -42,14 +44,12 @@ class EvaluationWithJudge(EvaluationBase):
 
     def evaluate_single_answer(
         self,
-        prompt: str,
         answer: str,
         key: str,
-        model: LLMJudge,
         response_schema: BongardEvaluationSchema,
     ):
-        return model.evaluate_similarity(
-            prompt=prompt, 
+        return self.judge.evaluate_similarity(
+            prompt=self.prompt, 
             answer=answer, 
             key=key, 
             response_schema=response_schema
@@ -59,13 +59,11 @@ class EvaluationWithJudge(EvaluationBase):
             self, 
             answers_df: pd.DataFrame, 
             key_dict: dict,
-            output_df: pd.DataFrame,
-            prompt: str = None,
-            model_object: Any = None
+            output_df: pd.DataFrame
         ):
         
         for index, row in answers_df.iterrows():
-            answer = row.get("answer") or row.get("ensemble_answer")
+            answer = row.get("answer")
             id_ = str(row["problem_id"])
 
             if id_ not in key_dict:
@@ -83,10 +81,8 @@ class EvaluationWithJudge(EvaluationBase):
                 continue
 
             score, reasoning = self.evaluate_single_answer(
-                prompt=prompt if prompt else self.prompt,
                 answer=answer,
                 key=key,
-                model=model_object if model_object else self.judge,
                 response_schema=BongardEvaluationSchema,
             )
 

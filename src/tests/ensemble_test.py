@@ -30,7 +30,7 @@ def run_single_ensemble(
         type_name: str,
         vllm_model_name: Optional[str] = None,
         llm_model_name: Optional[str] = None, 
-        model_object: Optional[Any] = None,
+        model_object: Optional[VLLM] = None,
         prompt_number: Optional[int] = 1
     ) -> None:
     """

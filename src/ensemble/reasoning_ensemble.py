@@ -11,7 +11,13 @@ from string import Template
     
 
 class ReasoningEnsemble(EnsembleBase):
-    def __init__(self, dataset_name, members_configuration, skip_missing = True, type_name = "reasoning", judge_model: Optional[Any] = None):
+    def __init__(
+            self, 
+            dataset_name, 
+            members_configuration, 
+            skip_missing = True, 
+            type_name = "reasoning", 
+            judge_model: Optional[LLMJudge] = None):
         super().__init__(dataset_name, members_configuration, skip_missing, type_name)
         self.llm = judge_model if judge_model is not None else LLMJudge()
         self.config["ensemble_model"] = self.llm.get_model_name()

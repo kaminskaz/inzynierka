@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional, Type, Tuple
 from src.evaluation.evaluation_basic import EvaluationBasic
 from src.evaluation.evaluation_judge import EvaluationWithJudge
 from src.evaluation.evaluation_base import EvaluationBase
+from src.models.llm_judge import LLMJudge
 
 class EvaluationFactory():
     def __init__(self):
@@ -35,8 +36,8 @@ class EvaluationFactory():
         dataset_name: str,
         ensemble: bool = False,
         type_name: Optional[str] = None,
-        model_object: Optional[Any] = None,
-        model_name: Optional[str] = 'mistralai/Mistral-7B-Instruct-v0.3',
+        judge_model_object: Optional[LLMJudge] = None,
+        judge_model_name: Optional[str] = 'mistralai/Mistral-7B-Instruct-v0.3',
         prompt_number: Optional[int] = 1
     ) -> EvaluationBase:
         
@@ -49,8 +50,7 @@ class EvaluationFactory():
             type_name=type_name
         )
 
-        # bez sensu może ale nie wiem jak to sensowniej tutaj dodać
-        evaluator = evaluator_cls(model_object=model_object, model_name=model_name)
+        evaluator = evaluator_cls(judge_model_object=judge_model_object, judge_model_name=judge_model_name)
 
         if isinstance(evaluator, EvaluationWithJudge) and prompt_number is not None:
             evaluator.prompt_number = prompt_number
