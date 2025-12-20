@@ -74,8 +74,12 @@ def get_results_directory(
             path = os.path.join(prefix, f"ver{new_version}")
 
         if create_dir:
-            os.makedirs(path, exist_ok=True)
-            logger.info(f"Results directory ready at: {path}")
+            try:
+                os.makedirs(path)
+                logger.info(f"Results directory created at: {path}")
+            except FileExistsError:
+                logger.debug(f"Results directory already exists at: {path}")
+
 
         return path
 
