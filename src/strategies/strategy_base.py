@@ -141,7 +141,7 @@ class StrategyBase(ABC):
 
                 results.append(result)
                 self.save_raw_answers_to_csv(results)
-                time.sleep(0.3)
+                time.sleep(0.1)
 
             except Exception as e:
                 error_msg = str(e)

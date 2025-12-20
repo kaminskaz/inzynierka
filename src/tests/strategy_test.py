@@ -114,18 +114,15 @@ def run_single_experiment(
     model = model_object 
     
     try:
-        if restart_problem_id and restart_problem_id.strip():
-            target_version = restart_version if (restart_version and restart_version.strip()) else "latest"
+        target_version = restart_version if (restart_version and restart_version.strip()) else "latest"
             
-            results_dir = get_results_directory(
-                dataset_name=dataset_name, 
-                strategy_name=strategy_name, 
-                model_name=model_name, 
-                version=target_version, 
-                create_dir=False
-            )
-        else:
-            results_dir = get_results_directory(dataset_name, strategy_name, model_name)
+        results_dir = get_results_directory(
+            dataset_name=dataset_name, 
+            strategy_name=strategy_name, 
+            model_name=model_name, 
+            version=target_version, 
+            create_dir=True
+        )
 
         strategy_factory = StrategyFactory()
 

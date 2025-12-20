@@ -18,7 +18,7 @@ class StrategyFactory:
     """
     def __init__(
         self,
-        config_path: str = os.path.join("code", "technical", "configs", "dataset_config.json")
+        config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json")
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config_path = Path(config_path)
