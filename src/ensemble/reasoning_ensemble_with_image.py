@@ -19,8 +19,10 @@ class ReasoningEnsembleWithImage(EnsembleBase):
             members_configuration: List[List[str]], 
             skip_missing: bool = True, 
             judge_model: Optional[VLLM] = None, 
-            type_name: str = "reasoning_with_image"):
-        super().__init__(dataset_name, members_configuration, skip_missing, type_name)
+            type_name: str = "reasoning_with_image",
+            prompt_number: Optional[int] = 1
+            ):
+        super().__init__(dataset_name, members_configuration, skip_missing, type_name, prompt_number)
         self.vllm = judge_model if judge_model is not None else VLLM(model_name="OpenGVLab/InternVL3-8B")
         self.config["ensemble_model"] = self.vllm.get_model_name()
 

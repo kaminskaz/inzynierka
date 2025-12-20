@@ -17,7 +17,10 @@ class FullPipeline:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def prepare_data(self, config_path: str, download: bool):    
+    def prepare_data(
+            self, 
+            config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json"),
+            download: bool = False):    
         data_module = DataModule(
             config_path=config_path,
             load_from_hf=download
@@ -29,7 +32,7 @@ class FullPipeline:
             self,
             dataset_name: str,
             strategy_name: str, 
-            model_name: Optional[str] = None, 
+            model_name: str, 
             model_object: Optional[VLLM] = None,
             restart_problem_id: Optional[str] = None,
             restart_version: Optional[str] = None,
@@ -40,8 +43,6 @@ class FullPipeline:
         Initializes and runs a single experiment strategy.
         """
         self.logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
-        
-        model = model_object 
         
         try:
             if restart_problem_id and restart_problem_id.strip():
@@ -59,6 +60,7 @@ class FullPipeline:
 
             strategy_factory = StrategyFactory()
 
+            model = model_object 
             if not model:
                 model = self._load_model(
                     model_name=model_name,
