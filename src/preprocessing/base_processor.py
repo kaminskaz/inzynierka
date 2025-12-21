@@ -98,9 +98,15 @@ class BaseProcessor(ABC):
             )
             return None
 
-    def standardize_problem_id(self, problem_id: str, digits: int = 3) -> str:
+    def standardize_problem_id(self, problem_id: str) -> str:
         """Standardize problem ID to fixed number of digits."""
-        return problem_id.zfill(digits)
+        expected = self.config.expected_num_samples
+        if expected is None:
+                raise ValueError("expected_num_samples is not set in config")
+        if not isinstance(expected, int):
+                raise ValueError("expected_num_samples must be an integer")
+        digits = len(str(self.config.expected_num_samples))
+        return str(problem_id).zfill(digits)
 
     def evaluate_regex(self, regex_template: str, image_index: int) -> str:
         """Evaluate regex template with image_index."""

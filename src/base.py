@@ -10,8 +10,8 @@ from src.models.vllm import VLLM
 from src.preprocessing.data_module import DataModule
 from src.strategies.strategy_factory import StrategyFactory
 from src.technical.utils import get_results_directory, get_dataset_config
+from src.technical.configs.evaluation_config import EvaluationConfig
 
-logger = logging.getLogger(__name__)
 
 class FullPipeline: 
     def __init__(self):
@@ -45,18 +45,15 @@ class FullPipeline:
         self.logger.info(f"Creating strategy '{strategy_name}' for dataset '{dataset_name}' with model '{model_name}'")
         
         try:
-            if restart_problem_id and restart_problem_id.strip():
-                target_version = restart_version if (restart_version and restart_version.strip()) else "latest"
+            target_version = restart_version if (restart_version and restart_version.strip()) else "latest"
                 
-                results_dir = get_results_directory(
-                    dataset_name=dataset_name, 
-                    strategy_name=strategy_name, 
-                    model_name=model_name, 
-                    version=target_version, 
-                    create_dir=False
-                )
-            else:
-                results_dir = get_results_directory(dataset_name, strategy_name, model_name)
+            results_dir = get_results_directory(
+                dataset_name=dataset_name, 
+                strategy_name=strategy_name, 
+                model_name=model_name, 
+                version=target_version, 
+                create_dir=True
+            )
 
             strategy_factory = StrategyFactory()
 
@@ -105,7 +102,7 @@ class FullPipeline:
         """
         Initializes and runs a single experiment strategy.
         """
-        logger.info(f"Creating ensemble '{type_name}' for dataset '{dataset_name}' with members: {members_configuration}')")
+        self.logger.info(f"Creating ensemble '{type_name}' for dataset '{dataset_name}' with members: {members_configuration}')")
         try:
             ensemble_factory = EnsembleFactory()
 
@@ -155,46 +152,34 @@ class FullPipeline:
 
     def run_evaluation(
             self, 
-            dataset_name: str,
-            version: str,
-            strategy_name: Optional[str] = None,
-            model_name: Optional[str] = None, 
-            ensemble: bool = False,
-            type_name: Optional[str] = None,
-            evaluation_output_path: str = "evaluation_results",
-            concat: bool = True, 
-            output_all_results_concat_path: str = "all_results_concat",
-            judge_model_object: Optional[LLMJudge] = None,
-            judge_model_name: Optional[str] = None,
-            prompt_number: Optional[int] = 1,
+            config: EvaluationConfig
         ):
 
         eval_factory = EvaluationFactory()
-        if judge_model_object is None and judge_model_name is not None:
-            judge_model_object = LLMJudge(judge_model_name)
         
         evaluator = eval_factory.create_evaluator(
-            dataset_name=dataset_name,
-            ensemble=ensemble,
-            type_name=type_name,
-            judge_model_object=judge_model_object,
-            judge_model_name=judge_model_name,
-            prompt_number=prompt_number
+            dataset_name=config.dataset_name,
+            ensemble=config.ensemble,
+            type_name=config.type_name,
+            judge_model_object=config.judge_model_object,
+            judge_model_name=config.judge_model_name,
+            prompt_number=config.prompt_number
         )
         evaluator.run_evaluation(
-            dataset_name=dataset_name,
-            version=version, 
-            strategy_name=strategy_name, 
-            model_name=model_name, 
-            ensemble=ensemble,
-            type_name=type_name,
-            evaluation_output_path=evaluation_output_path,
-            concat=concat,
-            output_all_results_concat_path=output_all_results_concat_path
+            dataset_name=config.dataset_name,
+            version=config.version, 
+            strategy_name=config.strategy_name, 
+            model_name=config.model_name, 
+            ensemble=config.ensemble,
+            type_name=config.type_name,
+            evaluation_output_path=config.evaluation_output_path,
+            concat=config.concat,
+            output_all_results_concat_path=config.output_all_results_concat_path
         )
 
-    def run_evaluations(self):
-        pass
+    def run_evaluations(self, configs: List[EvaluationConfig]):
+        for config in configs:
+            self.run_evaluation(config)
 
     def visualise(self):
         pass
@@ -240,26 +225,26 @@ class FullPipeline:
         - data/<dataset_name>/jsons/
         - At least one .json file in the jsons/ directory.
         """
-        logger.info(f"Checking for preprocessed data for dataset: {dataset_name}...")
+        self.logger.info(f"Checking for preprocessed data for dataset: {dataset_name}...")
         base_data_path = os.path.join("data", dataset_name)
         problems_path = os.path.join(base_data_path, "problems")
         jsons_path = os.path.join(base_data_path, "jsons")
 
         if not os.path.exists(base_data_path):
-            logger.error(f"Data directory not found: {base_data_path}")
+            self.logger.error(f"Data directory not found: {base_data_path}")
             return False
         
         if not os.path.exists(problems_path):
-            logger.error(f"Standardized 'problems' directory not found: {problems_path}")
+            self.logger.error(f"Standardized 'problems' directory not found: {problems_path}")
             return False
 
         if not os.path.exists(jsons_path):
-            logger.error(f"Standardized 'jsons' directory not found: {jsons_path}")
+            self.logger.error(f"Standardized 'jsons' directory not found: {jsons_path}")
             return False
         
         if not any(fname.endswith(".json") for fname in os.listdir(jsons_path)):
-                logger.error(f"No JSON metadata files found in: {jsons_path}")
+                self.logger.error(f"No JSON metadata files found in: {jsons_path}")
                 return False
 
-        logger.info(f"Found preprocessed data at: {base_data_path}")
+        self.logger.info(f"Found preprocessed data at: {base_data_path}")
         return True

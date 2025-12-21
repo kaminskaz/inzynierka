@@ -18,9 +18,7 @@ class ClassificationStrategy(StrategyBase):
         )
         return response
 
-    def _execute_problem(
-        self, problem_id: str
-    ) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
+    def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
         image_path = self.get_classification_panel(problem_id)
 
         prompt_with_example = f"{self.main_prompt}\n{self.example_prompt}"

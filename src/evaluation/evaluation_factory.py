@@ -38,7 +38,9 @@ class EvaluationFactory():
         type_name: Optional[str] = None,
         judge_model_object: Optional[LLMJudge] = None,
         judge_model_name: Optional[str] = 'mistralai/Mistral-7B-Instruct-v0.3',
-        prompt_number: Optional[int] = 1
+        prompt_number: Optional[int] = 1,
+        prompt: Optional[str] = None,
+        param_set_number: Optional[int] = None
     ) -> EvaluationBase:
         
         if ensemble and type_name is None:
@@ -54,5 +56,9 @@ class EvaluationFactory():
 
         if isinstance(evaluator, EvaluationWithJudge) and prompt_number is not None:
             evaluator.prompt_number = prompt_number
+        if isinstance(evaluator, EvaluationWithJudge) and prompt is not None:
+            evaluator.prompt = prompt
+        if isinstance(evaluator, EvaluationWithJudge) and param_set_number is not None:
+            evaluator.param_set_number = param_set_number
             
         return evaluator

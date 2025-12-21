@@ -12,6 +12,9 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 class EvaluationBase(ABC):
+    def __init__(self, judge_model_object=None, judge_model_name=None):
+        self.judge_model_object = judge_model_object
+        self.judge_model_name = judge_model_name
     
     @abstractmethod
     def evaluate_single_answer(self, *args, **kwargs) -> float:
@@ -58,6 +61,7 @@ class EvaluationBase(ABC):
         descriptions = self._load_descriptions(results_dir, ensemble)
 
         expected_num_samples = get_dataset_config(dataset_name).expected_num_samples
+        dataset_category = get_dataset_config(dataset_name).category == "BP"
         summary_answers = self.check_completeness(answers_df, expected_num_samples, descriptions)
         logger.info(f"Answers DataFrame Completeness Summary: {summary_answers}")
 
@@ -70,7 +74,8 @@ class EvaluationBase(ABC):
         self.evaluate(
             answers_df=answers_df,
             key_dict=key_dict,
-            output_df=output_df
+            output_df=output_df,
+            dataset_category=dataset_category
         )
 
         self._write_summary_and_metrics(
@@ -109,9 +114,8 @@ class EvaluationBase(ABC):
 
         summary["expected_num_samples"] = expected_num_samples
 
-        # num_digits = len(str(expected_num_samples - 1)) 
-        # for now fixed for 3 digits !
-        expected_ids = {str(i).zfill(3) for i in range(expected_num_samples)}
+        num_digits = len(str(expected_num_samples)) 
+        expected_ids = {str(i).zfill(num_digits) for i in range(expected_num_samples)}
         actual_ids = set(df["problem_id"].tolist())
 
         missing_ids = sorted(expected_ids - actual_ids)
@@ -160,7 +164,7 @@ class EvaluationBase(ABC):
             results_df["ensemble"] = False
 
         if os.path.exists(all_results_concat_path):
-            existing_df  = pd.read_csv(all_results_concat_path)
+            existing_df  = pd.read_csv(all_results_concat_path, dtype={"problem_id": str}, encoding="utf-8")
             combined_df  = pd.concat([existing_df, results_df], ignore_index=True)
         else:
             combined_df  = results_df
@@ -255,7 +259,6 @@ class EvaluationBase(ABC):
 
     def _load_answers(self, answers_path):
         df = pd.read_csv(answers_path, dtype={"problem_id": str}, encoding="utf-8")
-        df["problem_id"] = df["problem_id"].apply(lambda x: str(x).zfill(3))
         return df
 
     def _load_descriptions(self, results_dir, ensemble):

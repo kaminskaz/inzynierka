@@ -10,19 +10,20 @@ from src.models.llm_judge import LLMJudge
 from src.technical.response_schema import BongardEvaluationSchema
 from src.technical.utils import get_results_directory
 
-logger = logging.getLogger(__name__)
-
 
 class EvaluationWithJudge(EvaluationBase):
     def __init__(
             self, 
-            model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
-            model_object: Any = None,
+            judge_model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
+            judge_model_object: Any = None,
             param_set_number: int = None,
             prompt: str = None,
             prompt_number: int = 1
         ):
+        self.logger = logging.getLogger(__name__)
         self.prompt_number = prompt_number
+        self.judge_model_name = judge_model_name
+        self.param_set_number = param_set_number
         try:
             if prompt is not None:
                 self.prompt = prompt
@@ -31,15 +32,16 @@ class EvaluationWithJudge(EvaluationBase):
                 with open(prompt_path, "r") as file:
                     self.prompt = file.read()
         except Exception as e:
-            logger.error(f"Failed to read prompt file: {e}")
+            self.logger.error(f"Failed to read prompt file: {e}")
 
-        if model_object is not None:
-            self.judge = model_object
+        if judge_model_object is not None:
+            self.judge = judge_model_object
 
         else:
+            self.logger.info(f"Initializing judge model: {self.judge_model_name}")
             self.judge = LLMJudge(
-                model_name=model_name,
-                param_set_number=param_set_number
+                model_name=self.judge_model_name,
+                param_set_number=self.param_set_number
             )
 
     def evaluate_single_answer(
@@ -59,7 +61,8 @@ class EvaluationWithJudge(EvaluationBase):
             self, 
             answers_df: pd.DataFrame, 
             key_dict: dict,
-            output_df: pd.DataFrame
+            output_df: pd.DataFrame,
+            dataset_category: str
         ):
         
         for index, row in answers_df.iterrows():
@@ -67,13 +70,16 @@ class EvaluationWithJudge(EvaluationBase):
             id_ = str(row["problem_id"])
 
             if id_ not in key_dict:
-                logger.info(f"ID {id_} not found in key file.")
+                self.logger.info(f"ID {id_} not found in key file.")
                 output_df.at[index, "score"] = "Problem id not found in key"
                 output_df.at[index, "key"] = "Key missing"
                 continue
 
-            left_rule, right_rule = key_dict[id_]
-            key = f"{left_rule} vs. {right_rule}"
+            if dataset_category == "BP":
+                left_rule, right_rule = key_dict[id_]
+                key = f"{left_rule} vs. {right_rule}"
+            else:
+                key = key_dict[id_]
 
             if answer is None or pd.isna(answer) or answer.strip() == "":
                 output_df.at[index, "score"] = "No answer provided"
@@ -97,6 +103,8 @@ class EvaluationWithJudge(EvaluationBase):
 
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
+        
+        self.judge.stop()
             
 
     def calculate_metrics(self, evaluated_df):

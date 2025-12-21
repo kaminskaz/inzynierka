@@ -49,8 +49,9 @@ class EnsembleBase(ABC):
         path_to_metadata = os.path.join(results_dir, "metadata.json")
 
         try:
-                results_df = pd.read_csv(path_to_csv)
-                results_df["problem_id"] = results_df["problem_id"].apply(lambda x: str(x).zfill(3))
+                results_df = pd.read_csv(path_to_csv, dtype={"problem_id": str}, encoding="utf-8")
+                num_digits = len(str(self.dataset_config.expected_num_samples))
+                results_df["problem_id"] = results_df["problem_id"].apply(lambda x: str(x).zfill(num_digits))
 
                 with open(path_to_metadata, "r", encoding="utf-8") as f:
                     metadata = json.load(f)

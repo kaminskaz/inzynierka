@@ -18,7 +18,6 @@ class StreamlitVisualiser:
     def load_data(self):
         try:
             self.df = pd.read_csv(self.csv_path, dtype={'problem_id': str})
-            self.df["problem_id"] = self.df["problem_id"].str.zfill(3)
         except Exception as e:
             st.error(f"Failed to load CSV: {e}")
             self.df = pd.DataFrame()

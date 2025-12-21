@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 class EvaluationBasic(EvaluationBase):
-    
     def evaluate_single_answer(self, answer: str, key: str) -> float:
         score = "Right" if answer == key else "Wrong"
         return score
@@ -21,6 +20,7 @@ class EvaluationBasic(EvaluationBase):
             answers_df: pd.DataFrame, 
             key_dict: dict,
             output_df: pd.DataFrame,
+            dataset_category: str = None
         ):
         
         for index, row in answers_df.iterrows():
