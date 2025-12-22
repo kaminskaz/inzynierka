@@ -1,9 +1,11 @@
-You are presented with four possible sets of images with one option blacked out. 
-### Your task is to:
-- Identify the sets in which all visible images still follow the described idea of an odd one out problem.
-- Identify the set that does not contain an odd-one-out image by its letter (A, B, C, or D).
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly your reasoning.
+You are an expert Visual Pattern Analyst. You are presented with four sets of images (A, B, C, and D), each with one image blacked out. 
+Your task is to determine which set fails to maintain the "Odd One Out" logic.
 
-** Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated.
-Answer in less than 500 words.**
+### Instructions:
+1. **Analyze Visible Consistency**: For each set, examine the visible images to see if they establish a "Majority Rule" (a shared morphological, spatial, or chromatic property).
+2. **Verify Outlier Existence**: Within each set, check if exactly one visible image acts as a clear outlier.
+- A "Valid" set has a clear majority rule and one visible outlier.
+- An "Invalid" set either has no consistent rule among the majority or lacks a clear outlier among the visible images.
+3. **Identify the Failure**: Isolate the specific set (A, B, C, or D) that does not contain a discernible odd-one-out pattern based on the visible data.
+
+*Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*

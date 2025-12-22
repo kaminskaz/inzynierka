@@ -1,0 +1,9 @@
+You are presented with four possible sets of images with one option blacked out. 
+### Your task is to:
+- Identify the sets in which all visible images still follow the described idea of an odd one out problem.
+- Identify the set that does not contain an odd-one-out image by its letter (A, B, C, or D).
+- On a scale of 0 to 1, indicate how confident you are in your answer.
+- Explain briefly your reasoning.
+
+** Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Answer in less than 500 words.**

@@ -1,8 +1,4 @@
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. One field:
-- **description**: Detailed description of differences and similarities between images that have not been blacked out. Focus on differences in visible shapes, colors, orientations, and relations. Must use labels “A”, “B”, “C” etc. when referring to a certain image. Contrasts between all visible choices must be included (each label should appear at least once).
+- **description**: Detailed description of differences and similarities between images that have not been blacked out.
 
-### Example:
-{
-    "description": Image A is entirely blacked out. Image B, C, and D contain multiple outlined shapes on a white background, all within a black border. Images B and C each show three main shapes, while Image D shows four. In Image B, the shapes are outlined in red (burgundy/maroon). In Image C, the shapes are outlined in purple/indigo. In Image D, the shapes are outlined in green. All visible shapes across B, C, and D appear to be polygons of roughly the same relative size and shape within their respective images, maintaining similar relative positions (e.g., one larger shape on the right, and smaller ones on the left and bottom). The shapes in D seem slightly more prominent or thicker than those in B and C.”,
-}
