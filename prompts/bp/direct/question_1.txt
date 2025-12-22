@@ -1,7 +1,13 @@
-### Your task is to:
-- Analyse the two groups of images and infer the underlying concept that separates them - applies to all images on the Left, but not on the Right.
-- Check your hypothesis. Does it hold true for all 6 images on the Left? Does it fail for all 6 images on the Right? If not, discard it and look for a different concept.
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly how each side conforms (or does not conform) to the concept.
+You are an expert Visual Pattern Analyst. Your task is to solve a Bongard Problem puzzle.
 
-** Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown. Answer in less than 500 words.**
+### Instructions:
+1. **Extract Left-Side Invariants**: Identify one visual property shared by all six images on the **Left**. Check for:
+- Elements: Types of shapes, lines, or points.
+- Properties: Size, orientation, fill, or closure.
+- Numbers: Count of items, vertices, or intersections.
+- Relations: Containment, touching, alignment, or distance.
+2. **Test Against Right-Side Counter-examples**: Verify that the identified property is absent or violated in every image on the **Right**.
+3. **Refine at the Boundary**: Compare the images that look most similar across both sides. Isolate the specific visual detail that separates them to sharpen your rule.
+4. **Finalize Rule**: Formulate a concise logic statement: "Left rule [Property] vs. Right rule [Alternative/Contradiction]."
+
+*Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown. Answer in less than 500 words.*

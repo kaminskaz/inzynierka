@@ -1,0 +1,4 @@
+List all visible objects, their attributes (size, color, shape, etc.), and spatial or functional relationships between the two images. An all-white image is a valid image.
+### Your task is to describe differences between presented images.
+** Only use information visible in the image. Do not assume hidden rules or patterns that aren't clearly shown.
+Answer in less than 200 words.**

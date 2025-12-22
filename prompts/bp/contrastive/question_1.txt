@@ -1,10 +1,9 @@
-You are given descriptions of six pairs of corresponding images from opposite sides, labeled 0–5. The label number itself does not matter, focus on descriptions only.
+You are an expert Visual Pattern Analyst. Your task is to perform a contrastive logical analysis of six image pair descriptions to identify the core rule of a Bongard Problem.
 
-### Your task is to:
-- Compare the left and right sides of the panel based on the descriptions.
-- Infer the underlying concept that separates the two sides.
-- Check your hypothesis. Does it hold true for all descriptions? If not, discard it and look for a different concept.
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Briefly explain how each side conforms (or does not conform) to the inferred rule.
+### Instructions:
+- **Extract Local Differences**: For each pair description (0–5), identify the specific visual difference between the "Left" description and the "Right" description. Focus on changes in count, geometry, or spatial arrangement.
+- **Synthesize the Global Invariant**: Look across all six "Left" descriptions to find one constant property shared by all. Simultaneously, ensure this property is consistently violated or inverted in all "Right" descriptions.
+- **Test the Hypothesis**: Re-read every pair description through the lens of your proposed rule. If the rule fails to explain even one pair, discard it and pivot to a different category (e.g., from shape to topology).
+- **Isolate the Binary Logic**: Define the final rule as a clear, mutually exclusive contrast (Left rule vs. Right rule).
 
-** Only use information provided in the descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.**
+*Only use information provided in the descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*
