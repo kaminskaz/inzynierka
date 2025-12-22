@@ -16,6 +16,7 @@ RESTART_PROBLEM_ID=${4:-""}
 RESTART_VERSION=${5:-""}
 PARAM_SET_NUMBER=${6:-"1"}
 PROMPT_NUMBER=${7:-"1"}
+FORCE_NEW_VERSION=${8:-"False"}
 
 echo "Dataset: $DATASET_NAME"
 echo "Strategy: $STRATEGY"
@@ -23,6 +24,9 @@ echo "Model: $MODEL_NAME"
 echo "Restart Problem ID: $RESTART_PROBLEM_ID"
 echo "Parameter Set Number: $PARAM_SET_NUMBER"
 echo "Prompt Number: $PROMPT_NUMBER"
+echo "Force New Version: $FORCE_NEW_VERSION"
+
+CURRENT_FORCE="$FORCE_NEW_VERSION"
 
 export PYTHONFAULTHANDLER=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
@@ -46,9 +50,12 @@ do
         --restart_problem_id "$RESTART_PROBLEM_ID" \
         --restart_version "$RESTART_VERSION" \
         --param_set_number "$PARAM_SET_NUMBER" \
-        --prompt_number "$PROMPT_NUMBER"
+        --prompt_number "$PROMPT_NUMBER" \
+        --force_new_version "$CURRENT_FORCE"
         
    status=$?
+
+   CURRENT_FORCE="False"
 
    if [ $status -eq 2 ]; then
       echo "Exit code 2 detected. Terminating loop - all problems processed."

@@ -46,7 +46,8 @@ def get_results_directory(
         strategy_name: str, 
         model_name: str, 
         version: Optional[str] = None,
-        create_dir: bool = True
+        create_dir: bool = True,
+        force_new_version: bool = False
     ) -> str:
         base_results_dir = "results"
         short_model_name = shorten_model_name(model_name)
@@ -65,6 +66,10 @@ def get_results_directory(
         if version == "latest":
             latest_ver = max(existing_versions) if existing_versions else 1
             path = os.path.join(prefix, f"ver{latest_ver}")
+
+        elif force_new_version:
+            new_version = max(existing_versions, default=0) + 1
+            path = os.path.join(prefix, f"ver{new_version}")
         
         elif version is not None and version != "":
             path = os.path.join(prefix, f"ver{version}")
