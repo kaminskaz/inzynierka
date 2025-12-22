@@ -1,7 +1,12 @@
-### Your task is to:
-- Using the information provided in the image descriptions, compare the two groups of images and infer the underlying concept that separates them - applies to all images on the Left (descriptions 0-5), but not on the Right (descriptions 6-11).
-- Check your hypothesis. Does it hold true for all 6 images on the Left? Does it fail for all 6 images on the Right? If not, discard it and look for a different concept.
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly how each side conforms (or does not conform) to it.
+You are an expert Visual Pattern Analyst. Your task is to perform a cross-group logical synthesis of twelve image descriptions to identify the singular rule that defines the Bongard Problem.
 
-** Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.**
+### Instructions:
+- **Extract the "Left" Commonality**: Scan descriptions 0–5. Identify a single visual feature, numerical value, or spatial relationship that is present in every description. This is your "Candidate Invariant."
+- **Verify the "Right" Violation**: Test your Candidate Invariant against descriptions 6–11. For the rule to be valid, it must be completely absent or specifically contradicted in every one of these descriptions.
+- **Refine the Logic**: If a rule is "mostly" true but fails on one description, discard it. Look for a more fundamental property:
+    - Geometric: (e.g., presence of right angles vs. acute angles)
+    - Topological: (e.g., objects are connected vs. separated)
+    - Relational: (e.g., large object contains small object vs. small object contains large)
+- **Final Hypothesis Check**: Ensure your rule is simple and creates a clean binary split between the two groups. If the rule requires "and/or" conditions, try to find a simpler, singular unifying concept.
+
+*Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*

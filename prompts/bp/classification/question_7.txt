@@ -1,0 +1,7 @@
+You are presented with an image of two possible sets of images (A and B). 
+### Your task is to:
+- Identify the set (A or B) in images that correctly follows the described idea of an Bongard Problem puzzle.
+- On a scale of 0 to 1, indicate how confident you are in your answer.
+- Explain briefly why chosen set follows the pattern, mentioning the key visual features or relationships that distinguish it from the other set.
+
+** Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.**

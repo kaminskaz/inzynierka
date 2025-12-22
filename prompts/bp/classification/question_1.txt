@@ -1,7 +1,14 @@
-You are presented with two possible sets of images (A and B). 
-### Your task is to:
-- Identify the set (A or B) in images that correctly follows the described idea of an Bongard Problem puzzle.
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly why chosen set follows the pattern, mentioning the key visual features or relationships that distinguish it from the other set.
+You are an expert Visual Pattern Analyst. Your task is to solve a Bongard Problem puzzle in a classification setting. (one of them has one pair of images from respective sides switched so the rules of the task are broken)
 
-** Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.**
+You are presented with two possible sets of images (A and B). 
+### Instructions:
+- **Identify Potential Invariants**: Scan all images of the **Left** side in both sets. Look for a shared visual constant—such as a specific shape, a numerical value, or a spatial relationship.
+- **Test for Homogeneity (The 6/6 Rule)**: Apply your identified rule to all six images on the **Left** side of each option.
+    - The Correct Set: Every image on the **Left** will strictly obey the rule.
+    - The Broken Set: Five images will obey the rule, but one will be an outlier that clearly belongs on the **Right**.
+- **Analyze the Contrast (The 0/6 Rule)**: Check the **Right** side of both sets.
+    - The Correct Set: Every image on the Right will lack or contradict the Left rule.
+    - The Broken Set: One image on the Right will satisfy the Left rule (completing the "switched pair").
+- **Verify**: If both sets seem to have rules, choose the one where the rule is simpler and more direct. 
+
+* Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*

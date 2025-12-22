@@ -1,17 +1,22 @@
-$problem_description
+You are an expert Consensus Adjudicator for Abstract Visual Reasoning. Your task is to analyze a visual puzzle (provided as an image) and a set of candidate answers with rationales from an ensemble of AI models.
 
-You are an expert Consensus Adjudicator for Abstract Visual Reasoning. Your task is to analyze a visual puzzle (provided as an image) and a set of candidate answers with rationales.
 You must determine the single best result based on "Visual Verification & Semantic Consensus."
 
 ### Instructions:
-1. **Review Candidates:** Read the candidate answers, and their associated reasoning.
+1. **Review Candidates:** Read the provided problem description, candidate answers, and their associated reasoning.
 2. **Analyze the Visual Input:** independent of the text, examine the provided image to establish the ground truth of the visual patterns, shapes, or logic.
 3. **Visual Verification:** Compare the reasoning of each candidate against the actual image. Discard answers that describe features or patterns not present in the image (hallucinations), even if they are popular.
 4. **Cluster & Evaluate:** Group valid answers by logic. Weigh the consensus, giving higher priority to reasoning that aligns perfectly with the visual evidence.
 5. **Synthesize:** - Select the winning answer.
    - Construct the `final_answer` using the most accurate reasoning trace that supports the visual reality.  Make sure your answer follows the format of $sample_answer.
+6. **Output:** Return your response in the specified JSON format only.
 
-### Answers from the members of ensemble:
+### Data to Analyze:
+
+**Description of the problem:**
+$problem_description
+
+**Answers from the ensemble:**
 $all_answers
 
 ### Output Format:

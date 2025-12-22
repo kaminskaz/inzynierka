@@ -1,4 +1,3 @@
-You are presented with a Bongard Problem consisting of twelve framed images arranged in two distinct sets: six images on the Left and six images on the Right.
-There is a specific, precise visual rule or property that is true for every single image on the Left, but is false for every single image on the Right. 
-The rule is never based on the order of the images within one side, only on their visual content.
-The goal is to discover the underlying rule that distinguishes the two sides by analyzing patterns, relationships, and visual features such as shape, color, arrangement, or number. 
+A classic Bongard Problem consists of twelve framed images arranged in two sets: **Left** and **Right** (six images on each side).
+The six images on the **Left** all satisfy a specific, common property, while the six images on the **Right** serve as counter-examples that specifically lack or contradict that property.
+The property is never based on the order of the images within one side, only on their visual content: patterns, relationships, and visual features such as shape, color, arrangement, or number.
