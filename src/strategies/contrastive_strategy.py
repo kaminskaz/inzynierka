@@ -89,11 +89,11 @@ class ContrastiveStrategy(StrategyBase):
 
         else:  # 'standard' category
             response_schema = ResponseSchema
-            choice_panel_input = self.get_choice_panel(problem_id)
+            question_image_input = self.get_question_image(problem_id)
 
             contents_to_send_descriptions = [
                 TextContent(descriptions_prompt),
-                ImageContent(choice_panel_input),
+                ImageContent(question_image_input),
             ]
 
             description_response = self.model.ask(
@@ -102,12 +102,12 @@ class ContrastiveStrategy(StrategyBase):
 
             desc_text = get_field(description_response, 'description', None)
             if desc_text:
-                problem_descriptions_dict["choice_panel"] = desc_text
+                problem_descriptions_dict["question_image"] = desc_text
                 all_descriptions_text = desc_text
             else:
                 all_descriptions_text = ""
 
-            prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}\n{self.example_prompt}"
+            prompt = f"{main_prompt}\nDescription of question image:\n{all_descriptions_text}\n{self.example_prompt}"
             choice_panel_input = self.get_choice_panel(problem_id)
 
             if choice_panel_input is None:
