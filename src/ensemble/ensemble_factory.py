@@ -9,6 +9,7 @@ from src.ensemble.majority_ensemble import MajorityEnsemble
 from src.ensemble.confidence_ensemble import ConfidenceEnsemble
 from src.ensemble.reasoning_ensemble import ReasoningEnsemble
 from src.ensemble.reasoning_ensemble_with_image import ReasoningEnsembleWithImage
+from src.models.llm_judge import LLMJudge
 
 class EnsembleFactory:
     """
@@ -31,7 +32,13 @@ class EnsembleFactory:
 
 
     def create_ensemble(
-        self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, judge_model: Optional[Any] = None, type_name: str = "majority", prompt_number: int = 1
+        self, 
+        dataset_name: str, 
+        members_configuration: List[List[str]], 
+        skip_missing: bool = True, 
+        judge_model: Optional[LLMJudge] = None, 
+        type_name: str = "majority", 
+        prompt_number: int = 1
     ) -> EnsembleBase:
         """
         Method to create, configure, and return an ensemble instance.
@@ -41,7 +48,7 @@ class EnsembleFactory:
             dataset_name (str): The name of the dataset.
             members_configuration (List[List[str]]): Configuration of ensemble members. (strategy, model, version)
             skip_missing (bool): Whether to run missing experiments.
-            judge_model (Optional[Any]): The instantiated judge model object (e.g., LLM, VLLM).
+            judge_model (Optional[LLMJudge]): The instantiated judge model object (e.g., LLM, VLLM).
         """
         self.logger.info(
             f"Attempting to create ensemble for dataset: '{dataset_name}' using members: '{members_configuration}'"

@@ -130,13 +130,15 @@ class StrategyBase(ABC):
                     all_descriptions_data[problem_id] = problem_descriptions
                     self.save_descriptions_to_json(self.descriptions_path, all_descriptions_data)
 
-                problem_id_str = str(problem_id).zfill(3)
+                num_digits = len(str(self.config.expected_num_samples))
+                problem_id_str = str(problem_id).zfill(num_digits)
 
                 result = {
                     "problem_id": problem_id_str,
                     "answer": get_field(response, "answer", "") if response else "",
                     "confidence": get_field(response, "confidence", "") if response else "",
                     "rationale": get_field(response, "rationale", "") if response else "",
+                    "raw_response": response if response else "Response is None",
                 }
 
                 results.append(result)
@@ -235,7 +237,7 @@ class StrategyBase(ABC):
         output_path = os.path.join(self.results_dir, "results.csv")
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-        fieldnames = ["problem_id", "answer", "confidence", "rationale"]
+        fieldnames = ["problem_id", "answer", "confidence", "rationale", "raw_response"]
 
         with open(output_path, mode="w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
