@@ -74,7 +74,8 @@ class StrategyBase(ABC):
 
     def run(self, restart_problem_id: str = "") -> None:
         """
-        Main execution loop with robust handling for empty results or missing files.
+        Main execution loop with robust handling for empty results, 
+        missing files, and persistent descriptions.
         """
         results = []
         all_descriptions_data = {}
@@ -89,23 +90,31 @@ class StrategyBase(ABC):
         output_path = os.path.join(self.results_dir, "results.csv")
         if os.path.exists(output_path):
             raw_results = self._load_existing_results(output_path)
-
             unique_results_map = {
                 r['problem_id']: r 
                 for r in raw_results 
                 if r.get('problem_id') is not None
             }
             results = list(unique_results_map.values())
-            
             self.logger.info(f"Loaded {len(results)} unique results from existing CSV.")
 
-            if len(results) >= self.config.expected_num_samples:
-                self.logger.info(
-                    f"Dataset {self.dataset_name} is already fully processed "
-                    f"({len(results)}/{self.config.expected_num_samples}). Exiting pipeline."
-                )
-                self.model.stop()
-                sys.exit(2)
+        descriptions_path = os.path.join(self.results_dir, "descriptions.json")
+        if self.descriptions_path and os.path.exists(descriptions_path):
+            try:
+                with open(self.descriptions_path, 'r', encoding='utf-8') as f:
+                    all_descriptions_data = json.load(f)
+                self.logger.info(f"Loaded {len(all_descriptions_data)} existing descriptions from JSON.")
+            except Exception as e:
+                self.logger.warning(f"Failed to load existing descriptions: {e}. Starting fresh.")
+                all_descriptions_data = {}
+
+        if len(results) >= self.config.expected_num_samples:
+            self.logger.info(
+                f"Dataset {self.dataset_name} is already fully processed "
+                f"({len(results)}/{self.config.expected_num_samples}). Exiting pipeline."
+            )
+            self.model.stop()
+            sys.exit(2)
 
         entries = [e for e in os.scandir(self.dataset_dir) if e.is_dir()]
         entries.sort(key=lambda entry: entry.name)
@@ -113,9 +122,12 @@ class StrategyBase(ABC):
         processed_ids = {r['problem_id'] for r in results if 'problem_id' in r}
 
         if restart_problem_id:
-            self.logger.info(f"Restarting from problem ID: {restart_problem_id}")
+            self.logger.info(f"Manual restart requested from problem ID: {restart_problem_id}")
             entries = [e for e in entries if e.name >= restart_problem_id]
             results = [r for r in results if r.get('problem_id', '') < restart_problem_id]
+            all_descriptions_data = {
+                k: v for k, v in all_descriptions_data.items() if k < restart_problem_id
+            }
         elif processed_ids:
             last_id = max(processed_ids)
             entries = [e for e in entries if e.name > last_id]
