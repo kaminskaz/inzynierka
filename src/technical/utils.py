@@ -62,14 +62,14 @@ def get_results_directory(
                         existing_versions.append(ver_num)
                     except ValueError:
                         continue
-
-        if version == "latest":
-            latest_ver = max(existing_versions) if existing_versions else 1
-            path = os.path.join(prefix, f"ver{latest_ver}")
-
-        elif force_new_version:
+                    
+        if force_new_version:
             new_version = max(existing_versions, default=0) + 1
             path = os.path.join(prefix, f"ver{new_version}")
+
+        elif version == "latest":
+            latest_ver = max(existing_versions) if existing_versions else 1
+            path = os.path.join(prefix, f"ver{latest_ver}")
         
         elif version is not None and version != "":
             path = os.path.join(prefix, f"ver{version}")
