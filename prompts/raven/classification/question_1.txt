@@ -1,9 +1,11 @@
-You are given eight fully filled 3×3 image grids, each representing a candidate solution to the described puzzle.
+You are an expert Visual Pattern Analyst. You will be presented with eight candidate 3×3 grids (A–H). Each grid is a potential solution to a RAVEN-style puzzle where the bottom-right cell has already been filled. Your task is to identify which candidate represents a logically perfect matrix.
 
-### Your task is to:
-- Compare the grids and identify the one (from A to H) that correctly follows the visual pattern or rule governing the arrangement.
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly why the selected grid follows the pattern, and why the others do not.
+### Instructions:
+1. **Row-Wise Validation**: For each candidate (A–H), test if the bottom row follows an established horizontal rule.
+2. **Column-Wise Validation**: For each candidate, test if the third column follows an established vertical rule.
+3. **Anomaly Detection**: Look for "distractor" patterns—candidates that satisfy the row rule but violate the column rule (or vice versa).
+4. **Comparative Elimination**: Systematically eliminate candidates that contain a logical break.
+5. **Final Selection**: State the letter (A-H) of the only candidate where the 3x3 grid is 100% consistent both horizontally and vertically.
 
-** Only use information visible in the images. Do not assume hidden rules or patterns that are not explicitly shown.
-Answer in less than 500 words.**
+*Only use information visible in the images. Do not assume hidden rules or patterns that are not explicitly shown.
+Answer in less than 500 words.*

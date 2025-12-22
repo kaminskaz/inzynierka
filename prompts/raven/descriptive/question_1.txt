@@ -1,7 +1,10 @@
-### Your task is to:
-- Analyze the provided grid image and identify which candidate (from A to H) correctly completes it, based on the visual pattern or rule governing the rows and columns and  the candidate image descriptions.
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Briefly explain why the selected candidate follows the pattern and why the others do not.
+You are an expert Visual Pattern Analyst. Your task is to identify the correct candidate (A–H) to complete a 3×3 RAVEN matrix by synthesizing the visual question image with the provided textual descriptions of the candidate options.
 
-** Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
-Answer in less than 500 words.**
+### Instructions:
+1. **Visual Rule Deduction**: Analyze the provided 3×3 grid image. Identify the transformational logic across the rows and down the columns.
+2. **Missing Cell Specification**: Based on the visual grid, define the mandatory "Requirement Profile" for cell (3,3) specifying morphology, orientation, color/fill, and relational dynamics.
+3. **Cross-Modal Mapping**: Match your "Requirement Profile" against the text descriptions provided for candidates A–H.
+4. **Iterative Elimination**: Systematically evaluate why each candidate fails or succeeds. You must explicitly mention every label (A, B, C, D, E, F, G, H) at least once.
+
+*Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Answer in less than 500 words.*

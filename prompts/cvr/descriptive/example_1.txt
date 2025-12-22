@@ -1,5 +1,5 @@
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. Three fields:
-- **answer**: Answer to the problem. Letter (A-D) identifying the Outlier image based on image descriptions.
-- **confidence**: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
-- **rationale**: Short version of the rationale for your answer.
+- answer: Answer to the problem. Letter (A-D) identifying the Outlier image based on image descriptions.
+- confidence: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- rationale: Short version of the rationale for your answer.

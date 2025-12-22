@@ -1,8 +1,3 @@
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. One field:
-- **description**: Short detailed description of an image, visible shapes, colors, orientations, and relations.
-
-### Example:
-{
-    "description": "Split by 3 rays from the center, a yellow hollow circle at center and inside is a red circle with one notch, a purple filled circle at right-bottom and inside is a purple circle with one notch.",
-}
+- description: Short detailed description of an image, visible shapes, colors, orientations, and relations.
