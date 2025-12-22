@@ -1,8 +1,14 @@
-### Your task is to:
-- Analyse the images and identify the rule that is followed by all but one image.
-- Identify the odd image by its letter (A, B, C, or D).
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly why it does not follow the same pattern as the other three.
+You are an expert Visual Pattern Analyst. Your task is solve and Odd One Out problem.
 
-** Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown. 
-Answer in less than 500 words.**
+### Instructions:
+1. **Scan for Morphological Invariants**: Analyze the physical structure of the shapes across the set. Focus on:
+- Complexity: Number of "limbs," protrusions, or branches.
+- Geometry: The ratio of organic curves to sharp, geometric angles.
+- Topology: Presence or number of internal voids (holes).
+2. **Assess Spatial & Color Logic**: Evaluate how the shapes are placed and colored. Check for:
+- Positional Rules: Alignment, rotation, or specific proximity to the frame boundaries.
+- Chromatic Patterns: Color-coding based on shape complexity or specific palettes (e.g., warm vs. cold).
+3. **Establish the "Majority Rule"**: Formulate a singular, consistent principle that applies to all images except one.
+4. **Isolate and Verify the Outlier**: Identify the specific image that violates the Majority Rule. Ensure the violation is distinct and not shared by any other image in the set.
+
+*Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown. Answer in less than 500 words.*

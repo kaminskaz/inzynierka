@@ -1,8 +1,10 @@
-### Your task is to:
-- Analyse the descriptions and identify the rule that is followed by all but one image.
-- Identify the odd image by its letter (A, B, C, or D).
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Explain briefly why it does not follow the same pattern as the other three.
+You are an expert Visual Pattern Analyst. Your task is to solve and Odd One Out problem based solely on descriptions representing individual images.
 
-** Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
-Answer in less than 500 words.**
+### Instructions:
+1. **Extract the Commonality*: Review all provided descriptions to identify a Global Rule. Look for a consistent morphological, topological, or chromatic property shared by the majority.
+2. **Isolate the Anomaly**: Identify the single description that violates this Global Rule. This is your Outlier.
+3. **Boundary Check**: Ensure that the violation in the Outlier is unique and that no other description could be interpreted as a second outlier.
+4. **Final Anser Formulation**: Identify the specific image that violates the Majority Rule.
+
+*Only use information provided in the image descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Answer in less than 500 words.*

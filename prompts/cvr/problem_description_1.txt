@@ -1,2 +1,3 @@
-This puzzle is an odd one out problem. The goal is to identify which element doesn’t fit a shared visual rule. Most items follow the same pattern or relationship (in shape, color, size, position, orientation etc.), while one item violates that rule. 
-The task is to infer the underlying pattern and find the element that breaks it.
+A standard Odd One Out problem consists of a single set of images, typically arranged in a uniform grid or sequence.
+While most of the images in the set are bound by a singular, consistent visual logic, one specific image acts as the "Outlier" by subtly violating that shared principle. 
+The objective is to isolate this element by deducing the commonality that defines the majority.

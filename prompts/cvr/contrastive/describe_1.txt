@@ -1,4 +1,11 @@
-### Your task is to describe differences and compare the three presented images.
-Focus on differences in visible objects, their attributes (size, color, shape, etc.), and spatial or functional relationships between them.
-** Only use information visible in the image. Do not assume hidden rules or patterns that aren't clearly shown.
-Answer in less than 200 words.**
+Your task is to perform a rigorous contrastive analysis of the provided images (not blacked-out) to identify the "Odd One Out" based solely on visible discrepancies.
+
+### Instructions:
+1. **Structural Divergence**: Compare the morphology of the primary shapes. Identify which image deviates in vertex count, limb protrusion, or the "organic vs. geometric" nature of the forms.
+2. **Topological & Relational Variance**: Contrast the connectivity of elements. Note differences in internal voids (holes) or whether components are unified (single mass) versus fragmented (clusters).
+3. **Chromatic Shifts**: Explicitly state which image contains a unique color or shading pattern not shared by the others.
+4. **Spatial & Rotational Conflict**: Compare the orientation and positioning. Identify if one image’s elements point in a different direction or occupy a different relative frame area than the others.
+5. **Direct Mapping**: You must use labels A, B, C or D to highlight specific differences. Every label must appear at least once to ensure a complete contrastive audit.
+
+*Only use information visible in the image. Do not assume hidden rules or patterns that aren't clearly shown.
+Answer in less than 200 words.*
