@@ -1,0 +1,27 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. One field:
+- **description**: Detailed description of contrasts of the different choice images, focusing on differences in visible shapes, colors, orientations, and relations. Must use labels “A”, “B”, “C” etc. when referring to a certain image. Contrasts between all choices must be included (each label should appear at least once).
+
+### Example:
+{
+    "description": "Contrasts and Differences ### The images can be contrasted based on several key features:
+**Number of Internal Shapes**:
+- Single Shape: Images A, B, C, D, F, and H all contain only one small shape inside the triangle.
+- Multiple Shapes: Image E contains three shapes, and image G contains four shapes. This sharply contrasts E and G with all other images.
+**Type of Internal Shape(s) (in Single-Shape Images)**:
+- Square: Images A, D, and F feature a square.
+- Triangle: Image B features a triangle.
+- Hexagon: Image C features a hexagon.
+- Circle: Image H features a circle.
+      -     ** Color/Fill of Internal Shape(s)**:
+- Black/Solid Fill: Images A, B, C, D, F, and H feature solid black shapes.
+- Gray/Multiple Colors: Images E and G feature shapes with varying shades of gray (dark gray, light gray) and, in the case of E, a white/unfilled triangle.
+**Location/Position of the Single Internal Shape**:
+- Near Top: Images B, D, and H place their single shape near the top of the large triangle.
+- Near Lower-Left: Images A and C place their single shape near the lower-left area.
+- Near Center-Right: Image F places its single shape toward the center-right.
+**Complexity/Variety**:
+- Images A, B, C, D, F, and H are the simplest, each featuring only one black shape. They differ primarily in the shape type (square vs. triangle vs. hexagon vs. circle) and position. For example, A (square, lower-left) contrasts with D (square, top) and F (square, center-right) based on position, and with B (triangle) or C (hexagon) based on shape.
+- Images E and G are the most complex. E contrasts with G by having fewer shapes (3 vs 4) and including a white/unfilled triangle, while G features only filled, non-triangular shapes (hexagons, pentagons, squares).
+",
+}

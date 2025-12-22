@@ -75,11 +75,11 @@ class DescriptiveStrategy(StrategyBase):
         if self.config.category == "BP" or self.config.category == "choice_only":
             contents_to_send = [TextContent(prompt)]
         else:
-            image_input = self.get_question_panel(problem_id)
+            image_input = self.get_question_image(problem_id)
             prompt = f"{prompt}\n{self.example_prompt}"
             if image_input is None:
                 self.logger.error(
-                    f"Could not get question panel for problem {problem_id}. Skipping image content."
+                    f"Could not get question image for problem {problem_id}. Skipping image content."
                 )
                 contents_to_send = [TextContent(prompt)]
             else:

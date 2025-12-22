@@ -1,8 +1,11 @@
-### Your task is to:
-- Analyze the provided images of all candidate options (from A to H) together with the text description of the grid panel.
-- Identify which candidate image correctly completes the grid according to the visual pattern or rule described in the text.
-- On a scale of 0 to 1, indicate how confident you are in your answer.
-- Briefly explain why the selected candidate follows the described pattern and why the others do not.
+You are an expert Visual Pattern Analyst. Your task is to synthesize the provided textual description of the 3×3 grid with the visual candidate options (A–H) to identify the correct solution.
 
-** Only use information visible in the candidate images and provided in the grid description. Do not infer any hidden rules, patterns, or details not explicitly stated.
-Answer in less than 500 words.**
+### Instructions:
+1. **Requirement Extraction**: Extract the "Missing Cell Specification" from the provided text. List the mandatory attributes (morphology, orientation, chromatic properties, and relational dynamics) required for the blank (3,3) cell.
+2. **Visual Validation**: Compare the specified "Relational Dynamics" (nesting, overlapping, or spatial alignment shifts) against the actual visual structure of options A–H.
+3. **Contrastive Elimination**: Systematically evaluate each candidate. State the specific attribute or relational failure that disqualifies a candidate. Use the labels A–H for every comparison.
+4. **Convergence Check**: Ensure the chosen candidate not only matches the "Missing Cell Specification" but also completes the "Horizontal and Vertical Deltas" described in the grid analysis.
+5. **Final Selection**: Identify the single letter that represents a 100% match to the textual requirements and the visual logic.
+
+*Only use information visible in the candidate images and provided in the grid description. Do not infer any hidden rules, patterns, or details not explicitly stated.
+Answer in less than 500 words.*

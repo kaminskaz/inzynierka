@@ -1,4 +1,4 @@
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. One field:
-- **description**: Detailed description of differences and similarities between images that have not been blacked out.
+- description: Detailed description of differences and similarities between images that have not been blacked out.
 

@@ -1,3 +1,3 @@
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. One field:
-- **description**: Short detailed description of an image, visible shapes, colors, orientations, and relations.
+- description: Short detailed description of an image, visible shapes, colors, orientations, and relations.

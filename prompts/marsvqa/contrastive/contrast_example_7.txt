@@ -1,0 +1,34 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. One field:
+- **description**: Detailed description of contrasts of the different choice images, focusing on differences in visible shapes, colors, orientations, and relations. Must use labels “A”, “B”, “C” etc. when referring to a certain image. Contrasts between all choices must be included (each label should appear at least once).
+
+### Example:
+{
+    "description": "Contrasts and Differences
+### The images can be contrasted based on several key features:
+** Presence of Shapes and Colors**:
+- Triangle: Images A and D are the only ones containing a triangle (both are Red). Images B and C do not contain any triangles.
+- Dark Green Shapes: Images A and B contain Dark Green shapes (Square in A; Star and Square in B). Images C and D contain no Dark Green shapes.
+- Red Shapes: Images A, C, and D contain Red shapes. Image B is the only one with no Red shapes.
+- Blue Shapes: Images B, C, and D contain Blue shapes. Image A is the only one with no Blue shapes.
+**Star Shape Differences**:
+- Images A and D each contain only one single-colored star (Red in A, Blue in D).
+- Image B is unique because its star is Dark Green.
+- Image C is unique because it contains two stars (one Red, one Blue) and is the only image with two shapes of the same type.
+**Compositional Contrasts**:
+- A vs. B: A has Red/Dark Green shapes and a Triangle, but no Blue shapes. B has Blue/Dark Green shapes and no Triangle.
+- A vs. C: A has a Triangle and a Dark Green shape, but no Blue shapes. C has no Triangle or Dark Green shapes, but has two Blue shapes.
+- A vs. D: Both have a Red star, a Red triangle, and a single square. A's square is Dark Green, while D's square is Blue. A has no Blue shapes, while D has two Blue shapes.
+- B vs. C: B has Dark Green shapes and no Red shapes. C has Red shapes and no Dark Green shapes. B has a square as its only Blue shape, while C has two Blue shapes (Star and Square).
+- B vs. D: B has Dark Green shapes and no Red shapes/Triangles. D has Red shapes/Triangles and no Dark Green shapes. Both have Blue squares.
+- C vs. D: C is the only image with two stars, and the only image where a shape type is represented by two colors (Red and Blue stars). D is the only image with a Red triangle and a Blue star/square combination. Both contain no Dark Green shapes and two Blue shapes.
+
+**Relative Position**:
+The shapes' relative positions are generally consistent across the images, with one shape centered at the top and two shapes positioned below it, forming an approximately inverted triangle:
+- The top shape is always a star (A, B, C) or a square (D).
+- In A, the Red star is at the top.
+- In B, the Blue square is at the top.
+- In C, the Red star is at the top.
+- In D, the Blue square is at the top.
+- The two bottom shapes are always a combination of the other two shapes/colors.”,
+}
