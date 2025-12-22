@@ -105,6 +105,7 @@ def run_single_experiment(
         restart_version: Optional[str] = None,
         param_set_number: Optional[int] = None,
         prompt_number: Optional[int]=1,
+        force_new_version: Optional[bool]=False
     ) -> None:
     """
     Initializes and runs a single experiment strategy.
@@ -121,7 +122,8 @@ def run_single_experiment(
             strategy_name=strategy_name, 
             model_name=model_name, 
             version=target_version, 
-            create_dir=True
+            create_dir=True,
+            force_new_version = force_new_version
         )
 
         strategy_factory = StrategyFactory()
@@ -166,6 +168,7 @@ if __name__ == "__main__":
     parser.add_argument('--restart_version', type=str, default=None, help='Version of the model-strategy-dataset combination to be restarted (if applicable)')
     parser.add_argument('--param_set_number', type=int, default=1, help='Parameter set number to use for the experiment (if applicable)')
     parser.add_argument('--prompt_number', type=int, default=1, help='Prompt number to use')
+    parser.add_argument('--force_new_version', type=bool, defualt=False, help='Force a new version to be created in each run.')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
@@ -191,5 +194,6 @@ if __name__ == "__main__":
         restart_problem_id=args.restart_problem_id,
         restart_version = args.restart_version,
         param_set_number = args.param_set_number,
-        prompt_number= args.prompt_number
+        prompt_number= args.prompt_number,
+        force_new_version= args.force_new_version
         )
