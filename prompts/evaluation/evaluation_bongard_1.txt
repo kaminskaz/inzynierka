@@ -10,44 +10,62 @@ A Bongard Problem consists of two sets of images (Left and Right). The goal is t
 4. Somewhat wrong: The user identified the correct category of the problem (e.g., counting, orientation, topology) but applied the specific rule incorrectly (e.g., counting corners instead of sides, or up/down instead of left/right).
 5. Wrong: The answer uses completely different logic than the key (e.g., the key is about Shape, but the answer is about Texture).
 
+### OUTPUT FORMAT
+You must output valid JSON. Do not add markdown or conversational text. The JSON must contain exactly two fields:
+- reasoning: Explain your reasoning here. Which answers grouped together? Why did this group constitute the best answer? Explain the logic used to reach the consensus.,
+- similarity_label: Similarity label based on the scoring rubric.
+
 ### EXAMPLES
 
 Input Answer: "Outlined shapes vs. Solid shapes"
 Key Answer: "Filled vs. Empty"
-Reasoning: These are synonyms describing the exact same visual property, the answer is correct but the order is switched.
-Similarity Label: Right
+Output:
+{
+    "reasoning": "These are synonyms describing the same visual property; the answer is correct but phrased differently.",
+    "similarity_label": "Right"
+}
 
 Input Answer: "Polygons vs. Round things"
 Key Answer: "Straight lines vs. Curved lines"
-Reasoning: The user identified the correct visual distinction but used narrower terminology (polygons/round) instead of the fundamental property (straight/curved).
-Similarity Label: Somewhat right
+Output:
+{
+    "reasoning": "The user identified the correct visual distinction but used narrower terminology (polygons/round) instead of the fundamental property (straight/curved).",
+    "similarity_label": "Somewhat right"
+}
 
 Input Answer: "3 sides vs. 4 sides"
 Key Answer: "Triangles vs. Quadrilaterals"
-Reasoning: These are mathematically equivalent definitions.
-Similarity Label: Right
+Output:
+{
+    "reasoning": "These are mathematically equivalent definitions.",
+    "similarity_label": "Right"
+}
 
 Input Answer: "One object vs. Many objects"
 Key Answer: "Connected shapes vs. Disconnected shapes"
-Reasoning: The user noticed a difference in complexity or density, but missed the topological rule (connectivity) required by the key. However, the observation is visually related.
-Similarity Label: Somewhat wrong
+Output:
+{
+    "reasoning": "The user noticed a difference in complexity or density, but missed the topological rule (connectivity) required by the key. However, the observation is visually related.",
+    "similarity_label": "Somewhat wrong"
+}
 
 Input Answer: "Chaos vs. Order"
 Key Answer: "Asymmetrical vs. Symmetrical"
-Reasoning: The answer is too subjective and vague to be considered a valid geometric rule, even if "Order" implies symmetry.
-Similarity Label: Unclear
+Output:
+{
+    "reasoning": "The answer is too subjective and vague to match the geometric rule, even if 'Order' implies symmetry.",
+    "similarity_label": "Unclear"
+}
 
 Input Answer: "Black vs. White"
 Key Answer: "Circles vs. Squares"
-Reasoning: The user guessed a texture/color rule, but the key is a shape rule. There is no overlap in logic.
-Similarity Label: Wrong
+Output:
+{
+    "reasoning": "The user focused on color, but the key is about shape; there is no logical overlap.",
+    "similarity_label": "Wrong"
+}
 
 ### CURRENT EVALUATION
 
 Evaluate the following input based on the rubric and examples above.
 Provide your reasoning and the final evaluation label.
-
-### Output Format:
-You must output valid JSON. Do not add markdown or conversational text. The JSON must contain exactly two fields:
-- reasoning: Explain your reasoning here. Which answers grouped together? Why did this group constitute the best answer? Explain the logic used to reach the consensus.,
-- similarity_label: Similarity label based on the scoring rubric.
