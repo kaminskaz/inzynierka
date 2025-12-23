@@ -4,9 +4,9 @@ You are an expert Visual Pattern Analyst. Your task is to perform a cross-group 
 1. **Extract the "Left" Commonality**: Scan descriptions 0–5. Identify a single visual feature, numerical value, or spatial relationship that is present in every description. This is your "Candidate Invariant."
 2. **Verify the "Right" Violation**: Test your Candidate Invariant against descriptions 6–11. For the rule to be valid, it must be completely absent or specifically contradicted in every one of these descriptions.
 3. **Refine the Logic**: If a rule is "mostly" true but fails on one description, discard it. Look for a more fundamental property:
-    - Geometric: (e.g., presence of right angles vs. acute angles)
-    - Topological: (e.g., objects are connected vs. separated)
-    - Relational: (e.g., large object contains small object vs. small object contains large)
+- Geometric: (e.g., presence of right angles vs. acute angles)
+- Topological: (e.g., objects are connected vs. separated)
+- Relational: (e.g., large object contains small object vs. small object contains large)
 4. **Final Hypothesis Check**: Ensure your rule is simple and creates a clean binary split between the two groups. If the rule requires "and/or" conditions, try to find a simpler, singular unifying concept.
 
 *Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*

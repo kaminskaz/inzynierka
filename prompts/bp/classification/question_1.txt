@@ -2,13 +2,13 @@ You are an expert Visual Pattern Analyst. Your task is to solve a Bongard Proble
 
 You are presented with two possible sets of images (A and B). 
 ### Instructions:
-- **Identify Potential Invariants**: Scan all images of the **Left** side in both sets. Look for a shared visual constant—such as a specific shape, a numerical value, or a spatial relationship.
-- **Test for Homogeneity (The 6/6 Rule)**: Apply your identified rule to all six images on the **Left** side of each option.
-    - The Correct Set: Every image on the **Left** will strictly obey the rule.
-    - The Broken Set: Five images will obey the rule, but one will be an outlier that clearly belongs on the **Right**.
-- **Analyze the Contrast (The 0/6 Rule)**: Check the **Right** side of both sets.
-    - The Correct Set: Every image on the Right will lack or contradict the Left rule.
-    - The Broken Set: One image on the Right will satisfy the Left rule (completing the "switched pair").
-- **Verify**: If both sets seem to have rules, choose the one where the rule is simpler and more direct. 
+1. **Identify Potential Invariants**: Scan all images of the **Left** side in both sets. Look for a shared visual constant—such as a specific shape, a numerical value, or a spatial relationship.
+2. **Test for Homogeneity (The 6/6 Rule)**: Apply your identified rule to all six images on the **Left** side of each option.
+- The Correct Set: Every image on the **Left** will strictly obey the rule.
+- The Broken Set: Five images will obey the rule, but one will be an outlier that clearly belongs on the **Right**.
+3. **Analyze the Contrast (The 0/6 Rule)**: Check the **Right** side of both sets.
+- The Correct Set: Every image on the Right will lack or contradict the Left rule.
+- The Broken Set: One image on the Right will satisfy the Left rule (completing the "switched pair").
+4. **Verify**: If both sets seem to have rules, choose the one where the rule is simpler and more direct. 
 
 * Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*
