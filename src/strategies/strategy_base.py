@@ -181,35 +181,35 @@ class StrategyBase(ABC):
         self.logger.info(f"Run completed for {self.dataset_name}.")
 
     def get_prompt(self, prompt_type: str) -> str:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        repo_root = os.path.dirname(os.path.dirname(current_dir))
+
+        if prompt_type.startswith(("problem_description", "sample_answer")):
+            prompt_path = os.path.join(
+                repo_root, "prompts", self.dataset_name, f"{prompt_type}.txt"
+            )
+        else:
+            prompt_path = os.path.join(
+                repo_root,
+                "prompts",
+                self.dataset_name,
+                self.strategy_name,
+                f"{prompt_type}.txt",
+            )
+
+        if not os.path.exists(prompt_path):
+            error_msg = f"Prompt file not found: {prompt_path}. Check if prompt type is correct (with prompt number)."
+            raise ValueError(error_msg)
+
         try:
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            repo_root = os.path.dirname(os.path.dirname(current_dir))
-
-            if prompt_type.startswith(("problem_description", "sample_answer")):
-                prompt_path = os.path.join(
-                    repo_root, "prompts", self.dataset_name, f"{prompt_type}.txt"
-                )
-            else:
-                prompt_path = os.path.join(
-                    repo_root,
-                    "prompts",
-                    self.dataset_name,
-                    self.strategy_name,
-                    f"{prompt_type}.txt",
-                )
-            
-            if not os.path.exists(prompt_path):
-                self.logger.warning(f"Prompt file not found: {prompt_path}")
-                return ""
-
             with open(prompt_path, "r", encoding="utf-8") as f:
-                prompt = f.read()
-            return prompt
-
-        except Exception as e:
-            self.logger.exception(f"Error reading prompt: {e}")
-            return ""
-
+                return f.read()
+                
+        except (OSError, IOError) as e:
+            error_msg = f"Error reading prompt file at {prompt_path}: {e}. Check if prompt type is correct (with prompt number)."
+            self.logger.exception(error_msg)
+            raise ValueError(error_msg) from e
+        
     def save_metadata(self, question_prompt: str, problem_description_prompt: str, 
                       sample_answer_prompt: Optional[str] = None, 
                       describe_prompt: Optional[str] = None) -> None:

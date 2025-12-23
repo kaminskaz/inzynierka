@@ -195,7 +195,7 @@ class EnsembleBase(ABC):
         prompt_path = os.path.join("prompts", "ensemble", f"ensemble_{self.type_name}_{prompt_number}.txt")
         
         if not os.path.exists(prompt_path):
-            self.logger.warning(f"Prompt file not found: {prompt_path}")
-            return ""
+            error_msg = f"Prompt file not found: {prompt_path}. Check if prompt type is correct (with prompt number)."
+            raise ValueError(error_msg)
 
         return prompt_path

@@ -24,15 +24,22 @@ class EvaluationWithJudge(EvaluationBase):
         self.prompt_number = prompt_number
         self.judge_model_name = judge_model_name
         self.param_set_number = param_set_number
-        try:
-            if prompt is not None:
-                self.prompt = prompt
-            else:
-                prompt_path = os.path.join("prompts", "evaluation", f"evaluation_bongard_{self.prompt_number}.txt")
+
+        if prompt is not None:
+            self.prompt = prompt
+        else:
+            prompt_path = os.path.join("prompts", "evaluation", f"evaluation_bongard_{self.prompt_number}.txt")
+            if not os.path.exists(prompt_path):
+                error_msg = f"Prompt file not found: {prompt_path}. Check if prompt type is correct (with prompt number)."
+                raise ValueError(error_msg)
+            try:
                 with open(prompt_path, "r") as file:
                     self.prompt = file.read()
-        except Exception as e:
-            self.logger.error(f"Failed to read prompt file: {e}")
+                    
+            except (OSError, IOError) as e:
+                error_msg = f"Error reading prompt file at {prompt_path}: {e}."
+                self.logger.exception(error_msg)
+                raise ValueError(error_msg) from e
 
         if judge_model_object is not None:
             self.judge_model_object = judge_model_object
