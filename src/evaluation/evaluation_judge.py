@@ -35,11 +35,11 @@ class EvaluationWithJudge(EvaluationBase):
             self.logger.error(f"Failed to read prompt file: {e}")
 
         if judge_model_object is not None:
-            self.judge = judge_model_object
+            self.judge_model_object = judge_model_object
 
         else:
             self.logger.info(f"Initializing judge model: {self.judge_model_name}")
-            self.judge = LLMJudge(
+            self.judge_model_object = LLMJudge(
                 model_name=self.judge_model_name,
                 param_set_number=self.param_set_number
             )
@@ -50,7 +50,7 @@ class EvaluationWithJudge(EvaluationBase):
         key: str,
         response_schema: BongardEvaluationSchema,
     ):
-        return self.judge.evaluate_similarity(
+        return self.judge_model_object.evaluate_similarity(
             prompt=self.prompt, 
             answer=answer, 
             key=key, 
@@ -104,7 +104,7 @@ class EvaluationWithJudge(EvaluationBase):
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
         
-        self.judge.stop()
+        self.judge_model_object.stop()
             
 
     def calculate_metrics(self, evaluated_df):
