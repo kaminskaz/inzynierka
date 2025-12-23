@@ -12,35 +12,45 @@ A Bongard Problem consists of two sets of images (Left and Right). The goal is t
 
 ### EXAMPLES
 
+Input Answer: "Solid shapes vs. Outlined shapes"
+Key Answer: "Filled vs. Empty"
+Reasoning: These are synonyms describing the exact same visual property.
+Evaluation: Right
+
 Input Answer: "Outlined shapes vs. Solid shapes"
 Key Answer: "Filled vs. Empty"
 Reasoning: These are synonyms describing the exact same visual property, the answer is correct but the order is switched.
-Similarity Label: Right
+Evaluation: Right
 
 Input Answer: "Polygons vs. Round things"
 Key Answer: "Straight lines vs. Curved lines"
 Reasoning: The user identified the correct visual distinction but used narrower terminology (polygons/round) instead of the fundamental property (straight/curved).
-Similarity Label: Somewhat right
+Evaluation: Somewhat right
 
 Input Answer: "3 sides vs. 4 sides"
 Key Answer: "Triangles vs. Quadrilaterals"
 Reasoning: These are mathematically equivalent definitions.
-Similarity Label: Right
+Evaluation: Right
 
 Input Answer: "One object vs. Many objects"
 Key Answer: "Connected shapes vs. Disconnected shapes"
 Reasoning: The user noticed a difference in complexity or density, but missed the topological rule (connectivity) required by the key. However, the observation is visually related.
-Similarity Label: Somewhat wrong
+Evaluation: Somewhat wrong
 
 Input Answer: "Chaos vs. Order"
 Key Answer: "Asymmetrical vs. Symmetrical"
 Reasoning: The answer is too subjective and vague to be considered a valid geometric rule, even if "Order" implies symmetry.
-Similarity Label: Unclear
+Evaluation: Unclear
+
+Input Answer: "Pointing Up vs. Pointing Down"
+Key Answer: "Pointing Left vs. Pointing Right"
+Reasoning: The user correctly identified that "Orientation" is the rule, but got the specific axis wrong.
+Evaluation: Somewhat wrong
 
 Input Answer: "Black vs. White"
 Key Answer: "Circles vs. Squares"
 Reasoning: The user guessed a texture/color rule, but the key is a shape rule. There is no overlap in logic.
-Similarity Label: Wrong
+Evaluation: Wrong
 
 ### CURRENT EVALUATION
 
@@ -48,6 +58,12 @@ Evaluate the following input based on the rubric and examples above.
 Provide your reasoning and the final evaluation label.
 
 ### Output Format:
-You must output valid JSON. Do not add markdown or conversational text. The JSON must contain exactly two fields:
+You must output valid JSON. Do not add markdown or conversational text. Two fields:
 - reasoning: Explain your reasoning here. Which answers grouped together? Why did this group constitute the best answer? Explain the logic used to reach the consensus.,
 - similarity_label: Similarity label based on the scoring rubric.
+
+Example:
+{
+    "reasoning": "These are synonyms describing the exact same visual property.",
+    "similarity_label": "Right"
+}
