@@ -43,14 +43,9 @@ class StrategyBase(ABC):
         self.descriptions_prompt = None
         self.example_prompt = self.get_prompt(f"example_{prompt_number}")
 
-        # path for descriptions, to be set by subclasses if needed
         self.descriptions_path: Optional[str] = None
 
         self.logger.info(f"Initialized strategy for dataset: '{self.dataset_name}'")
-
-    @abstractmethod
-    def run_single_problem(self, *args, **kwargs) -> Any:
-        pass
 
     @abstractmethod
     def _execute_problem(self, problem_id: str) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:  # type: ignore
@@ -259,34 +254,46 @@ class StrategyBase(ABC):
 
         self.logger.info(f"Saved {len(results)} results to {output_path}")
 
+    def save_descriptions_to_json(self, descriptions_path: str, all_descriptions_data: dict):
+        try:
+            os.makedirs(os.path.dirname(descriptions_path), exist_ok=True)
+            with open(descriptions_path, "w", encoding="utf-8") as f:
+                json.dump(all_descriptions_data, f, indent=4)
+        except Exception as e:
+            self.logger.error(f"Error saving descriptions: {e}")
+
     # --- Image Handling Methods ---
+    def _build_image_path(self, problem_id: str, *subpaths: str) -> str:
+        """Centralizes path construction to make the code easy to maintain."""
+        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, *subpaths)
+    
     def get_choice_panel(self, problem_id: str) -> Optional[str]:
-        if hasattr(self.config, "category") and self.config.category != "standard":
+        if getattr(self.config, "category", None) != "standard":
             return None
-        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choice_panel.png")
+        return self._build_image_path(problem_id, "choice_panel.png")
 
     def get_choice_image(self, problem_id: str, image_index: Union[str, int]) -> str:
         if not self.verify_choice_index(image_index):
             return ""
-        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "choices", f"{image_index}.png")
+        return self._build_image_path(problem_id, "choices", f"{image_index}.png")
 
     def get_question_panel(self, problem_id: str) -> str:
-        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question_panel.png")
+        return self._build_image_path(problem_id, "question_panel.png")
 
     def get_question_image(self, problem_id: str) -> str:
-        if hasattr(self.config, "category") and self.config.category != "standard":
+        if getattr(self.config, "category", None) != "standard":
             return ""
-        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "question.png")
+        return self._build_image_path(problem_id, "question.png")
 
     def get_blackout_image(self, problem_id: str, image_index: Union[str, int]) -> str:
-        if hasattr(self.config, "category") and self.config.category != "choice_only":
+        if getattr(self.config, "category", None) != "choice_only":
             return ""
         if not self.verify_choice_index(image_index):
             return ""
-        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "blackout", f"{image_index}.png")
+        return self._build_image_path(problem_id, "blackout", f"{image_index}.png")
 
     def get_classification_panel(self, problem_id: str) -> str:
-        return os.path.join(self.data_dir, self.dataset_name, "problems", problem_id, "classification_panel.png")
+        return self._build_image_path(problem_id, "classification_panel.png")
 
     def verify_choice_index(self, image_index: Union[str, int]) -> bool:
         if not hasattr(self.config, "category"):
@@ -301,11 +308,3 @@ class StrategyBase(ABC):
             return False
         except Exception:
             return False
-
-    def save_descriptions_to_json(self, descriptions_path: str, all_descriptions_data: dict):
-        try:
-            os.makedirs(os.path.dirname(descriptions_path), exist_ok=True)
-            with open(descriptions_path, "w", encoding="utf-8") as f:
-                json.dump(all_descriptions_data, f, indent=4)
-        except Exception as e:
-            self.logger.error(f"Error saving descriptions: {e}")

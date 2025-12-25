@@ -26,33 +26,35 @@ class DescriptiveStrategy(StrategyBase):
         super().__init__(dataset_name, model, dataset_config, results_dir, strategy_name, prompt_number=prompt_number, param_set_number=param_set_number)
 
         self.descriptions_prompt = self.get_prompt(f"describe_{self.prompt_number}")
+        self.describe_example_prompt = self.get_prompt(f"describe_example_{self.prompt_number}")
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
-    def run_single_problem(
-        self, problem_id: str, descriptions_prompt: str, main_prompt: str
-    ) -> list[Optional[ResponseSchema], Dict[str, str]]:
+    def _execute_problem(self, problem_id: str) -> list[Dict[str, str], str, Optional[Dict[str, str]]]:
+        """
+        Executes the logic for a single descriptive problem.
+        """
+
         descriptions = []
         problem_descriptions_dict = {}
 
         for i in range(self.config.num_choices):
             letter = chr(65 + i)
 
-            if self.config.category != "BP":
-                choice_image_input = self.get_choice_image(problem_id, image_index=letter)
-                index_key = letter
-            else:
+            if self.config.category == "BP":
                 choice_image_input = self.get_choice_image(problem_id, image_index=i)
                 index_key = i
+            elif self.config.category in {"standard", "choice_only"}:
+                choice_image_input = self.get_choice_image(problem_id, image_index=letter)
+                index_key = letter
 
-            describe_example_prompt = self.get_prompt(f"describe_example_{self.prompt_number}")
+            descriptions_prompt_with_example = f"{self.descriptions_prompt}\n{self.describe_example_prompt}"
+
             contents_to_send_descriptions = [
-                TextContent(f"{descriptions_prompt}\n{describe_example_prompt}"),
+                TextContent(descriptions_prompt_with_example),
                 ImageContent(choice_image_input),
             ]
 
-            description_response = self.model.ask(
-                contents_to_send_descriptions, schema=DescriptionResponseSchema
-            )
+            description_response = self.model.ask(contents_to_send_descriptions, schema=DescriptionResponseSchema)
 
             raw_description = get_field(description_response, 'description', None)
             self.logger.debug(f"Description for choice {index_key}: {raw_description}")
@@ -70,13 +72,13 @@ class DescriptiveStrategy(StrategyBase):
             ]
         )
 
-        prompt = f"{main_prompt}\nDescriptions:\n{all_descriptions_text}\n{self.example_prompt}"
+        prompt = f"{self.main_prompt}\nDescriptions:\n{all_descriptions_text}\n{self.example_prompt}"
 
-        if self.config.category == "BP" or self.config.category == "choice_only":
+        if self.config.category in {"BP", "choice_only"}:
             contents_to_send = [TextContent(prompt)]
-        else:
+
+        elif self.config.category == "standard":
             image_input = self.get_question_image(problem_id)
-            prompt = f"{prompt}\n{self.example_prompt}"
             if image_input is None:
                 self.logger.error(
                     f"Could not get question image for problem {problem_id}. Skipping image content."
@@ -84,24 +86,13 @@ class DescriptiveStrategy(StrategyBase):
                 contents_to_send = [TextContent(prompt)]
             else:
                 contents_to_send = [TextContent(prompt), ImageContent(image_input)]
-
-        response_schema = ResponseSchema
             
-        response = self.model.ask(
-            contents_to_send, schema=response_schema
-        )
+        response = self.model.ask(contents_to_send, schema=ResponseSchema)
 
-        return response, problem_descriptions_dict
-
-    def _execute_problem(
-        self, problem_id: str
-    ) -> list[Optional[ResponseSchema], str, Optional[Dict[str, str]]]:
-        """
-        Executes the logic for a single descriptive problem.
-        """
-
-        response, problem_descriptions = self.run_single_problem(
-            problem_id, self.descriptions_prompt, self.main_prompt
-        )
-
-        return response, problem_id, problem_descriptions
+        return response, problem_id, problem_descriptions_dict
+    
+    def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
+        prompts = super()._get_metadata_prompts()
+        prompts["describe_prompt"] = self.descriptions_prompt
+        prompts["describe_example_prompt"] = self.describe_example_prompt
+        return prompts
