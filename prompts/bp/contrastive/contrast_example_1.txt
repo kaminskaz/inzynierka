@@ -1,3 +1,3 @@
 ### Output Format:
 You must output valid JSON. Do not add markdown or conversational text. One field:
-- description: Detailed description of differences between the two images. First one represents **Left** and second represents **Right**. Focus on differences in visible shapes, colors, orientations, and relations. Must use labels “Left” and  Right”  when referring to a certain image.
+- description: Detailed description of differences between the two images. First one represents **Left** and second represents **Right**. Must use labels “Left” and  Right”  when referring to a certain image.

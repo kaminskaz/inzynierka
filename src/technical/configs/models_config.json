@@ -117,5 +117,43 @@
         }
       }
     }
+  },
+  "llava-hf/llava-onevision-qwen2-72b-ov-hf":{
+    "model_class": "VLLM",
+    "max_tokens_limit": 32768,
+    "num_params_billions": 72,
+    "gpu_split": true,
+    "param_sets": {
+      "1": {
+        "temperature": 0.5,
+        "max_tokens": 16384,
+        "max_output_tokens": 4096,
+        "limit_mm_per_prompt": 4,
+        "cpu_local_testing": false,
+        "custom_args": {
+          "tensor_parallel_size": 4,
+          "gpu_memory_utilization": 0.9
+        }
+      }
+    }
+  },
+  "OpenGVLab/InternVL3-78B":{
+    "model_class": "VLLM",
+    "max_tokens_limit": 32768,
+    "num_params_billions": 78,
+    "gpu_split": true,
+    "param_sets": {
+      "1": {
+        "temperature": 0.5,
+        "max_tokens": 16384,
+        "max_output_tokens": 4096,
+        "limit_mm_per_prompt": 4,
+        "cpu_local_testing": false,
+        "custom_args": {
+          "tensor_parallel_size": 4,
+          "gpu_memory_utilization": 0.9
+        }
+      }
+    }
   }
 }

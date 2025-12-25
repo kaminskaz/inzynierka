@@ -1,3 +1,4 @@
 A classic Bongard Problem consists of twelve framed images arranged in two sets: **Left** and **Right** (six images on each side).
 The six images on the **Left** all satisfy a specific, common property, while the six images on the **Right** serve as counter-examples that specifically lack or contradict that property.
 The property is never based on the order of the images within one side, only on their visual content: patterns, relationships, and visual features such as shape, color, arrangement, or number.
+The objective is to identify the property based on the visual clues.

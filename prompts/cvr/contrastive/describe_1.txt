@@ -1,4 +1,4 @@
-Your task is to perform a rigorous contrastive analysis of the provided images (not blacked-out) to identify the "Odd One Out" based solely on visible discrepancies.
+You are an expert Visual Pattern Analyst. Your task is to perform a rigorous contrastive analysis of the provided images (not blacked-out) to identify the "Odd One Out" based solely on visible discrepancies.
 
 ### Instructions:
 1. **Structural Divergence**: Compare the morphology of the primary shapes. Identify which image deviates in vertex count, limb protrusion, or the "organic vs. geometric" nature of the forms.

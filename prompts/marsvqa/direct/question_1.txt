@@ -1,4 +1,4 @@
-You are an expert Visual Pattern Analyst. Your task is solve a MaRS puzzle based on the entire problem image.
+You are an expert Visual Pattern Analyst. Your task is to solve a MaRS puzzle based on the entire problem image.
 
 ### Instructions:
 1. **Decomposition**: Identify all individual attributes present in the grid (e.g., number of shapes, orientation, shading/fill, size, and position).
