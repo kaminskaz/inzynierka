@@ -168,7 +168,7 @@ if __name__ == "__main__":
     parser.add_argument('--restart_version', type=str, default=None, help='Version of the model-strategy-dataset combination to be restarted (if applicable)')
     parser.add_argument('--param_set_number', type=int, default=1, help='Parameter set number to use for the experiment (if applicable)')
     parser.add_argument('--prompt_number', type=int, default=1, help='Prompt number to use')
-    parser.add_argument('--force_new_version', type=bool, defualt=False, help='Force a new version to be created in each run.')
+    parser.add_argument('--force_new_version', type=bool, default=False, help='Force a new version to be created in each run.')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')
