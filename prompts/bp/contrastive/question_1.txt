@@ -4,6 +4,6 @@ You are an expert Visual Pattern Analyst. Your task is to perform a contrastive 
 1. **Extract Local Differences**: For each pair description (0–5), identify the specific visual difference between the "Left" description and the "Right" description. Focus on changes in count, geometry, or spatial arrangement.
 2. **Synthesize the Global Invariant**: Look across all six "Left" descriptions to find one constant property shared by all. Simultaneously, ensure this property is consistently violated or inverted in all "Right" descriptions.
 3. **Test the Hypothesis**: Re-read every pair description through the lens of your proposed rule. If the rule fails to explain even one pair, discard it and pivot to a different category (e.g., from shape to topology).
-4. **Isolate the Binary Logic**: Define the final rule as a clear, mutually exclusive contrast (Left rule vs. Right rule).
+4. **Isolate the Binary Logic**: Define the final rule as a clear, mutually exclusive contrast ("Left rule vs. Right rule").
 
 *Only use information provided in the descriptions. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*

@@ -114,6 +114,7 @@ class VLLM:
                 logger.info(f"vLLM server for '{self.model_name}' stopped.")
         except Exception as e:
             logger.warning(f"Error while stopping vLLM server: {e}")
+            sys.exit(3)
 
 
 # ---------- helper functions ----------
