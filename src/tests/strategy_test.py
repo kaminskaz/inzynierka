@@ -115,15 +115,21 @@ def run_single_experiment(
     model = model_object 
     
     try:
-        target_version = restart_version if (restart_version and restart_version.strip()) else "latest"
-            
+        if restart_version and restart_version.strip():
+            target_version = restart_version
+        elif force_new_version:
+            # Passing None or "" triggers the 'else' in get_results_directory which increments
+            target_version = None 
+        else:
+            target_version = "latest"
+
         results_dir = get_results_directory(
             dataset_name=dataset_name, 
             strategy_name=strategy_name, 
             model_name=model_name, 
             version=target_version, 
             create_dir=True,
-            force_new_version = force_new_version
+            force_new_version=force_new_version
         )
 
         strategy_factory = StrategyFactory()
@@ -156,7 +162,7 @@ def run_single_experiment(
         logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
         if model is not None and hasattr(model, 'stop'):
             model.stop()
-        sys.exit(1)
+        sys.exit(3)
     
 
 if __name__ == "__main__":
@@ -168,7 +174,7 @@ if __name__ == "__main__":
     parser.add_argument('--restart_version', type=str, default=None, help='Version of the model-strategy-dataset combination to be restarted (if applicable)')
     parser.add_argument('--param_set_number', type=int, default=1, help='Parameter set number to use for the experiment (if applicable)')
     parser.add_argument('--prompt_number', type=int, default=1, help='Prompt number to use')
-    parser.add_argument('--force_new_version', type=bool, default=False, help='Force a new version to be created in each run.')
+    parser.add_argument('--force_new_version', action='store_true', help='Force a new version')
     parser.add_argument('--debug', action='store_true', help='Enable DEBUG logging level')
     parser.add_argument('--local_testing', help='Enable local CPU testing mode for VLLM models with limited resources')
     parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], help='List of custom arguments for the model (if applicable)')

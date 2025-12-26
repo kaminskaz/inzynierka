@@ -86,7 +86,7 @@ class FullPipeline:
             self.logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
             if model is not None and hasattr(model, 'stop'):
                 model.stop()
-            sys.exit(1)
+            sys.exit(3)
 
 
     def run_ensemble(

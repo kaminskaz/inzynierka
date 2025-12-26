@@ -39,19 +39,22 @@ export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 cd /mnt/evafs/groups/jrafalko-lab/inzynierka
 
-for i in {1..10}
+for i in {1..30}
 do
-   echo "Starting run $i of 10..."
+   echo "Starting run $i of 30..."
    
-   python -m src.tests.strategy_test \
-        --dataset_name "$DATASET_NAME" \
-        --strategy "$STRATEGY" \
-        --model_name "$MODEL_NAME" \
-        --restart_problem_id "$RESTART_PROBLEM_ID" \
-        --restart_version "$RESTART_VERSION" \
-        --param_set_number "$PARAM_SET_NUMBER" \
-        --prompt_number "$PROMPT_NUMBER" \
-        --force_new_version "$CURRENT_FORCE"
+   CMD="python -m src.tests.strategy_test \
+      --dataset_name $DATASET_NAME \
+      --strategy $STRATEGY \
+      --model_name $MODEL_NAME \
+      --param_set_number $PARAM_SET_NUMBER \
+      --prompt_number $PROMPT_NUMBER"
+
+   if [ "$CURRENT_FORCE" = "True" ]; then
+      CMD="$CMD --force_new_version"
+   fi
+
+   $CMD
         
    status=$?
 
@@ -60,6 +63,9 @@ do
    if [ $status -eq 2 ]; then
       echo "Exit code 2 detected. Terminating loop - all problems processed."
       exit 2
+   elif [ $status -eq 1 ]; then
+      echo "Exit code 1 detected. Terminating loop - critical problem."
+      exit 1
    elif [ $status -ne 0 ]; then
       echo "Run $i failed with exit code $status, but continuing to next iteration..."
    fi
