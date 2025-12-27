@@ -162,7 +162,7 @@ class StrategyBase(ABC):
                     if results:
                         self.save_raw_answers_to_csv(results)
                     self.model.stop()
-                    sys.exit(1)
+                    sys.exit(3)
                 continue
 
         if results:

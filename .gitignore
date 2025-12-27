@@ -23,6 +23,7 @@ env/
 
 # Folder z danymi
 data/
+data_old/
 data_raw/
 results/
 
