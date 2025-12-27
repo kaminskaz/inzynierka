@@ -13,7 +13,7 @@
     "regex_choice_number": "{image_index}.jpeg",
     "regex_answer_number": "{image_index}.jpeg",
     "shuffle": false,
-    "expected_num_samples": 560
+    "expected_num_samples": 100
   },
 
   "cvr": {
@@ -30,7 +30,7 @@
     "regex_answer_number": "sub_image_{image_index+1}.png",
     "shuffle": true,
     "true_idx": 3,
-    "expected_num_samples": 309
+    "expected_num_samples": 100
   },
 
   "marsvqa": {
@@ -48,7 +48,7 @@
     "regex_answer_number": "T{image_index+1}",
     "shuffle": true,
     "true_idx": 0,
-    "expected_num_samples": 480
+    "expected_num_samples": 100
   },
 
   "bp": {
