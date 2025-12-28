@@ -36,12 +36,12 @@ class StrategyBase(ABC):
         self.results_dir = results_dir
         self.data_dir = "data"
         self.dataset_dir = os.path.join(self.data_dir, self.dataset_name, "problems")
-        self.problem_description_prompt = self.get_prompt(f"problem_description_{self.prompt_number}")
-        self.sample_answer_prompt = self.get_prompt(f"sample_answer_{self.prompt_number}")
-        self.question_prompt = self.get_prompt(f"question_{self.prompt_number}")
+        self.problem_description_prompt = self.get_prompt(f"problem_description", self.prompt_number)
+        self.sample_answer_prompt = self.get_prompt(f"sample_answer", self.prompt_number)
+        self.question_prompt = self.get_prompt(f"question", self.prompt_number)
         self.main_prompt = f"{self.problem_description_prompt}\n{self.question_prompt}"
         self.descriptions_prompt = None
-        self.example_prompt = self.get_prompt(f"example_{prompt_number}")
+        self.example_prompt = self.get_prompt(f"example", self.prompt_number)
 
         self.descriptions_path: Optional[str] = None
 
@@ -175,35 +175,41 @@ class StrategyBase(ABC):
 
         self.logger.info(f"Run completed for {self.dataset_name}.")
 
-    def get_prompt(self, prompt_type: str) -> str:
+    def get_prompt(self, prompt_type: str, prompt_number: int) -> str:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         repo_root = os.path.dirname(os.path.dirname(current_dir))
 
         if prompt_type.startswith(("problem_description", "sample_answer")):
-            prompt_path = os.path.join(
-                repo_root, "prompts", self.dataset_name, f"{prompt_type}.txt"
-            )
+            prompt_path = os.path.join(repo_root, "prompts", self.dataset_name, f"{prompt_type}_{prompt_number}.txt")
         else:
             prompt_path = os.path.join(
                 repo_root,
                 "prompts",
                 self.dataset_name,
                 self.strategy_name,
-                f"{prompt_type}.txt",
+                f"{prompt_type}_{prompt_number}.txt",
             )
 
         if not os.path.exists(prompt_path):
-            error_msg = f"Prompt file not found: {prompt_path}. Check if prompt type is correct (with prompt number)."
-            raise ValueError(error_msg)
+            if prompt_number != 1:
+                self.logger.warning(f"Prompt {prompt_number} not found. Falling back to version 1.")
+                
+                if prompt_type.startswith(("problem_description", "sample_answer")):
+                    prompt_path = os.path.join(repo_root, "prompts", self.dataset_name, f"{prompt_type}_1.txt")
+                else:
+                    prompt_path = os.path.join(repo_root, "prompts", self.dataset_name, self.strategy_name, f"{prompt_type}_1.txt")
+                
+                if not os.path.exists(prompt_path):
+                    raise ValueError(f"Neither prompt {prompt_number} nor default prompt 1 exists at {prompt_path}")
+            else:
+                raise ValueError(f"Primary prompt file not found: {prompt_path}")
 
         try:
             with open(prompt_path, "r", encoding="utf-8") as f:
                 return f.read()
-                
         except (OSError, IOError) as e:
-            error_msg = f"Error reading prompt file at {prompt_path}: {e}. Check if prompt type is correct (with prompt number)."
-            self.logger.exception(error_msg)
-            raise ValueError(error_msg) from e
+            self.logger.exception(f"Error reading prompt file at {prompt_path}")
+            raise ValueError(f"Error reading prompt file: {e}") from e
         
     def save_metadata(self, question_prompt: str, problem_description_prompt: str, 
                       sample_answer_prompt: Optional[str] = None, 

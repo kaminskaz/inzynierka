@@ -27,8 +27,8 @@ class ContrastiveStrategy(StrategyBase):
     ):
         super().__init__(dataset_name, model, dataset_config, results_dir,strategy_name, prompt_number=prompt_number, param_set_number=param_set_number)
 
-        self.descriptions_prompt = self.get_prompt(f"describe_{self.prompt_number}")
-        self.contrast_example_prompt = self.get_prompt(f"contrast_example_{self.prompt_number}")
+        self.descriptions_prompt = self.get_prompt(f"describe", self.prompt_number)
+        self.contrast_example_prompt = self.get_prompt(f"contrast_example", self.prompt_number)
         self.descriptions_path = os.path.join(self.results_dir, "descriptions.json")
 
     def _execute_problem(self, problem_id: str) -> list[Dict[str, str], str, Optional[Dict[str, str]]]:

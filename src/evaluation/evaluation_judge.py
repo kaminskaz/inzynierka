@@ -29,13 +29,18 @@ class EvaluationWithJudge(EvaluationBase):
             self.prompt = prompt
         else:
             prompt_path = os.path.join("prompts", "evaluation", f"evaluation_bongard_{self.prompt_number}.txt")
+            
             if not os.path.exists(prompt_path):
-                error_msg = f"Prompt file not found: {prompt_path}. Check if prompt type is correct (with prompt number)."
-                raise ValueError(error_msg)
+                self.logger.warning(f"Prompt {self.prompt_number} not found. Attempting to default to prompt 1.")
+                prompt_path = os.path.join("prompts", "evaluation", "evaluation_bongard_1.txt")
+                
+                if not os.path.exists(prompt_path):
+                    error_msg = f"Prompt file not found: {prompt_path}. Default prompt 1 also missing."
+                    raise ValueError(error_msg)
+
             try:
                 with open(prompt_path, "r") as file:
                     self.prompt = file.read()
-                    
             except (OSError, IOError) as e:
                 error_msg = f"Error reading prompt file at {prompt_path}: {e}."
                 self.logger.exception(error_msg)
