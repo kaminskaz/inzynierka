@@ -1,0 +1,19 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Three fields:
+- answer: Answer to the problem. Letter (A-H) identifying which of the eight options follows all assumptions of a given problem.
+- confidence: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- rationale: Short version of the rationale for your answer.
+
+### Example 1:
+{
+"answer": "G",
+"confidence": 0.94,
+"rationale": "In each row of the matrices, the number of shapes increases by one from left to right, and the shading alternates. Set G correctly continues both the numerical and shading patterns, while the other sets violate one of these rules."
+}
+
+### Example 2:
+{
+"answer": "D",
+"confidence": 0.9,
+"rationale": "Each column in the matrices alternates between filled and outlined shapes. Set D maintains the fill pattern, making it the only correctly completed matrix among the four sets."
+}

@@ -1,0 +1,19 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Three fields:
+- answer: Answer to the problem. Letter (A-D) identifying the odd image based on full problem analysis, comparisons between shapes, colors, orientations, relations.
+- confidence: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- rationale: Short version of the rationale for your answer.
+
+### Example 1:
+{
+    "answer": "B",
+    "confidence": 0.97,
+    "rationale": "Image B is the odd one out because all other images contain shapes of the same color, while image B includes shapes of two different colors, breaking the shared color-consistency rule.",
+}
+
+### Example 2:
+{
+    "answer": "D",
+    "confidence": 0.85,
+    "rationale": "Image D is the odd one out because the remaining images contain single centered shape, whereas image D contains multiple shapes, violating the common structure."
+}

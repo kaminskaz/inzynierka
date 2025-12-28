@@ -1,0 +1,19 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Three fields:
+- answer: Answer to the problem. Letter identifying which of the described images best completes the sequence matrix presented on the question image.
+- confidence: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- rationale: Short version of the rationale for your answer.
+
+### Example 1:
+{
+"answer": "H",
+"confidence": 0.96,
+"rationale": "Across each row, the shape gains one additional element from left to right, and the missing panel must continue this progression. Option H correctly adds the next element while preserving shape type and orientation, unlike the other options."
+}
+
+### Example 2:
+{
+"answer": "A",
+"confidence": 0.91,
+"rationale": "In each column, the pattern alternates between filled and outlined shapes while maintaining the same geometry. Option A is the only choice that matches this alternating fill rule and the established spatial alignment."
+}

@@ -1,0 +1,19 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Three fields:
+- answer: Answer to the problem. Letter ("A" or "B") identifying which of the two options follows all assumptions of a Bongard Problem (one distinct rule in the Left panel, not followed in any of the Right panel images)
+- confidence: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- rationale: Short version of the rationale for your answer.
+
+### Example 1:
+{
+    "answer": "B",
+    "confidence": 0.87,
+    "rationale": "Option A is correct because every image in the Left panel contains at least one square, while none of the images in the Right panel contain a square. In option B, this rule is broken because one image containing a square is swapped into the Right panel, so the rule no longer applies.",
+}
+
+### Example 2:
+{
+"answer": "A",
+"confidence": 0.96,
+"rationale": "Option A is correct because all images in the Left panel contain multiple objects, while every image in the Right panel contains exactly one object. In option C, this distinction is violated because one Left-panel image shows only a single object, so the Left-only rule is no longer consistent."
+}

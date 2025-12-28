@@ -53,9 +53,14 @@ class ConfidenceEnsemble(EnsembleBase):
             return most_popular_answer
         
     def evaluate_confidence_using_llm(self, answer_list, confidence_list):
-        problem_description = self.config.get("problem_description_prompt", "")
+        first_member = next(
+            v for k, v in self.config.items() if k.startswith("member_")
+        )
+
+        sample_answer = first_member.get("sample_answer_prompt", "")
+        problem_description = first_member.get("problem_description_prompt", "")
+        
         confidence_prompt_path = self.get_ensemble_prompt_path(prompt_number=self.prompt_number)
-        sample_answer =self.config.get("sample_answer_structure", "")
         with open(confidence_prompt_path, "r", encoding="utf-8") as file:
             confidence_prompt = file.read()
    
