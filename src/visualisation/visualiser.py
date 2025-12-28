@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from single_model_plots import *
+
 class StreamlitVisualiser:
     def __init__(self, csv_path: str):
         self.csv_path = csv_path
@@ -39,8 +40,8 @@ class StreamlitVisualiser:
                 self.df[col] = ""
 
         self.df['filter_id'] = np.where(
-            self.df['ensemble'].notna() & (self.df['ensemble'] == "Ensemble"),
-            self.df['ensemble'].astype(str).str.lower() + "_" +
+            self.df['ensemble'].notna() & (self.df['ensemble']),
+            "Ensemble" + "_" +
             self.df['version'].astype(str) + "_" +
             self.df['dataset_name'].astype(str) + "_" +
             self.df['type_name'].astype(str),
@@ -54,7 +55,7 @@ class StreamlitVisualiser:
         """Single-model selector: ensemble OR model_name + version"""
 
         self.df['single_model_id'] = np.where(
-            self.df['ensemble'].notna() & (self.df['ensemble'] == "Ensemble"),
+            self.df['ensemble'].notna() & (self.df['ensemble']),
             self.df['ensemble'].astype(str) + "_" +
             self.df['version'].astype(str),
             self.df['model_name'].astype(str) + "_" +
@@ -180,11 +181,7 @@ class StreamlitVisualiser:
                 st.info("No data matches the selected filters.")
                 return
 
-            is_ensemble = (
-                str(df_filtered['ensemble'].iloc[0]).lower() == "ensemble"
-            )
-
-            is_ensemble = df_filtered['ensemble'].iloc[0].lower() == "ensemble"
+            is_ensemble = df_filtered['ensemble'].iloc[0]
 
             if is_ensemble:
                 df_filtered['type_name'] = df_filtered['type_name'].fillna("Unknown Type")

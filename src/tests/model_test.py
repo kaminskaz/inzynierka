@@ -11,7 +11,7 @@ class ResponseSchema(BaseModel):
 
 def main():
     print("Preparing VLLM", flush=True)
-    vllm = VLLM(model_name="Qwen/Qwen2.5-VL-3B-Instruct")
+    vllm = VLLM(model_name="OpenGVLab/InternVL3-38B")
 
     print("Test 1: Text-only prompt", flush=True)
     text_content = TextContent("What is the capital of Norway?")
