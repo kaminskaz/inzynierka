@@ -320,21 +320,17 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
                     st.markdown(f"<p style='font-size:18px;'>{float(val_med):.2f}</p>" if val_med is not None else "<p style='font-size:18px;'>–</p>", unsafe_allow_html=True)
 
     if summary:
-        st.markdown("<h4 style='font-size:18px;'>Data completeness</h4>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:18px; font-weight:bold;'>Data completeness</p>", unsafe_allow_html=True)
 
         # Nagłówki kolumn z opisami
         cols = st.columns([3, 2, 2, 2])
         with cols[0]:
-            st.markdown("<p style='font-size:18px; font-weight:bold;'>Section</p>", unsafe_allow_html=True)
             st.markdown("<p style='font-size:14px; color:gray;'>Type of data</p>", unsafe_allow_html=True)
         with cols[1]:
-            st.markdown("<p style='font-size:18px; font-weight:bold;'>Available / Expected</p>", unsafe_allow_html=True)
             st.markdown("<p style='font-size:14px; color:gray;'>Number of samples present</p>", unsafe_allow_html=True)
         with cols[2]:
-            st.markdown("<p style='font-size:18px; font-weight:bold;'>Coverage</p>", unsafe_allow_html=True)
             st.markdown("<p style='font-size:14px; color:gray;'>Fraction of available samples</p>", unsafe_allow_html=True)
         with cols[3]:
-            st.markdown("<p style='font-size:18px; font-weight:bold;'>Missing</p>", unsafe_allow_html=True)
             st.markdown("<p style='font-size:14px; color:gray;'>Number of missing samples</p>", unsafe_allow_html=True)
 
         for section_key, section_label in [
