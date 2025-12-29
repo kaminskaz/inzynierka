@@ -43,7 +43,7 @@
         "cpu_local_testing": false,
         "custom_args": {
           "tensor_parallel_size": 1,
-          "gpu_memory_utilization": 0.8
+          "gpu_memory_utilization": 0.9
         }
       }
     }

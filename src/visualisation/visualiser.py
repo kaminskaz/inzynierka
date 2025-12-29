@@ -2,141 +2,77 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
 from single_model_plots import *
 
 class StreamlitVisualiser:
+    REQUIRED_COLS = [
+        "ensemble",
+        "version",
+        "dataset_name",
+        "type_name",
+        "model_name",
+        "strategy_name",
+        "problem_id",
+    ]
+
     def __init__(self, csv_path: str):
         self.csv_path = csv_path
-        self.df = None
-        self.load_data()
+        self.df = self._load_data()
 
-        if self.df is not None and not self.df.empty:
-            self.create_filter_column()
-            self.create_single_model_column()
+        if not self.df.empty:
+            self._prepare_columns()
 
-    def load_data(self):
+
+    def _load_data(self) -> pd.DataFrame:
+        if not os.path.exists(self.csv_path):
+            return pd.DataFrame()
         try:
-            self.df = pd.read_csv(self.csv_path, dtype={'problem_id': str})
+            return pd.read_csv(self.csv_path, dtype={"problem_id": str})
         except Exception as e:
-            st.error(f"Failed to load CSV: {e}")
-            self.df = pd.DataFrame()
+            return pd.DataFrame()
 
-    # ------------------------------------------------------------------
-    # FILTER COLUMNS
-    # ------------------------------------------------------------------
+    def _prepare_columns(self):
+        """Ensure required columns and derived IDs exist"""
 
-    def create_filter_column(self):
-        """Row-wise filter_id (ensemble OR model strategy)"""
-
-        required_cols = [
-            'ensemble', 'version', 'dataset_name', 'type_name',
-            'model_name', 'strategy_name'
-        ]
-
-        for col in required_cols:
+        for col in self.REQUIRED_COLS:
             if col not in self.df.columns:
                 self.df[col] = ""
 
-        self.df['filter_id'] = np.where(
-            self.df['ensemble'].notna() & (self.df['ensemble']),
-            "Ensemble" + "_" +
-            self.df['version'].astype(str) + "_" +
-            self.df['dataset_name'].astype(str) + "_" +
-            self.df['type_name'].astype(str),
-            self.df['model_name'].astype(str) + "_" +
-            self.df['version'].astype(str) + "_" +
-            self.df['dataset_name'].astype(str) + "_" +
-            self.df['strategy_name'].astype(str)
+        self.df["ensemble"] = self.df["ensemble"].fillna(False)
+
+        # filter column
+        self.df["filter_id"] = np.where(
+            self.df["ensemble"],
+            # ensemble (multi-model view)
+            "Ensemble_ver" +
+            self.df["version"].astype(str),
+            # single-model view
+            self.df["model_name"].astype(str).apply(shorten_model_name) + '_ver' +
+            self.df["version"].astype(str)
         )
 
-    def create_single_model_column(self):
-        """Single-model selector: ensemble OR model_name + version"""
 
-        self.df['single_model_id'] = np.where(
-            self.df['ensemble'].notna() & (self.df['ensemble']),
-            self.df['ensemble'].astype(str) + "_" +
-            self.df['version'].astype(str),
-            self.df['model_name'].astype(str) + "_" +
-            self.df['version'].astype(str),
-        )
+    @staticmethod
+    def _multiselect_filter(df, column, label):
+        options = sorted(df[column].dropna().unique())
+        selected = st.multiselect(label, options, default=options)
+        return df[df[column].isin(selected)] if selected else df
 
-    def select_datasets_for_single(self, df_single_model):
-        """Dataset selector limited to the chosen single model"""
-        if 'dataset_name' not in df_single_model.columns:
-            return None
+    def select_model(self):
+        options = sorted(self.df["filter_id"].unique())
+        return st.selectbox("Select Model", options)
 
-        datasets = sorted(df_single_model['dataset_name'].unique())
-        return st.multiselect(
-            "Select Dataset(s)",
-            options=datasets,
-            default=datasets  # sensible default: all
-        )
-    
-    def select_strategies_for_single(self, df_single_model):
-        """Strategy selector limited to the chosen single model"""
-        if 'strategy_name' not in df_single_model.columns:
-            return None
-
-        strategies = sorted(df_single_model['strategy_name'].unique())
-        return st.multiselect(
-            "Select Strategy(s)",
-            options=strategies,
-            default=strategies  # sensible default: all
-        )
-        
-
-    # ------------------------------------------------------------------
-    # FILTER UI
-    # ------------------------------------------------------------------
-
-    def select_single_model(self):
-        options = sorted(self.df['single_model_id'].unique())
-        return st.selectbox(
-            "Select Model",
-            options=options
-        )
-    
-    def filter_single_model_with_dataset(self, single_model_id, datasets):
-        df = self.df[self.df['single_model_id'] == single_model_id]
-
-        if datasets:
-            df = df[df['dataset_name'].isin(datasets)]
-
-        return df
-
-    def filter_single_model(self, single_model_id):
-        return self.df[self.df['single_model_id'] == single_model_id]
-
-    def select_multiple_models(self):
-        options = sorted(self.df['filter_id'].unique())
-        return st.multiselect("Select Models / Ensembles", options=options)
-
-    def filter_multiple_models(self, selected_filters):
-        if selected_filters:
-            return self.df[self.df['filter_id'].isin(selected_filters)]
-        return self.df.copy()
-
-    # ------------------------------------------------------------------
-    # DISPLAY
-    # ------------------------------------------------------------------
-
-    def show_csv_preview(self, df_filtered):
-        if df_filtered is not None and not df_filtered.empty:
-            st.subheader("CSV Preview")
-            df_display = df_filtered.drop(
-                columns=['filter_id', 'single_model_id'],
-                errors='ignore'
-            )
-            st.dataframe(df_display.head(10))
-        else:
+    @staticmethod
+    def show_csv_preview(df):
+        if df.empty:
             st.info("No data to display.")
+            return
 
-
-    # ------------------------------------------------------------------
-    # MAIN APP
-    # ------------------------------------------------------------------
+        st.subheader("Results CSV Preview")
+        st.dataframe(
+            df.drop(columns=["filter_id"], errors="ignore")
+        )
 
     def run(self):
         st.markdown(
@@ -145,8 +81,6 @@ class StreamlitVisualiser:
                 .main { max-width: 90% !important; }
                 .block-container {
                     padding-top: 2rem;
-                    padding-left: 10;
-                    padding-right: 10;
                     max-width: 90% !important;
                 }
             </style>
@@ -156,93 +90,118 @@ class StreamlitVisualiser:
 
         st.title("Streamlit Visualization App")
 
-        # visualization type
+        if self.df.empty:
+            st.info("No CSV loaded. Please provide a valid CSV file.")
+            return
+
         vis_type = st.radio(
             "Select Visualization Type",
-            options=["single", "multiple"],
-            horizontal=True
+            ["single", "multiple"],
+            horizontal=True,
         )
+
+        # ==============================================================
+        # SINGLE MODEL VIEW
+        # ==============================================================
 
         if vis_type == "single":
             st.subheader("Single Model Selection")
-            single_model = self.select_single_model()
-            df_single = self.df[self.df['single_model_id'] == single_model]
+            
+            single_model_id = self.select_model()
+            df_model = self.df[self.df["filter_id"] == single_model_id].copy()
 
-            # Dataset selector for the single model
-            df_single['dataset_name'] = df_single['dataset_name'].fillna("Unknown Dataset")
-            selected_datasets = st.multiselect(
-                "Select Dataset(s)",
-                options=sorted(df_single['dataset_name'].unique()),
-                default=sorted(df_single['dataset_name'].unique())
+            if df_model.empty:
+                st.info("No data for selected model.")
+                return
+
+            df_single = df_model.copy()
+
+            df_single["dataset_name"] = df_single["dataset_name"].fillna("Unknown Dataset")
+            df_single = self._multiselect_filter(
+                df_single, "dataset_name", "Select Dataset(s)"
             )
-            df_filtered = df_single[df_single['dataset_name'].isin(selected_datasets)]
 
-            if df_filtered.empty:
+            is_ensemble = bool(df_single["ensemble"].iloc[0])
+
+            strategy_column_name = map_strategy_column_name(is_ensemble)
+            df_single = self._multiselect_filter(
+                    df_single, strategy_column_name, "Select Type(s)" if is_ensemble else "Select Strategy(s)")
+
+            if df_single.empty:
                 st.info("No data matches the selected filters.")
                 return
 
-            is_ensemble = df_filtered['ensemble'].iloc[0]
+            self.show_csv_preview(df_single)
+            plot_judged_answers(df_single, strategy_col=strategy_column_name)
+            plot_confidence(df_single, strategy_col=strategy_column_name)
 
-            if is_ensemble:
-                df_filtered['type_name'] = df_filtered['type_name'].fillna("Unknown Type")
-
-                # Type selector
-                type_options = sorted(df_filtered['type_name'].unique())
-                selected_types = st.multiselect(
-                    "Select Type(s)",
-                    options=type_options,
-                    default=type_options
-                )
-                df_filtered = df_filtered[df_filtered['type_name'].isin(selected_types)]
-
-            else:
-
-                # Strategy selector
-                strategy_options = sorted(df_filtered['strategy_name'].unique())
-                selected_strategies = st.multiselect(
-                    "Select Strategy(s)",
-                    options=strategy_options,
-                    default=strategy_options
-                )
-                df_filtered = df_filtered[df_filtered['strategy_name'].isin(selected_strategies)]
-
-            self.show_csv_preview(df_filtered)
-            plot_judged_answers(df_filtered)
-
-            st.subheader(f"Details for chosen Dataset")
+            st.subheader("Details for Chosen Dataset")
 
             selected_dataset = st.selectbox(
-                "Select Dataset for Problem Details:",
-                options=sorted(df_filtered['dataset_name'].unique())
+                "Select Dataset",
+                sorted(df_single["dataset_name"].unique()),
             )
 
-            df_dataset = df_filtered[df_filtered['dataset_name'] == selected_dataset]
+            df_dataset = df_model[df_model["dataset_name"] == selected_dataset]
 
+            show_problem_strategy_table(df_dataset, dataset_name=selected_dataset, strategy_col=strategy_column_name)
+
+            st.subheader("Evaluation Summary for Chosen Strategy")
+
+            selected_strategy = st.selectbox(
+                "Select Strategy" if not is_ensemble else "Select Type",
+                sorted(df_dataset[strategy_column_name].unique()),
+            )
+
+            display_evaluation_summary(df_dataset, dataset_name=selected_dataset, strategy_name=selected_strategy, strategy_col=strategy_column_name, is_ensemble=is_ensemble)
+            
+            st.divider()
+            st.subheader("Detailed Problem View")
+            
             selected_problem_id = st.selectbox(
-                "Select Problem ID for Details:",
-                options=sorted(df_dataset['problem_id'].unique())
+                "Select Problem ID",
+                sorted(df_dataset[df_dataset[strategy_column_name] == selected_strategy]["problem_id"].unique()),
             )
 
             show_chosen_problem(
-                df_dataset,
+                df_single,
                 problem_id=selected_problem_id,
-                dataset_name=selected_dataset
+                dataset_name=selected_dataset,
+                strategy_name=selected_strategy,
+                strategy_col=strategy_column_name
             )
+            
+            if not is_ensemble:
+                show_single_model_config(
+                    dataset_name=selected_dataset,
+                    model_name=df_single["model_name"].iloc[0],
+                    strategy_name=selected_strategy,
+                    version=df_single["version"].iloc[0]               
+                )
+                
+            else:
+                show_ensemble_config(
+                    dataset_name=selected_dataset,
+                    type_name=selected_strategy,
+                    ensemble_version=df_single["version"].iloc[0]               
+                )
 
-            show_problem_strategy_table(
-                df_filtered,
-                dataset_name=selected_dataset
-            )
-
-
+        # ==============================================================
+        # MULTI MODEL VIEW
+        # ==============================================================
 
         else:
             st.subheader("Multiple Models Selection")
-            selected_filters = self.select_multiple_models()
-            df_filtered = self.filter_multiple_models(selected_filters)
 
+            selected_filters = self.select_multiple_models()
+            if not selected_filters:
+                st.info("Select at least one model or ensemble.")
+                return
+
+            df_filtered = self.df[self.df["filter_id"].isin(selected_filters)].copy()
+            self.show_csv_preview(df_filtered)
 
 
 if __name__ == "__main__":
-    app = StreamlitVisualiser("results/all_results_concat.csv")
-    app.run()
+    visualiser = StreamlitVisualiser("results/all_results_concat.csv")
+    visualiser.run()

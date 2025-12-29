@@ -18,7 +18,8 @@ class EvaluationWithJudge(EvaluationBase):
             judge_model_object: Any = None,
             param_set_number: int = None,
             prompt: str = None,
-            prompt_number: int = 1
+            prompt_number: int = 1,
+            prompt_path: str = None
         ):
         self.logger = logging.getLogger(__name__)
         self.prompt_number = prompt_number
@@ -27,6 +28,19 @@ class EvaluationWithJudge(EvaluationBase):
 
         if prompt is not None:
             self.prompt = prompt
+            
+        elif prompt_path is not None:
+            if not os.path.exists(prompt_path):
+                error_msg = f"Prompt file not found: {prompt_path}. Check if prompt path is correct."
+                raise ValueError(error_msg)
+            try:
+                with open(prompt_path, "r") as file:
+                    self.prompt = file.read()
+                    
+            except (OSError, IOError) as e:
+                error_msg = f"Error reading prompt file at {prompt_path}: {e}."
+                self.logger.exception(error_msg)
+                raise ValueError(error_msg) from e
         else:
             prompt_path = os.path.join("prompts", "evaluation", f"evaluation_bongard_{self.prompt_number}.txt")
             

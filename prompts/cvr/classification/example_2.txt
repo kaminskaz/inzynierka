@@ -1,0 +1,19 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Three fields:
+- answer: Answer to the problem. Letter identifying the set where the odd image was blacked out.
+- confidence: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- rationale: Short rationale for your answer.
+
+### Example 1:
+{
+    "answer": "C",
+    "confidence": 0.97,
+    "rationale": "All visible images in set C follow the same rule: every shape within each image is the same color. In the other sets, at least one image breaks this rule by containing shapes of different colors, indicating that the odd image was blacked out in set C.",
+}
+
+### Example 2:
+{
+    "answer": "A",
+    "confidence": 0.85,
+    "rationale": "All visible images in set A follow the same rule: each image contains exactly one shape centered in the frame. In the other sets, at least one image includes multiple shapes or off-center placement, indicating that the odd image was blacked out in set A."
+}

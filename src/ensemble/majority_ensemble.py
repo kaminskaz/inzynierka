@@ -50,8 +50,12 @@ class MajorityEnsemble(EnsembleBase):
             return most_popular_answer
         
     def evaluate_majority_using_llm(self, answer_list):
-        problem_description = self.config.get("problem_description_prompt", "")
-        sample_answer =self.config.get("sample_answer_structure", "")
+        first_member = next(
+            v for k, v in self.config.items() if k.startswith("member_")
+        )
+
+        sample_answer = first_member.get("sample_answer_prompt", "")
+        problem_description = first_member.get("problem_description_prompt", "")
         majority_prompt_path = self.get_ensemble_prompt_path(prompt_number=self.prompt_number)
         with open(majority_prompt_path, "r", encoding="utf-8") as file:
             majority_prompt = file.read()

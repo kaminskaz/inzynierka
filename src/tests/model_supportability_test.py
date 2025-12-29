@@ -24,10 +24,10 @@ def main():
 
     text_content = TextContent("What shape do you see?")
     image_content = ImageContent(relative_path)
-    # response1 = vllm.ask([text_content, image_content], ResponseSchema)
-    # print("Response (multimodal):", response1, flush=True)
+    response1 = vllm.ask([text_content, image_content], ResponseSchema)
+    print("Response (multimodal):", response1, flush=True)
     
-    # vllm.stop()
+    vllm.stop()
 
     print("\nTest Model 2: OpenGVLab/InternVL3-14B", flush=True)
     print("Preparing VLLM", flush=True)
