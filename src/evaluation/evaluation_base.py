@@ -6,7 +6,7 @@ import logging
 from pydantic import BaseModel
 import pandas as pd
 import os
-from src.technical.utils import get_results_directory, shorten_model_name, get_dataset_config, get_ensemble_directory
+from src.technical.utils import get_results_directory, get_dataset_config, get_ensemble_directory
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
