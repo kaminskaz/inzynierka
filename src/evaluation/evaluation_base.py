@@ -67,14 +67,14 @@ class EvaluationBase(ABC):
 
         output_df = answers_df.copy()
         output_df["score"] = ""
+        output_df["key"] = ""
 
         key_dict, summary_key = self._load_key_and_prepare_summary(key_path, expected_num_samples)
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
         self.evaluate(
-            answers_df=answers_df,
-            key_dict=key_dict,
             output_df=output_df,
+            key_dict=key_dict,
             dataset_category=dataset_category
         )
 

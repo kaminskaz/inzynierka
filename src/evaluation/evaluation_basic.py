@@ -17,13 +17,12 @@ class EvaluationBasic(EvaluationBase):
 
     def evaluate(
             self, 
-            answers_df: pd.DataFrame, 
+            output_df: pd.DataFrame, 
             key_dict: dict,
-            output_df: pd.DataFrame,
             dataset_category: str = None
         ):
         
-        for index, row in answers_df.iterrows():
+        for index, row in output_df.iterrows():
             answer = row.get("answer")
             id_ = str(row["problem_id"])
 
