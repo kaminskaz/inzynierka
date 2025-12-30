@@ -51,7 +51,7 @@ def main():
     evaluator_judge.evaluate(answers_df_ensemble, key_ensemble, output_df_ensemble)
     print(output_df_ensemble, flush=True)
 
-    evaluator_judge.judge.stop()
+    evaluator_judge.judge_model_object.stop()
 
     print("\nAll tests completed.", flush=True)
 

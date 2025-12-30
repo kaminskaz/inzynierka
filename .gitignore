@@ -26,6 +26,7 @@ data/
 data_old/
 data_raw/
 results/
+results_old/
 
 # cache
 __pycache__/

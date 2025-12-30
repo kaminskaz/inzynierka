@@ -61,7 +61,7 @@ class EvaluationBase(ABC):
         descriptions = self._load_descriptions(results_dir, ensemble)
 
         expected_num_samples = get_dataset_config(dataset_name).expected_num_samples
-        dataset_category = get_dataset_config(dataset_name).category == "BP"
+        dataset_category = get_dataset_config(dataset_name).category
         summary_answers = self.check_completeness(answers_df, expected_num_samples, descriptions)
         logger.info(f"Answers DataFrame Completeness Summary: {summary_answers}")
 
@@ -201,7 +201,10 @@ class EvaluationBase(ABC):
         else:
             answers_path = os.path.join(results_dir, "results.csv")
         
-        key_path = os.path.join("data", dataset_name, "jsons", f"{dataset_name}_solutions.json")
+        if "classification" in results_dir and dataset_name == "bp":
+            key_path = os.path.join("data", dataset_name, "jsons", "classification_solutions.json")
+        else:
+            key_path = os.path.join("data", dataset_name, "jsons", f"{dataset_name}_solutions.json")
             
         if not results_dir or not os.path.exists(results_dir):
             logger.error("Results directory is not provided or does not exist.")

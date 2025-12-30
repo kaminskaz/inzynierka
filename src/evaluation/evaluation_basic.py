@@ -46,17 +46,27 @@ class EvaluationBasic(EvaluationBase):
 
     def calculate_metrics(self, evaluated_df):
         total = len(evaluated_df)
-        correct = len(evaluated_df[evaluated_df["score"] == "Right"])
+
+        if "score" in evaluated_df.columns:
+            correct = (evaluated_df["score"] == "Right").sum()
+            bin_counts = evaluated_df.groupby("score").size().to_dict()
+        else:
+            correct = 0
+            bin_counts = {}
+
         accuracy = correct / total if total > 0 else 0.0
 
-        avg_confidence = evaluated_df.groupby("score")["confidence"].mean().to_dict() if "confidence" in evaluated_df.columns else {}
-        median_confidence = evaluated_df.groupby("score")["confidence"].median().to_dict() if "confidence" in evaluated_df.columns else {}
+        if "confidence" in evaluated_df.columns and "score" in evaluated_df.columns:
+            avg_confidence = evaluated_df.groupby("score")["confidence"].mean().to_dict()
+            median_confidence = evaluated_df.groupby("score")["confidence"].median().to_dict()
+        else:
+            avg_confidence = {}
+            median_confidence = {}
 
         return {
             "total": total,
-            "correct": correct,
+            "bin_counts": bin_counts,
             "accuracy": accuracy,
             "avg_confidence": avg_confidence,
             "median_confidence": median_confidence
         }
-        

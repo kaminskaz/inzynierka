@@ -17,13 +17,19 @@ class EvaluationFactory():
     def which_evaluator(
         self,
         dataset_name: str,
+        strategy_name: Optional[str] = None,
         ensemble: bool = False,
         type_name: Optional[str] = None
     ) -> Optional[Type[EvaluationBase]]:
         
         if dataset_name.lower() == "bp":
-            return EvaluationWithJudge
-        
+            if not ensemble and strategy_name is None:
+                raise ValueError("strategy_name must be provided for non-ensemble evaluations.")
+            if strategy_name is not None and strategy_name.lower() == "classification":
+                return EvaluationBasic   
+            else:
+                return EvaluationWithJudge
+      
         elif ensemble:
             if type_name is None:
                 raise ValueError("type_name must be provided for ensemble evaluations.")
@@ -35,6 +41,7 @@ class EvaluationFactory():
         self,
         dataset_name: str,
         ensemble: bool = False,
+        strategy_name: Optional[str] = None,
         type_name: Optional[str] = None,
         judge_model_object: Optional[LLMJudge] = None,
         judge_model_name: Optional[str] = 'mistralai/Mistral-7B-Instruct-v0.3',
@@ -45,9 +52,12 @@ class EvaluationFactory():
         
         if ensemble and type_name is None:
             raise ValueError("type_name must be provided for ensemble evaluations.")
+        if not ensemble and strategy_name is None:
+            raise ValueError("strategy_name must be provided for non-ensemble evaluations.")
         
         evaluator_cls = self.which_evaluator(
             dataset_name=dataset_name,
+            strategy_name=strategy_name,
             ensemble=ensemble,
             type_name=type_name
         )

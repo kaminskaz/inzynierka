@@ -22,7 +22,7 @@ def shorten_model_name(model_name: str) -> str:
 
 def _safe_display(value):
     if pd.isna(value) or value == "":
-        return "N/A"
+        return "-"
     return value
 
 def map_strategy_column_name(is_ensemble):
@@ -34,7 +34,7 @@ def map_strategy_column_name(is_ensemble):
 
 def plot_judged_answers(df, score_col="score", dataset_col="dataset_name", strategy_col="strategy_name"):
 
-    st.subheader("Scored Answers across Datasets and Strategies")
+    st.subheader("Scored Answers Summary")
 
     if df.empty:
         st.info("No valid data to display.")
@@ -114,7 +114,7 @@ def plot_judged_answers(df, score_col="score", dataset_col="dataset_name", strat
 def plot_confidence(df, score_col="score", confidence_col="confidence",
                     dataset_col="dataset_name", strategy_col="strategy_name"):
     
-    st.subheader("Confidence Distribution across Datasets and Strategies")
+    st.subheader("Model Confidence Distribution Across Answer Scores")
 
     if df.empty:
         st.info("No valid data to display.")
@@ -180,8 +180,6 @@ def plot_confidence(df, score_col="score", confidence_col="confidence",
 
 
 def show_chosen_problem(df, problem_id, dataset_name, strategy_name, strategy_col='strategy_name'):
-    st.subheader(f"Details for Problem ID: {problem_id}")
-    
     if df.empty:
         st.info("No valid data to display.")
         return
@@ -202,31 +200,31 @@ def show_chosen_problem(df, problem_id, dataset_name, strategy_name, strategy_co
             st.warning("Dataset name not available.")
 
     with col2:
-        st.markdown("### Model Answer")
+        st.markdown("#### Model Answer")
         st.markdown(
             f"<p style='font-size:18px;'>{_safe_display(row.get('answer'))}</p>",
             unsafe_allow_html=True
         )
 
-        st.markdown("### Confidence")
+        st.markdown("#### Confidence")
         st.markdown(
             f"<p style='font-size:18px;'>{_safe_display(row.get('confidence'))}</p>",
             unsafe_allow_html=True
         )
 
-        st.markdown("### Key answer")
+        st.markdown("#### Key answer")
         st.markdown(
             f"<p style='font-size:18px;'>{_safe_display(row.get('key'))}</p>",
             unsafe_allow_html=True
         )
 
-        st.markdown("### Score")
+        st.markdown("#### Score")
         st.markdown(
             f"<p style='font-size:18px;'>{_safe_display(row.get('score'))}</p>",
             unsafe_allow_html=True
         )
 
-        st.markdown("### Rationale")
+        st.markdown("#### Rationale")
         st.markdown(
             f"<p style='font-size:18px;'>{_safe_display(row.get('rationale'))}</p>",
             unsafe_allow_html=True
@@ -271,65 +269,97 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown(f"<h3 style='font-size:24px;;'>Total samples: {total}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='font-size:24px;;'>Total samples: {_safe_display(total)}</h3>", unsafe_allow_html=True)
     with col2:
-        st.markdown(f"<h3 style='font-size:24px;;'>Accuracy: {accuracy:.2%}</h3>" if accuracy is not None else "<h3 style='font-size:24px;'>Accuracy: N/A</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='font-size:24px;;'>Accuracy: {_safe_display(accuracy):.2%}</h3>", unsafe_allow_html=True)
 
     if not is_ensemble:
         cols = st.columns([3, 1, 2, 2])
         with cols[0]:
-            st.markdown("<p style='font-size:18px; font-weight:bold;'>Outcome</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size:18px; font-weight:bold;'>Score</p>", unsafe_allow_html=True)
         with cols[1]:
             st.markdown("<p style='font-size:18px; font-weight:bold;'>Count</p>", unsafe_allow_html=True)
         with cols[2]:
-            st.markdown("<p style='font-size:18px; font-weight:bold;'>Avg Confidence</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size:18px; font-weight:bold;'>Average Confidence</p>", unsafe_allow_html=True)
         with cols[3]:
             st.markdown("<p style='font-size:18px; font-weight:bold;'>Median Confidence</p>", unsafe_allow_html=True)
 
-        bin_counts = metrics.get("bin_counts")
-        avg_conf = metrics.get("avg_confidence", {})
-        med_conf = metrics.get("median_confidence", {})
+        # bin_counts = metrics.get("bin_counts")
+        # avg_conf = metrics.get("avg_confidence", {})
+        # med_conf = metrics.get("median_confidence", {})
 
-        if bin_counts:
-            # BP dataset
-            for label, count in bin_counts.items():
-                is_failure = "failed" in label.lower()
-                cols = st.columns([3, 1, 2, 2])
-                with cols[0]:
-                    st.markdown(f"<p style='font-size:18px;'>{'⚠️ ' if is_failure else ''}{label}</p>", unsafe_allow_html=True)
-                with cols[1]:
-                    st.markdown(f"<p style='font-size:18px;'>{count}</p>", unsafe_allow_html=True)
-                with cols[2]:
-                    val = avg_conf.get(label)
-                    st.markdown(f"<p style='font-size:18px;'>{float(val):.2f}</p>" if val is not None else "<p style='font-size:18px;'>–</p>", unsafe_allow_html=True)
-                with cols[3]:
-                    val = med_conf.get(label)
-                    st.markdown(f"<p style='font-size:18px;'>{float(val):.2f}</p>" if val is not None else "<p style='font-size:18px;'>–</p>", unsafe_allow_html=True)
-        else:
-            # Other datasets
-            for label, val in avg_conf.items():
-                val_med = med_conf.get(label)
-                cols = st.columns([3, 1, 2, 2])
-                with cols[0]:
-                    st.markdown(f"<p style='font-size:18px;'>{label}</p>", unsafe_allow_html=True)
-                with cols[1]:
-                    st.markdown(f"<p style='font-size:18px;'>{metrics.get(label.lower(), '–')}</p>", unsafe_allow_html=True)
-                with cols[2]:
-                    st.markdown(f"<p style='font-size:18px;'>{float(val):.2f}</p>" if val is not None else "<p style='font-size:18px;'>–</p>", unsafe_allow_html=True)
-                with cols[3]:
-                    st.markdown(f"<p style='font-size:18px;'>{float(val_med):.2f}</p>" if val_med is not None else "<p style='font-size:18px;'>–</p>", unsafe_allow_html=True)
+        # if not avg_conf:
+        #     for label, count in bin_counts.items():
+        #         cols = st.columns([3, 1, 2, 2])
+        #         with cols[0]:
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(label)}</p>", unsafe_allow_html=True)
+        #         with cols[1]:
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(count)}</p>", unsafe_allow_html=True)
+        #         with cols[2]:
+        #             val = avg_conf.get(label)
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val))}</p>", unsafe_allow_html=True)
+        #         with cols[3]:
+        #             val = med_conf.get(label)
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val))}</p>", unsafe_allow_html=True)
+        # else:
+        #     for label, val in avg_conf.items():
+        #         val_med = med_conf.get(label)
+        #         cols = st.columns([3, 1, 2, 2])
+        #         with cols[0]:
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(label)}</p>", unsafe_allow_html=True)
+        #         with cols[1]:
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(metrics.get(label.lower(), '–'))}</p>", unsafe_allow_html=True)
+        #         with cols[2]:
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val))}</p>", unsafe_allow_html=True)
+        #         with cols[3]:
+        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val_med))}</p>", unsafe_allow_html=True)
+
+    bin_counts = metrics.get("bin_counts", {})
+    avg_conf = metrics.get("avg_confidence")
+    med_conf = metrics.get("median_confidence")
+
+    has_confidence = isinstance(avg_conf, dict) and avg_conf
+
+    for label, count in bin_counts.items():
+        cols = st.columns([3, 1, 2, 2])
+
+        with cols[0]:
+            st.markdown(f"<p style='font-size:18px;'>{_safe_display(label)}</p>", unsafe_allow_html=True)
+
+        with cols[1]:
+            st.markdown(f"<p style='font-size:18px;'>{_safe_display(count)}</p>", unsafe_allow_html=True)
+
+        with cols[2]:
+            if has_confidence:
+                val = avg_conf.get(label)
+                st.markdown(
+                    f"<p style='font-size:18px;'>{_safe_display(val)}</p>",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown("<p style='font-size:18px;'>–</p>", unsafe_allow_html=True)
+
+        with cols[3]:
+            if has_confidence:
+                val = med_conf.get(label)
+                st.markdown(
+                    f"<p style='font-size:18px;'>{_safe_display(val)}</p>",
+                    unsafe_allow_html=True
+                )
+            else:
+                st.markdown("<p style='font-size:18px;'>–</p>", unsafe_allow_html=True)
+
 
     if summary:
         st.markdown("<p style='font-size:18px; font-weight:bold;'>Data completeness</p>", unsafe_allow_html=True)
 
-        # Nagłówki kolumn z opisami
         cols = st.columns([3, 2, 2, 2])
         with cols[0]:
-            st.markdown("<p style='font-size:14px; color:gray;'>Type of data</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size:14px; color:gray;'></p>", unsafe_allow_html=True)
         with cols[1]:
             st.markdown("<p style='font-size:14px; color:gray;'>Number of samples present</p>", unsafe_allow_html=True)
         with cols[2]:
-            st.markdown("<p style='font-size:14px; color:gray;'>Fraction of available samples</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size:14px; color:gray;'>Fraction of present samples</p>", unsafe_allow_html=True)
         with cols[3]:
             st.markdown("<p style='font-size:14px; color:gray;'>Number of missing samples</p>", unsafe_allow_html=True)
 
@@ -348,13 +378,13 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
 
             cols = st.columns([3, 2, 2, 2])
             with cols[0]:
-                st.markdown(f"<p style='font-size:18px; font-weight:bold;'>{section_label}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px; font-weight:bold;'>{_safe_display(section_label)}</p>", unsafe_allow_html=True)
             with cols[1]:
-                st.markdown(f"<p style='font-size:18px;'>{available} / {expected}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'>{_safe_display(available)} / {_safe_display(expected)}</p>", unsafe_allow_html=True)
             with cols[2]:
-                st.markdown(f"<p style='font-size:18px;'>{coverage:.1%}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'>{_safe_display(f'{coverage:.1%}')}</p>", unsafe_allow_html=True)
             with cols[3]:
-                st.markdown(f"<p style='font-size:18px;'>{missing} missing</p>" if missing > 0 else "<p style='font-size:18px;'>complete</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'>{_safe_display(f'{missing} missing')}</p>", unsafe_allow_html=True)
 
 def load_json_safe(path: str):
     if not os.path.exists(path):
@@ -513,7 +543,7 @@ def show_problem_strategy_table(
     strategy_col = "strategy_name"
 ):
 
-    st.subheader(f"Problem × Strategy Outcome Overview - {dataset_name}")
+    st.subheader(f"Problem × Strategy Outcome Overview")
 
     df = df[df['dataset_name'] == dataset_name].copy()
     if df.empty:
