@@ -70,8 +70,8 @@ class ContrastiveStrategy(StrategyBase):
 
                 desc_text = get_field(description_response, 'description', None)
                 if desc_text:
-                    collected_descriptions.append(desc_text)
-                    problem_descriptions_dict[string_index] = desc_text
+                    collected_descriptions.append(str(desc_text))
+                    problem_descriptions_dict[string_index] = str(desc_text)
 
             all_descriptions_text = "\n\n".join(collected_descriptions)
 
