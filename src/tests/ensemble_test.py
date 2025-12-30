@@ -76,12 +76,14 @@ def run_single_ensemble(
 
     except ImportError as e:
         logger.error(f"Failed to create ensemble. Does '{type_name}' exist and is it importable? Error: {e}", exc_info=True)
-        model.stop()
-        sys.exit(3)
+        if model_object is None:
+            model.stop()
+        sys.exit(1)
     except Exception as e:
         logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
-        model.stop()
-        sys.exit(3)
+        if model_object is None:
+            model.stop()
+        raise e
     
 
 import argparse

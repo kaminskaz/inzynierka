@@ -156,13 +156,14 @@ def run_single_experiment(
         strategy.run(restart_problem_id=restart_problem_id)
         logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
-        model.stop()
+        if model_object is None:
+            model.stop()
 
     except Exception as e:
         logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
         if model is not None and hasattr(model, 'stop'):
             model.stop()
-        sys.exit(3)
+        raise e
     
 
 if __name__ == "__main__":

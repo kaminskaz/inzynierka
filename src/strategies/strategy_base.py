@@ -7,6 +7,7 @@ import csv
 import json
 from dataclasses import asdict, is_dataclass
 import time
+from src.technical.exceptions import PipelineCriticalError
 
 from src.technical.configs.dataset_config import DatasetConfig
 from src.models.vllm import VLLM
@@ -108,8 +109,8 @@ class StrategyBase(ABC):
                 f"Dataset {self.dataset_name} is already fully processed "
                 f"({len(results)}/{self.config.expected_num_samples}). Exiting pipeline."
             )
-            self.model.stop()
-            sys.exit(2)
+            #self.model.stop()
+            return
 
         entries = [e for e in os.scandir(self.dataset_dir) if e.is_dir()]
         entries.sort(key=lambda entry: entry.name)
@@ -158,11 +159,12 @@ class StrategyBase(ABC):
                 
                 fatal_errors = ["Request timed out"]
                 if any(msg in error_msg for msg in fatal_errors):
-                    self.logger.critical("Fatal error encountered. Terminating pipeline.")
+                    self.logger.critical("Fatal error encountered. Raising exception for restart.")
                     if results:
                         self.save_raw_answers_to_csv(results)
-                    self.model.stop()
-                    sys.exit(3)
+                        if all_descriptions_data and self.descriptions_path:
+                                self.save_descriptions_to_json(self.descriptions_path, all_descriptions_data)
+                    raise PipelineCriticalError(f"Critical failure: {error_msg}")
                 continue
 
         if results:
