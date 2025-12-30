@@ -4,6 +4,7 @@ import os
 import sys
 from typing import Any, List, Optional
 from src.ensemble.ensemble_factory import EnsembleFactory
+from src.evaluation.evaluation_base import EvaluationBase
 from src.evaluation.evaluation_factory import EvaluationFactory
 from src.models.llm_judge import LLMJudge
 from src.models.vllm import VLLM
@@ -152,19 +153,27 @@ class FullPipeline:
 
     def run_evaluation(
             self, 
-            config: EvaluationConfig
+            config: EvaluationConfig,
+            evaluator: Optional[EvaluationBase] = None
         ):
 
-        eval_factory = EvaluationFactory()
-        
-        evaluator = eval_factory.create_evaluator(
-            dataset_name=config.dataset_name,
-            ensemble=config.ensemble,
-            type_name=config.type_name,
-            judge_model_object=config.judge_model_object,
-            judge_model_name=config.judge_model_name,
-            prompt_number=config.prompt_number
-        )
+        if evaluator is not None:
+            self.logger.info("Using provided evaluator instance.")
+            stop_after_evaluation = False
+        else:
+            self.logger.info("Creating evaluator instance from configuration.")
+            stop_after_evaluation = True
+            eval_factory = EvaluationFactory()
+            
+            evaluator = eval_factory.create_evaluator(
+                dataset_name=config.dataset_name,
+                ensemble=config.ensemble,
+                strategy_name=config.strategy_name,
+                type_name=config.type_name,
+                judge_model_object=config.judge_model_object,
+                judge_model_name=config.judge_model_name,
+                prompt_number=config.prompt_number
+            )
 
         evaluator.run_evaluation(
             dataset_name=config.dataset_name,
@@ -178,7 +187,7 @@ class FullPipeline:
             output_all_results_concat_path=config.output_all_results_concat_path
         )
 
-        if evaluator.judge_model_object is not None:
+        if stop_after_evaluation and evaluator.judge_model_object is not None:
             evaluator.judge_model_object.stop()
 
     def run_evaluations(self, configs: List[EvaluationConfig]):

@@ -101,7 +101,7 @@ class EvaluationWithJudge(EvaluationBase):
                 output_df.at[index, "key"] = "Key missing"
                 continue
 
-            if dataset_category == "BP":
+            if dataset_category.lower() == "bp":
                 left_rule, right_rule = key_dict[id_]
                 key = f"{left_rule} vs. {right_rule}"
             else:
@@ -136,15 +136,24 @@ class EvaluationWithJudge(EvaluationBase):
 
     def calculate_metrics(self, evaluated_df):
         total = len(evaluated_df)
-        correct = len(evaluated_df[evaluated_df["score"] == "Right"])
-        accuracy = correct / total if total > 0 else 0.0
 
-        if {"score", "confidence"}.issubset(evaluated_df.columns):
-            bin_counts = evaluated_df.groupby("score")["confidence"].size().to_dict()
-            avg_confidence = evaluated_df.groupby("score")["confidence"].mean().to_dict()
-            median_confidence = evaluated_df.groupby("score")["confidence"].median().to_dict()
+        if "score" in evaluated_df.columns:
+            correct = (evaluated_df["score"] == "Right").sum()
+            accuracy = correct / total if total > 0 else 0.0
+        else:
+            accuracy = 0.0
+
+        if "score" in evaluated_df.columns:
+            grouped = evaluated_df.groupby("score")
+            bin_counts = grouped.size().to_dict()
         else:
             bin_counts = {}
+
+        if "confidence" in evaluated_df.columns and "score" in evaluated_df.columns:
+            bin_counts = grouped["confidence"].size().to_dict()
+            avg_confidence = grouped["confidence"].mean().to_dict()
+            median_confidence = grouped["confidence"].median().to_dict()
+        else:
             avg_confidence = {}
             median_confidence = {}
 
@@ -155,4 +164,5 @@ class EvaluationWithJudge(EvaluationBase):
             "avg_confidence": avg_confidence,
             "median_confidence": median_confidence
         }
+
         

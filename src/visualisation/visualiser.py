@@ -71,7 +71,7 @@ class StreamlitVisualiser:
 
         st.subheader("Results CSV Preview")
         st.dataframe(
-            df.drop(columns=["filter_id"], errors="ignore")
+            df.drop(columns=["filter_id", "ensemble"], errors="ignore")
         )
 
     def run(self):
@@ -103,10 +103,9 @@ class StreamlitVisualiser:
         # ==============================================================
         # SINGLE MODEL VIEW
         # ==============================================================
-
+        st.subheader("Model Selection")
         if vis_type == "single":
-            st.subheader("Single Model Selection")
-            
+             
             single_model_id = self.select_model()
             df_model = self.df[self.df["filter_id"] == single_model_id].copy()
 
@@ -125,7 +124,7 @@ class StreamlitVisualiser:
 
             strategy_column_name = map_strategy_column_name(is_ensemble)
             df_single = self._multiselect_filter(
-                    df_single, strategy_column_name, "Select Type(s)" if is_ensemble else "Select Strategy(s)")
+                    df_single, strategy_column_name, "Select Type(s)" if is_ensemble else "Select Strategy(ies)")
 
             if df_single.empty:
                 st.info("No data matches the selected filters.")
@@ -146,7 +145,10 @@ class StreamlitVisualiser:
 
             show_problem_strategy_table(df_dataset, dataset_name=selected_dataset, strategy_col=strategy_column_name)
 
-            st.subheader("Evaluation Summary for Chosen Strategy")
+            if is_ensemble:
+                st.subheader("Evaluation Summary for Chosen Dataset and Type")
+            else:
+                st.subheader("Evaluation Summary for Chosen Dataset and Strategy")
 
             selected_strategy = st.selectbox(
                 "Select Strategy" if not is_ensemble else "Select Type",
@@ -156,7 +158,7 @@ class StreamlitVisualiser:
             display_evaluation_summary(df_dataset, dataset_name=selected_dataset, strategy_name=selected_strategy, strategy_col=strategy_column_name, is_ensemble=is_ensemble)
             
             st.divider()
-            st.subheader("Detailed Problem View")
+            st.subheader("Sample Problem Details")
             
             selected_problem_id = st.selectbox(
                 "Select Problem ID",
@@ -191,8 +193,6 @@ class StreamlitVisualiser:
         # ==============================================================
 
         else:
-            st.subheader("Multiple Models Selection")
-
             selected_filters = self.select_multiple_models()
             if not selected_filters:
                 st.info("Select at least one model or ensemble.")
