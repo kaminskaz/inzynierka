@@ -128,7 +128,7 @@ class EvaluationBase(ABC):
             incomplete_ids = {}
             for outer_id, inner_dict in descriptions.items():
                 missing_inner = sorted(
-                [k for k, v in inner_dict.items() if v is None or v.strip() == ""]
+                [k for k, v in inner_dict.items() if not v or str(v).strip() == ""]
             )
             if missing_inner:
                 incomplete_ids[outer_id] = missing_inner
@@ -185,7 +185,10 @@ class EvaluationBase(ABC):
         final_order = other_cols + meta_cols
 
         combined_df = combined_df[final_order]
-        combined_df = combined_df.drop_duplicates(subset=["problem_id", "dataset_name", "model_name", "strategy_name", "version"], keep='last')
+        if not ensemble:
+            combined_df = combined_df.drop_duplicates(subset=["problem_id", "dataset_name", "model_name", "strategy_name", "version"], keep='last')
+        else:
+            combined_df = combined_df.drop_duplicates(subset=["problem_id", "dataset_name", "type_name", "version"], keep='last')
 
         combined_df.to_csv(all_results_concat_path, index=False)
 
