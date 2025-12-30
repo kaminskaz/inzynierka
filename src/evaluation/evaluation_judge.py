@@ -84,14 +84,14 @@ class EvaluationWithJudge(EvaluationBase):
         )
 
     def evaluate(
-            self, 
-            answers_df: pd.DataFrame, 
-            key_dict: dict,
-            output_df: pd.DataFrame,
-            dataset_category: str
-        ):
-        
-        for index, row in answers_df.iterrows():
+        self, 
+        output_df: pd.DataFrame, 
+        key_dict: dict,
+        dataset_category: str,
+        stop_after_evaluation: bool = False
+    ):
+    
+        for index, row in output_df.iterrows():
             answer = row.get("answer")
             id_ = str(row["problem_id"])
 
@@ -130,7 +130,8 @@ class EvaluationWithJudge(EvaluationBase):
             output_df.at[index, "score"] = score
             output_df.at[index, "reasoning"] = reasoning
         
-        self.judge_model_object.stop()
+        if stop_after_evaluation:
+            self.judge_model_object.stop()
             
 
     def calculate_metrics(self, evaluated_df):

@@ -73,9 +73,8 @@ class EvaluationBase(ABC):
         logger.info(f"Key DataFrame Completeness Summary: {summary_key}")
 
         self.evaluate(
-            answers_df=answers_df,
-            key_dict=key_dict,
             output_df=output_df,
+            key_dict=key_dict,
             dataset_category=dataset_category
         )
 

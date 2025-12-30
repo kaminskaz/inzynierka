@@ -165,6 +165,7 @@ class FullPipeline:
             judge_model_name=config.judge_model_name,
             prompt_number=config.prompt_number
         )
+
         evaluator.run_evaluation(
             dataset_name=config.dataset_name,
             version=config.version, 
@@ -176,6 +177,9 @@ class FullPipeline:
             concat=config.concat,
             output_all_results_concat_path=config.output_all_results_concat_path
         )
+
+        if evaluator.judge_model_object is not None:
+            evaluator.judge_model_object.stop()
 
     def run_evaluations(self, configs: List[EvaluationConfig]):
         for config in configs:
