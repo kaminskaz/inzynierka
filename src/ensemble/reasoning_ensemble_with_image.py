@@ -2,7 +2,6 @@ import os
 import pandas as pd
 import random
 from typing import Dict, Any, List, Optional
-from traitlets import List
 
 from src.ensemble.ensemble_base import EnsembleBase
 from src.models.vllm import VLLM

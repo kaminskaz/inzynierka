@@ -81,13 +81,14 @@ class FullPipeline:
             strategy.run(restart_problem_id=restart_problem_id)
             self.logger.info(f"Experiment run complete for {dataset_name} / {strategy_name}.")
 
-            model.stop()
+            if model_object is None:
+                model.stop()
 
         except Exception as e:
             self.logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
             if model is not None and hasattr(model, 'stop'):
                 model.stop()
-            sys.exit(3)
+            raise e
 
 
     def run_ensemble(
@@ -138,17 +139,19 @@ class FullPipeline:
             ensemble.evaluate()
             self.logger.info(f"Ensemble run complete for {dataset_name} / {type_name}.")
             
-            if model:
+            if model and model_object is None:
                 model.stop()
 
         except ImportError as e:
             self.logger.error(f"Failed to create ensemble. Does '{type_name}' exist and is it importable? Error: {e}", exc_info=True)
-            model.stop()
+            if model_object is None:
+                model.stop()
             sys.exit(1)
         except Exception as e:
             self.logger.error(f"An error occurred during the experiment run: {e}", exc_info=True)
-            model.stop()
-            sys.exit(1)
+            if model_object is None:
+                model.stop()
+            raise e
 
 
     def run_evaluation(
