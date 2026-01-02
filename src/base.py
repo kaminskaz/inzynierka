@@ -172,7 +172,6 @@ class FullPipeline:
                 dataset_name=config.dataset_name,
                 ensemble=config.ensemble,
                 strategy_name=config.strategy_name,
-                type_name=config.type_name,
                 judge_model_object=config.judge_model_object,
                 judge_model_name=config.judge_model_name,
                 prompt_number=config.prompt_number

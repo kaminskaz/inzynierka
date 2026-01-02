@@ -19,3 +19,6 @@ $all_answers
 You must output valid JSON. Do not add markdown or conversational text. Two fields:
 - rationale: Explain your reasoning. Which answers grouped together? How did the confidence scores influence the decision?
 - final_answer: Answer representing the confidence-weighted consensus in the format of $sample_answer.
+
+### Example
+$example

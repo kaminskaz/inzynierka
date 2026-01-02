@@ -29,6 +29,7 @@ class ConfidenceEnsemble(EnsembleBase):
             self.config["ensemble_model"] = "No judge model needed for this type of dataset."
         
     def evaluate_single_problem(self, problem_id):
+        rationale = None
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()
 
         if single_problem_df.empty:
@@ -39,8 +40,8 @@ class ConfidenceEnsemble(EnsembleBase):
             answer_list = single_problem_df["answer"].tolist()
             confidence_list = single_problem_df["confidence"].tolist()
 
-            final_answer = self.evaluate_confidence_using_llm(answer_list, confidence_list)
-            return final_answer
+            final_answer, rationale = self.evaluate_confidence_using_llm(answer_list, confidence_list)
+            return final_answer, rationale
         
         else:
             if "answer" not in single_problem_df.columns:
@@ -52,35 +53,19 @@ class ConfidenceEnsemble(EnsembleBase):
             max_avg_confidence = avg_confidence.max()
             tied_answers = avg_confidence[avg_confidence == max_avg_confidence].index.tolist()
             most_popular_answer = random.choice(tied_answers)
-            return most_popular_answer
+            return most_popular_answer, rationale
         
     def evaluate_confidence_using_llm(self, answer_list, confidence_list):
-        first_member = next(
-            v for k, v in self.config.items() if k.startswith("member_")
-        )
-
-        sample_answer = first_member.get("sample_answer_prompt", "")
-        problem_description = first_member.get("problem_description_prompt", "")
-        
-        confidence_prompt_path = self.get_ensemble_prompt_path(prompt_number=self.prompt_number)
-        with open(confidence_prompt_path, "r", encoding="utf-8") as file:
-            confidence_prompt = file.read()
    
         all_answers_str = "\n".join(f"- {ans} (confidence: {conf})" for ans, conf in zip(answer_list, confidence_list))
+        prompt_filled = self._get_filled_prompt(all_answers=all_answers_str)
 
         schema = GeneralEnsembleSchema
-        template = Template(confidence_prompt)
-
-        prompt_filled = template.substitute(
-            problem_description=problem_description,
-            all_answers=all_answers_str,
-            sample_answer=sample_answer
-        )
-
         response = self.llm.ask(
             [TextContent(prompt_filled)],
             schema=schema,
         )
 
         final_answer = get_field(response, "final_answer")
-        return final_answer
+        rationale = get_field(response, "rationale")
+        return final_answer, rationale

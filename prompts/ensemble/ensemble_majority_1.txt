@@ -17,3 +17,6 @@ $all_answers
 You must output valid JSON. Do not add markdown or conversational text. Two fields:
  -rationale: Explain your reasoning here. Which answers grouped together? Why did this group constitute the best answer? Explain the logic used to reach the consensus.
 - final_answer: Answer representing the majority view in the format of $sample_answer.
+
+### Example
+$example
