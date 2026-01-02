@@ -93,7 +93,7 @@ def plot_judged_answers(df, score_col="score", dataset_col="dataset_name", strat
         ax.set_title(dataset)
         ax.set_xlabel("Strategy")
         ax.set_ylabel("Count")
-        ax.set_yticks(range(0, max_count + 1))
+        ax.set_ylim(0, max_count + 1)
         ax.tick_params(axis='x', rotation=40)
         ax.get_legend().remove()  
 
@@ -102,9 +102,9 @@ def plot_judged_answers(df, score_col="score", dataset_col="dataset_name", strat
 
     handles = [plt.Rectangle((0,0),1,1, color=present_colors[label]) for label in present_colors]
     labels = list(present_colors.keys())
-    fig.legend(handles, labels, title="Score", loc='upper right', bbox_to_anchor=(1, 1), ncol=1)
+    fig.legend(handles, labels, title="Score", loc='upper right', bbox_to_anchor=(1.02, 1), ncol=1)
 
-    plt.tight_layout(rect=[0, 0, 0.9, 0.9])
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
     left, center, right = st.columns([1, 8, 1])
     with center:
         st.pyplot(fig)
@@ -171,9 +171,9 @@ def plot_confidence(df, score_col="score", confidence_col="confidence",
 
     handles = [plt.Rectangle((0,0),1,1, color=present_colors[label]) for label in present_colors]
     labels = list(present_colors.keys())
-    fig.legend(handles, labels, title="Score", loc='upper right', bbox_to_anchor=(1, 1), ncol=1)
+    fig.legend(handles, labels, title="Score", loc='upper right', bbox_to_anchor=(1.02, 1), ncol=1)
 
-    plt.tight_layout(rect=[0, 0, 0.9, 0.9])
+    plt.tight_layout(rect=[0, 0, 0.85, 1])
     left, center, right = st.columns([1, 8, 1])
     with center:
         st.pyplot(fig)
@@ -284,36 +284,6 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
         with cols[3]:
             st.markdown("<p style='font-size:18px; font-weight:bold;'>Median Confidence</p>", unsafe_allow_html=True)
 
-        # bin_counts = metrics.get("bin_counts")
-        # avg_conf = metrics.get("avg_confidence", {})
-        # med_conf = metrics.get("median_confidence", {})
-
-        # if not avg_conf:
-        #     for label, count in bin_counts.items():
-        #         cols = st.columns([3, 1, 2, 2])
-        #         with cols[0]:
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(label)}</p>", unsafe_allow_html=True)
-        #         with cols[1]:
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(count)}</p>", unsafe_allow_html=True)
-        #         with cols[2]:
-        #             val = avg_conf.get(label)
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val))}</p>", unsafe_allow_html=True)
-        #         with cols[3]:
-        #             val = med_conf.get(label)
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val))}</p>", unsafe_allow_html=True)
-        # else:
-        #     for label, val in avg_conf.items():
-        #         val_med = med_conf.get(label)
-        #         cols = st.columns([3, 1, 2, 2])
-        #         with cols[0]:
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(label)}</p>", unsafe_allow_html=True)
-        #         with cols[1]:
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(metrics.get(label.lower(), '–'))}</p>", unsafe_allow_html=True)
-        #         with cols[2]:
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val))}</p>", unsafe_allow_html=True)
-        #         with cols[3]:
-        #             st.markdown(f"<p style='font-size:18px;'>{_safe_display(float(val_med))}</p>", unsafe_allow_html=True)
-
     bin_counts = metrics.get("bin_counts", {})
     avg_conf = metrics.get("avg_confidence")
     med_conf = metrics.get("median_confidence")
@@ -331,7 +301,7 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
 
         with cols[2]:
             if has_confidence:
-                val = avg_conf.get(label)
+                val = round(avg_conf.get(label), 2)
                 st.markdown(
                     f"<p style='font-size:18px;'>{_safe_display(val)}</p>",
                     unsafe_allow_html=True
@@ -341,7 +311,7 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
 
         with cols[3]:
             if has_confidence:
-                val = med_conf.get(label)
+                val = round(med_conf.get(label), 2)
                 st.markdown(
                     f"<p style='font-size:18px;'>{_safe_display(val)}</p>",
                     unsafe_allow_html=True

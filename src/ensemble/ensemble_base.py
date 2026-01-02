@@ -26,7 +26,7 @@ class EnsembleBase(ABC):
         self.ensemble_directory = None
         self.exists = False
         self.config["ensemble_model"] = ""
-        prompt_path = self.get_ensemble_prompt_path(dataset_name, type_name, prompt_number)
+        prompt_path = self.get_ensemble_prompt_path(dataset_name, prompt_number)
         with open(prompt_path, "r", encoding="utf-8") as f:
             self.config["main_prompt"] = f.read()
 
