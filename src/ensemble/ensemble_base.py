@@ -28,24 +28,13 @@ class EnsembleBase(ABC):
         self.ensemble_directory = None
         self.exists = False
         self.config["ensemble_model"] = ""
-        prompt_path = self.get_ensemble_prompt_path(dataset_name, prompt_number)
-        with open(prompt_path, "r", encoding="utf-8") as f:
-            main_prompt = f.read()
-            first_member = next(
-            v for k, v in self.config.items() if k.startswith("member_")
-        )
-
-        sample_answer = first_member.get("sample_answer_prompt", "")
-        problem_description = first_member.get("problem_description_prompt", "")
-        template = Template(main_prompt)
-        main_prompt_filled = template.substitute(
-            problem_description=problem_description,
-            all_answers="The ensemble members' answers provided here.",
-            sample_answer=sample_answer
-        )
-        self.config["main_prompt"] = main_prompt_filled
+        self.config["dataset_name"] = self.dataset_name
+        self.config["dataset_category"] = self.dataset_config.get("category", "")
+        self.config["task_type"] = self.dataset_config.get("task_type", "")
 
         self._build_ensemble()
+        
+        self.config["main_prompt"] = self._get_filled_prompt()
 
     def get_results_dir(self, dataset_name: str, strategy: str, model_name: str, version: str = '1',) -> str:
         base_dir = get_results_directory(dataset_name, strategy, model_name, version)
@@ -67,18 +56,18 @@ class EnsembleBase(ABC):
         path_to_metadata = os.path.join(results_dir, "metadata.json")
 
         try:
-                results_df = pd.read_csv(path_to_csv, dtype={"problem_id": str}, encoding="utf-8")
-                num_digits = len(str(self.dataset_config.expected_num_samples))
-                results_df["problem_id"] = results_df["problem_id"].apply(lambda x: str(x).zfill(num_digits))
+            results_df = pd.read_csv(path_to_csv, dtype={"problem_id": str}, encoding="utf-8")
+            num_digits = len(str(self.dataset_config.expected_num_samples))
+            results_df["problem_id"] = results_df["problem_id"].apply(lambda x: str(x).zfill(num_digits))
 
-                with open(path_to_metadata, "r", encoding="utf-8") as f:
-                    metadata = json.load(f)
+            with open(path_to_metadata, "r", encoding="utf-8") as f:
+                metadata = json.load(f)
 
-                self.logger.info(
-                    f"Loaded results from {path_to_csv} with {len(results_df)} entries."
-                )
-                self.logger.info(f"Loaded metadata from {path_to_metadata}.")
-                return results_df, metadata
+            self.logger.info(
+                f"Loaded results from {path_to_csv} with {len(results_df)} entries."
+            )
+            self.logger.info(f"Loaded metadata from {path_to_metadata}.")
+            return results_df, metadata
 
         except FileNotFoundError as e:
             self.logger.error(f"Missing file in {results_dir}: {e}")
@@ -225,3 +214,35 @@ class EnsembleBase(ABC):
                 raise ValueError(error_msg)
 
         return prompt_path
+    
+    def _get_filled_prompt(self, all_answers: str = None) -> str:
+        prompt_path = self.get_ensemble_prompt_path(self.dataset_name, self.prompt_number)
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            main_prompt = f.read()
+        
+        first_member = next(v for k, v in self.config.items() if k.startswith("member_"))
+        sample_answer = first_member.get("sample_answer_prompt", "")
+        problem_description = first_member.get("problem_description_prompt", "")
+        task_type = self.dataset_config.get("task_type", "")
+        if task_type == "close-ended":
+            example_prompt_path = os.path.join("prompts", "ensemble", "close_ended_example.txt")
+        else:
+            example_prompt_path = os.path.join("prompts", "ensemble", "open_ended_example.txt")
+        
+        if not os.path.exists(example_prompt_path):
+            raise ValueError(f"Example prompt file not found: {example_prompt_path}")
+        with open(example_prompt_path, "r", encoding="utf-8") as f:
+            example = f.read()
+
+        if all_answers is None:
+            all_answers = "The ensemble members' answers provided here."
+
+        template = Template(main_prompt)
+        main_prompt_filled = template.substitute(
+            problem_description=problem_description,
+            all_answers=all_answers,
+            sample_answer=sample_answer,
+            example=example
+        )
+
+        return main_prompt_filled

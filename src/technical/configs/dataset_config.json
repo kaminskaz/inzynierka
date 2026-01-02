@@ -1,6 +1,7 @@
 {
   "raven": {
     "image_format": ".jpeg",
+    "task_type": "close-ended",
     "category": "standard",
     "data_folder": "data_raw/vcog-bench/raven",
     "hf_repo_id": "vcog/vcog-bench",
@@ -18,6 +19,7 @@
 
   "cvr": {
     "image_format": ".png",
+    "task_type": "close-ended",
     "category": "choice_only",
     "data_folder": "data_raw/vcog-bench/cvr",
     "hf_repo_id": "vcog/vcog-bench",
@@ -35,6 +37,7 @@
 
   "marsvqa": {
     "image_format": ".jpeg",
+    "task_type": "close-ended",
     "category": "standard",
     "data_folder": "data_raw/vcog-bench/marsvqa",
     "hf_repo_id": "vcog/vcog-bench",
@@ -53,6 +56,7 @@
 
   "bp": {
     "image_format": ".png",
+    "task_type": "open-ended",
     "category": "BP",
     "data_folder": "data_raw/bp",
     "num_choices": 12,

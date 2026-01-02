@@ -18,3 +18,6 @@ $all_answers
 You must output valid JSON. Do not add markdown or conversational text. Two fields:
 - rationale: Explain your reasoning, explicitly mentioning which visual features confirmed the correct answer and why other popular answers were visually incorrect.
 - final_answer: The single best answer supported by reasoning and the visual evidence in the format of $sample_answer.
+
+### Example
+$example

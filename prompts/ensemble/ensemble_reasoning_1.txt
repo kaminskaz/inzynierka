@@ -20,3 +20,6 @@ $all_answers
 You must output valid JSON. Do not add markdown or conversational text. Two fields:
 - rationale: Explain your reasoning. Which answer's reasning was the most convincing? How did the vote count and reasoning influence the decision?
 - final_answer: Answer supported by the most logical reasoning in the format of $sample_answer.
+
+### Example
+$example

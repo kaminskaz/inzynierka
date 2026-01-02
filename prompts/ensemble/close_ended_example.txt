@@ -1,0 +1,4 @@
+{
+  "rationale": "All members of the ensemble consistently assigned the highest probability to answer B. The agreement among the models indicates strong confidence in this prediction.",
+  "final_answer": "B"
+}

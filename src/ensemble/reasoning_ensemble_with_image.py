@@ -36,35 +36,20 @@ class ReasoningEnsembleWithImage(EnsembleBase):
         reasoning_list = single_problem_df["rationale"].tolist()
         image_path = os.path.join("data", self.dataset_name, "problems", str(problem_id), "question_panel.png")
 
-        final_answer = self.evaluate_reasoning_using_llm(answer_list, reasoning_list, question_image_path=image_path)
-        return final_answer
+        final_answer, rationale = self.evaluate_reasoning_using_llm(answer_list, reasoning_list, question_image_path=image_path)
+        return final_answer, rationale
         
     def evaluate_reasoning_using_llm(self, answer_list, reasoning_list, question_image_path):
-        first_member = next(
-            v for k, v in self.config.items() if k.startswith("member_")
-        )
-
-        sample_answer = first_member.get("sample_answer_prompt", "")
-        problem_description = first_member.get("problem_description_prompt", "")
-        reasoning_prompt_path = self.get_ensemble_prompt_path(prompt_number=self.prompt_number)
-        with open(reasoning_prompt_path, "r", encoding="utf-8") as file:
-            reasoning_prompt = file.read()
-   
         all_answers_str = "\n".join(f"- {ans} (reasoning: {reas})" for ans, reas in zip(answer_list, reasoning_list))
-        template = Template(reasoning_prompt)
+        prompt_filled = self._get_filled_prompt(all_answers=all_answers_str)
 
         schema = GeneralEnsembleSchema
-        prompt_filled = template.substitute(
-            problem_description=problem_description,
-            all_answers=all_answers_str,
-            sample_answer=sample_answer
-        )
-
         response = self.vllm.ask(
             [TextContent(prompt_filled), ImageContent(question_image_path)],
             schema=schema,
         )
 
         final_answer = get_field(response, "final_answer")
+        rationale = get_field(response, "rationale")
 
-        return final_answer
+        return final_answer, rationale

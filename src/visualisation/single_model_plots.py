@@ -408,12 +408,14 @@ def show_single_model_config(
     if model_param_set and str(model_param_set) in param_sets:
         temperature = param_sets[str(model_param_set)].get("temperature")
 
-    st.markdown(f"<p style='font-size:18px;'><b>Model name:</b> {metadata.get('model')}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {temperature}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {metadata.get('dataset')}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Model name:</b> {_safe_display(metadata.get('model'))}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {_safe_display(temperature)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {_safe_display(metadata.get('dataset'))}</p>", unsafe_allow_html=True)
     category = metadata.get("config", {}).get("category")
-    st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {category}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {metadata.get('strategy')}</p>", unsafe_allow_html=True)
+    task_type = metadata.get("config", {}).get("task_type")
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {_safe_display(category)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Task Type:</b> {_safe_display(task_type)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {_safe_display(metadata.get('strategy'))}</p>", unsafe_allow_html=True)
 
 
     st.markdown("### Prompts")
@@ -476,16 +478,20 @@ def show_ensemble_config(dataset_name, type_name, ensemble_version):
         st.warning(f"Model config not found:\n`{tech_model_config_path}`")
         return
 
-    st.markdown(f"<p style='font-size:18px;'><b>Ensemble Model:</b> {metadata.get('ensemble_model')}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Ensemble Model:</b> {_safe_display(metadata.get('ensemble_model'))}</p>", unsafe_allow_html=True)
+    category = metadata.get("dataset_category")
+    task_type = metadata.get("task_type")
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {_safe_display(metadata.get('dataset_name'))}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {_safe_display(category)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Task Type:</b> {_safe_display(task_type)}</p>", unsafe_allow_html=True)
     st.markdown("<p style='font-size:18px;'><b>Prompts:</b></p>", unsafe_allow_html=True)
-    st.text_area("Main Prompt", value=metadata.get('main_prompt', ""), height=300)
+    st.text_area("Main Prompt", value=_safe_display(metadata.get('main_prompt', "")), height=300)
 
     member_keys = sorted([k for k in metadata.keys() if k.startswith("member_")])
     for member_key in member_keys:
         member = metadata[member_key]
         st.markdown(f"#### {member_key.capitalize().replace('_', ' ')}")
         model_name = member.get("model")
-        st.write(f"**Model Name:** {model_name}")
         model_entry = tech_config.get(model_name, {})
         param_sets = model_entry.get("param_sets", {})
 
@@ -494,12 +500,9 @@ def show_ensemble_config(dataset_name, type_name, ensemble_version):
 
         if model_param_set and str(model_param_set) in param_sets:
             temperature = param_sets[str(model_param_set)].get("temperature")
-        st.markdown(f"<p style='font-size:18px;'><b>Model:</b> {model_name}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {temperature}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {member.get('dataset')}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {member.get('strategy')}</p>", unsafe_allow_html=True)
-        category = member.get("config", {}).get("category")
-        st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {category}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size:18px;'><b>Model Name:</b> {_safe_display(model_name)}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {_safe_display(temperature)}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {_safe_display(member.get('strategy'))}</p>", unsafe_allow_html=True)
 
         with st.expander(f"Show full config for {member_key.capitalize().replace('_', ' ')}"):
             st.json(member)
