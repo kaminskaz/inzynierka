@@ -25,6 +25,8 @@ class ConfidenceEnsemble(EnsembleBase):
         if get_dataset_config(dataset_name).category == "BP":
             self.llm = judge_model if judge_model is not None else LLMJudge()
             self.config["ensemble_model"] = self.llm.get_model_name()
+        else:
+            self.config["ensemble_model"] = "No judge model needed for this type of dataset."
         
     def evaluate_single_problem(self, problem_id):
         single_problem_df = self.answers[self.answers["problem_id"] == problem_id].copy()
