@@ -1,12 +1,14 @@
 import logging
 from abc import ABC, abstractmethod
 import re
+from string import Template
 from typing import Any, List, Union, Optional, Dict
 import os
 import csv
 import json
 import pandas as pd
 
+from src.technical.response_schema import GeneralEnsembleSchema
 from src.technical.utils import get_dataset_config, get_results_directory, get_ensemble_directory
 from src.tests.strategy_test import run_single_experiment
 
@@ -28,7 +30,20 @@ class EnsembleBase(ABC):
         self.config["ensemble_model"] = ""
         prompt_path = self.get_ensemble_prompt_path(dataset_name, prompt_number)
         with open(prompt_path, "r", encoding="utf-8") as f:
-            self.config["main_prompt"] = f.read()
+            main_prompt = f.read()
+            first_member = next(
+            v for k, v in self.config.items() if k.startswith("member_")
+        )
+
+        sample_answer = first_member.get("sample_answer_prompt", "")
+        problem_description = first_member.get("problem_description_prompt", "")
+        template = Template(main_prompt)
+        main_prompt_filled = template.substitute(
+            problem_description=problem_description,
+            all_answers="The ensemble members' answers provided here.",
+            sample_answer=sample_answer
+        )
+        self.config["main_prompt"] = main_prompt_filled
 
         self._build_ensemble()
 

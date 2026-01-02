@@ -13,7 +13,7 @@ You must output valid JSON. Do not add markdown or conversational text. Three fi
 
 ### Example 2:
 {
-"answer": "A",
-"confidence": 0.96,
-"rationale": "Option A is correct because all images in the Left panel contain multiple objects, while every image in the Right panel contains exactly one object. In option C, this distinction is violated because one Left-panel image shows only a single object, so the Left-only rule is no longer consistent."
+    "answer": "A",
+    "confidence": 0.96,
+    "rationale": "Option A is correct because all images in the Left panel contain multiple objects, while every image in the Right panel contains exactly one object. In option C, this distinction is violated because one Left-panel image shows only a single object, so the Left-only rule is no longer consistent."
 }

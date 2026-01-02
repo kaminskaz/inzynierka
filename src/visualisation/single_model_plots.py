@@ -482,12 +482,16 @@ def show_ensemble_config(dataset_name, type_name, ensemble_version):
     member_keys = sorted([k for k in metadata.keys() if k.startswith("member_")])
     for member_key in member_keys:
         member = metadata[member_key]
-        st.markdown(f"### {member_key.capitalize().replace('_', ' ')}")
+        st.markdown(f"#### {member_key.capitalize().replace('_', ' ')}")
         model_name = member.get("model")
+        st.write(f"**Model Name:** {model_name}")
         model_entry = tech_config.get(model_name, {})
+        st.write(f"**Technical Config Entry:** {model_entry}")
         param_sets = model_entry.get("param_sets", {})
+        st.write(f"**Parameter Sets:** {param_sets}")
         temperature = None
         model_param_set = member.get("param_set_number")
+        
         if model_param_set and str(model_param_set) in param_sets:
             temperature = param_sets[str(model_param_set)].get("temperature")
         st.markdown(f"<p style='font-size:18px;'><b>Model:</b> {model_name}</p>", unsafe_allow_html=True)
@@ -500,7 +504,7 @@ def show_ensemble_config(dataset_name, type_name, ensemble_version):
         with st.expander(f"Show full config for {member_key.capitalize().replace('_', ' ')}"):
             st.json(member)
 
-    st.markdown(f"### Full Ensemble metadata")
+    st.markdown(f"#### Full Ensemble metadata")
     with st.expander("Show full ensemble metadata"):
         st.json(metadata)
 
