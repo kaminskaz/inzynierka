@@ -1,0 +1,69 @@
+
+BP
+
+classification
+
+Identify which set (A or B) represents a valid Bongard Problem classification, where all images on the **Left** side share a consistent visual invariant absent from the **Right** and which set contains a single pair of interchanged images that violates this rule.
+
+describe contrastive
+
+Provide a direct contrastive analysis of the images by identifying all objective visual differences regarding object attributes, spatial configurations, and feature counts.
+
+contrastive
+
+Synthesize the provided image pair descriptions to define a single, mutually exclusive logical rule that consistently differentiates all **Left** descriptions from all **Right** descriptions.
+
+describe descriptive
+
+Provide a comprehensive, objective description of the image, detailing all visible objects, their specific geometric attributes, and their spatial arrangements.
+
+descriptive
+
+Analyze the twelve image descriptions to identify the singular, mutually exclusive logical rule that is universally present in descriptions 0–5 (Left) and consistently absent or contradicted in descriptions 6–11 (Right).
+
+direct 
+
+Define the core logical rule of the Bongard Problem by identifying a consistent visual invariant shared by all images on the **Left** that is contradicted or absent in all images on the **Right**.
+
+CVR 
+classification
+Identify which blackout set (A, B, C, or D) fails to establish a valid 'Odd One Out' logic defined as a set where a clear majority rule is absent or a single, visible outlier cannot be discerned.
+
+describe contrastive
+Provide a direct contrastive analysis of the visible images by identifying all objective visual differences regarding object attributes, spatial configurations, colors and feature counts.
+
+contrastive
+Identify which set (A, B, C, or D) exhibits the highest level of internal uniformity among its described images, indicating that the 'Odd One Out' element is the one currently blacked-out.
+
+describe descriptive
+Provide a detailed, objective description of the image that characterizes the shapes' morphology, topological features, color, spatial orientation, and relative scale.
+
+descriptive
+Identify the unique outlier from the provided descriptions by determining the singular image that deviates from the dominant morphological, topological, or chromatic pattern shared by the majority.
+
+direct
+Identify the unique "Odd One Out" by establishing a singular majority rule based on structural, spatial, or chromatic consistency and isolating the specific image that violates this principle.
+
+MARSVQA & RAVEN - mars add color
+
+classification
+Identify the only candidate grid (A, B, C, or D) that maintains perfect logical consistency across both its horizontal rows and vertical columns, ensuring it is free of any rule violations or anomalies.
+
+describe contrastive
+Provide a comprehensive, high-precision technical description of the 3x3 matrix by detailing the specific morphological, spatial, and chromatic transformations that occur across all rows and columns.
+contrastive
+Synthesize the provided textual description of the matrix with the visual candidate options to identify the single letter (A, B, C, or D) that represents a perfect morphological and relational match for the missing cell.
+
+describe descriptive
+Provide a comprehensive, objective description of the image by detailing all visible objects, their specific geometric attributes (size, color, shape), and their spatial relationships.
+descriptive
+Identify the correct candidate (A, B, C, or D) to complete the 3x3 matrix by mapping the visual transformational logic of the grid directly to the corresponding textual description of the winning candidate.
+
+direct
+Determine the correct candidate (A, B, C, or D) for the missing cell by identifying the unified transformational logic governing the horizontal rows and vertical columns of the 3x3 grid.
+
+
+prompt used to converse with Gemini:
+I am working on my engineering thesis project in data science and I have constructed prompts for solving different abstract visual reasoning tasks using vision language model. I have used the chain of thought principle, but want to check how much it actually helps. Therefore in question prompts I want to change the ###Instructions section into a single instruction. Can you help me with that?
+
+zgubił się w describe dla cvr to to ręcznie poprawione ale większość została, pasted the prompts one by one.

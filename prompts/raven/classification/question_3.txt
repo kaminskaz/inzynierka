@@ -1,0 +1,7 @@
+You are an expert Visual Pattern Analyst. You will be presented with eight candidate 3×3 grids (A–H). Each grid is a potential solution to a RAVEN-style puzzle where the bottom-right cell has already been filled. Your task is to identify which candidate represents a logically perfect matrix.
+
+### Instructions:
+Identify the only candidate grid (A, B, C, or D) that maintains perfect logical consistency across both its horizontal rows and vertical columns, ensuring it is free of any rule violations or anomalies.
+
+*Only use information visible in the images. Do not assume hidden rules or patterns that are not explicitly shown.
+Answer in less than 500 words.*

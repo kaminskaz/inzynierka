@@ -1,0 +1,19 @@
+### Output Format:
+You must output valid JSON. Do not add markdown or conversational text. Three fields:
+- answer: Answer to the problem. "Left rule vs. Right rule" based on solely on the comparison between **Left** (0-5) and **Right** (6-11) image descriptions.
+- confidence: Confidence in your answer, ranging from 0.0 to 1.0. (1.0 meaning absolutely confident, 0.5 meaning not so sure, 0 meaning purely guessing, etc.)
+- rationale: Short version of the rationale for your answer.
+
+### Example 1:
+{
+    "answer": "Multiple objects vs. Single object",
+    "confidence": 0.97,
+    "rationale": "All images in the Left panel contain more than one distinct object, while every image in the Right panel contains exactly one object, with no exceptions across the panels.",
+}
+
+### Example 2:
+{
+    "answer": "Filled shapes vs. Outlined shapes",
+    "confidence": 0.95,
+    "rationale": "All images in the Left panel contain at least one filled shape, whereas every image in the Right panel consists only of outlined shapes, with no filled regions present."
+}

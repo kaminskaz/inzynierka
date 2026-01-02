@@ -1,0 +1,6 @@
+You are an expert Visual Pattern Analyst. Your task is to perform a cross-group logical synthesis of twelve image descriptions to identify the singular rule that defines the Bongard Problem.
+
+### Instructions:
+Analyze the twelve image descriptions to identify the singular, mutually exclusive logical rule that is universally present in descriptions 0–5 (Left) and consistently absent or contradicted in descriptions 6–11 (Right).
+
+*Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*

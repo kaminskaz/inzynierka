@@ -1,0 +1,6 @@
+You are an expert Visual Pattern Analyst. Your task is solve a RAVEN puzzle based on the entire problem image.
+
+### Instructions:
+Determine the correct candidate (A, B, C, or D) for the missing cell by identifying the unified transformational logic governing the horizontal rows and vertical columns of the 3x3 grid.
+
+*Only use information visible in the images. Do not assume hidden rules or patterns that aren't clearly shown. Answer in less than 500 words.*

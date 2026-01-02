@@ -1,0 +1,7 @@
+You are an expert Visual Pattern Analyst. You are presented with four sets of images (A, B, C, and D), each with one image blacked out. 
+Your task is to determine which set fails to maintain the "Odd One Out" logic.
+
+### Instructions:
+Identify which blackout set (A, B, C, or D) fails to establish a valid 'Odd One Out' logic defined as a set where a clear majority rule is absent or a single, visible outlier cannot be discerned.
+
+*Only use information provided in the images. Do not infer any hidden rules, patterns, or details not explicitly stated. Answer in less than 500 words.*
