@@ -6,14 +6,14 @@ You must output valid JSON. Do not add markdown or conversational text. Three fi
 
 ### Example 1:
 {
-"answer": "C",
-"confidence": 0.96,
-"rationale": "Across each row, the shape gains one additional element from left to right, and the missing panel must continue this progression. Option C correctly adds the next element while preserving shape type and orientation, unlike the other options."
+    "answer": "C",
+    "confidence": 0.96,
+    "rationale": "Across each row, the shape gains one additional element from left to right, and the missing panel must continue this progression. Option C correctly adds the next element while preserving shape type and orientation, unlike the other options."
 }
 
 ### Example 2:
 {
-"answer": "A",
-"confidence": 0.91,
-"rationale": "In each column, the pattern alternates between filled and outlined shapes while maintaining the same geometry. Option A is the only choice that matches this alternating fill rule and the established spatial alignment."
+    "answer": "A",
+    "confidence": 0.91,
+    "rationale": "In each column, the pattern alternates between filled and outlined shapes while maintaining the same geometry. Option A is the only choice that matches this alternating fill rule and the established spatial alignment."
 }

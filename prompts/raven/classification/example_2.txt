@@ -6,14 +6,14 @@ You must output valid JSON. Do not add markdown or conversational text. Three fi
 
 ### Example 1:
 {
-"answer": "G",
-"confidence": 0.94,
-"rationale": "In each row of the matrices, the number of shapes increases by one from left to right, and the shading alternates. Set G correctly continues both the numerical and shading patterns, while the other sets violate one of these rules."
+    "answer": "G",
+    "confidence": 0.94,
+    "rationale": "In each row of the matrices, the number of shapes increases by one from left to right, and the shading alternates. Set G correctly continues both the numerical and shading patterns, while the other sets violate one of these rules."
 }
 
 ### Example 2:
 {
-"answer": "D",
-"confidence": 0.9,
-"rationale": "Each column in the matrices alternates between filled and outlined shapes. Set D maintains the fill pattern, making it the only correctly completed matrix among the four sets."
+    "answer": "D",
+    "confidence": 0.9,
+    "rationale": "Each column in the matrices alternates between filled and outlined shapes. Set D maintains the fill pattern, making it the only correctly completed matrix among the four sets."
 }
