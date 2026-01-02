@@ -139,11 +139,47 @@ def get_ensemble_directory(
         return ""
 
 def get_field(obj, name, default=None):
-    if isinstance(obj, dict):
+    if isinstance(obj, dict) and name in obj:
         return obj.get(name, default)
-    if isinstance(obj, BaseModel):
-        return getattr(obj, name, default)
-    return default
+    if isinstance(obj, BaseModel) and hasattr(obj, name):
+        return getattr(obj, name)
+
+    visited = set()
+
+    def _search(o):
+        oid = id(o)
+        if oid in visited:
+            return default
+        visited.add(oid)
+
+        if isinstance(o, dict):
+            for v in o.values():
+                result = _search(v)
+                if result is not default:
+                    return result
+
+        elif isinstance(o, BaseModel):
+            for v in o.__dict__.values():
+                result = _search(v)
+                if result is not default:
+                    return result
+
+        elif isinstance(o, str):
+            try:
+                return _search(json.loads(o))
+            except json.JSONDecodeError:
+                pass
+
+        elif isinstance(o, (list, tuple)):
+            for item in o:
+                result = _search(item)
+                if result is not default:
+                    return result
+
+        return default
+
+    return _search(obj)
+
 
 def get_model_config(
     target_model_name: str, 
