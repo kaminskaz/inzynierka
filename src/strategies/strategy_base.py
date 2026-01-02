@@ -229,11 +229,13 @@ class StrategyBase(ABC):
             "strategy": self.strategy_name,
             "model": self.model.get_model_name(),
             "param_set_number": self.param_set_number,
+            "prompt_number": self.prompt_number,
             "config": config_data,
             "problem_description_prompt": problem_description_prompt,
             "sample_answer_prompt": sample_answer_prompt,
             "question_prompt": question_prompt,
             "describe_prompt": describe_prompt,
+            "example_prompt": self.example_prompt,
         }
         try:
             metadata_path = os.path.join(self.results_dir, "metadata.json")
