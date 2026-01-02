@@ -112,9 +112,3 @@ class ContrastiveStrategy(StrategyBase):
         response = self.model.ask(contents_to_send, schema=ResponseSchema)
 
         return response, problem_id, problem_descriptions_dict
-
-    def _get_metadata_prompts(self) -> Dict[str, Optional[str]]:
-        prompts = super()._get_metadata_prompts()
-        prompts["describe_prompt"] = self.descriptions_prompt
-        prompts["contrast_example_prompt"] = self.contrast_example_prompt
-        return prompts

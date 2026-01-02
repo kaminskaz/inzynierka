@@ -236,6 +236,8 @@ class StrategyBase(ABC):
             "question_prompt": question_prompt,
             "describe_prompt": describe_prompt,
             "example_prompt": self.example_prompt,
+            "describe_example_prompt": getattr(self, 'describe_example_prompt', None),
+            "contrast_example_prompt": getattr(self, 'contrast_example_prompt', None)
         }
         try:
             metadata_path = os.path.join(self.results_dir, "metadata.json")
