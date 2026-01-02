@@ -7,6 +7,7 @@ class DatasetConfig:
     """Configuration for a dataset processor."""
 
     image_format: str
+    task_type: str
     category: str
     data_folder: str
     num_choices: int
