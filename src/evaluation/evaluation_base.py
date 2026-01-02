@@ -106,8 +106,8 @@ class EvaluationBase(ABC):
     def check_completeness(self, df, expected_num_samples, descriptions = None) -> dict:
         summary = {}
 
-        summary["row_ids_with_any_missing"] = df.index[df.isna().any(axis=1)].tolist()
-        summary["row_ids_fully_missing"] = df.index[df.isna().all(axis=1)].tolist()
+        summary["row_ids_with_any_missing"] = df.loc[df.isna().any(axis=1), "problem_id"].tolist()
+        summary["row_ids_fully_missing"] = df.loc[df.isna().all(axis=1), "problem_id"].tolist()
 
         summary["missing_count_per_column"] = df.isna().sum().to_dict()
         summary["missing_ratio_per_column"] = df.isna().mean().to_dict()

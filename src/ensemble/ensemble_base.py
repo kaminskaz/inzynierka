@@ -28,7 +28,7 @@ class EnsembleBase(ABC):
         self.ensemble_directory = None
         self.exists = False
         self.config["ensemble_model"] = ""
-        self.config["dataset_name"] = self.dataset_name
+        self.config["dataset"] = self.dataset_name
         self.config["dataset_category"] = self.dataset_config.get("category", "")
         self.config["task_type"] = self.dataset_config.get("task_type", "")
 
