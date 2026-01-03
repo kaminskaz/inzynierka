@@ -40,8 +40,8 @@ class ConfidenceEnsemble(EnsembleBase):
             answer_list = single_problem_df["answer"].tolist()
             confidence_list = single_problem_df["confidence"].tolist()
 
-            final_answer, rationale = self.evaluate_confidence_using_llm(answer_list, confidence_list)
-            return final_answer, rationale
+            final_answer, rationale, raw_response = self.evaluate_confidence_using_llm(answer_list, confidence_list)
+            return final_answer, rationale, raw_response
         
         else:
             if "answer" not in single_problem_df.columns:
@@ -53,7 +53,7 @@ class ConfidenceEnsemble(EnsembleBase):
             max_avg_confidence = avg_confidence.max()
             tied_answers = avg_confidence[avg_confidence == max_avg_confidence].index.tolist()
             most_popular_answer = random.choice(tied_answers)
-            return most_popular_answer, rationale
+            return most_popular_answer, rationale, None
         
     def evaluate_confidence_using_llm(self, answer_list, confidence_list):
    
@@ -68,4 +68,4 @@ class ConfidenceEnsemble(EnsembleBase):
 
         final_answer = get_field(response, "final_answer")
         rationale = get_field(response, "rationale")
-        return final_answer, rationale
+        return final_answer, rationale, response

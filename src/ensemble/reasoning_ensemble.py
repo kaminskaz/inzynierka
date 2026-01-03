@@ -34,8 +34,8 @@ class ReasoningEnsemble(EnsembleBase):
         answer_list = single_problem_df["answer"].tolist()
         reasoning_list = single_problem_df["rationale"].tolist()
 
-        final_answer, rationale = self.evaluate_reasoning_using_llm(answer_list, reasoning_list)
-        return final_answer, rationale
+        final_answer, rationale, raw_response = self.evaluate_reasoning_using_llm(answer_list, reasoning_list)
+        return final_answer, rationale, raw_response
         
     def evaluate_reasoning_using_llm(self, answer_list, reasoning_list):
         all_answers_str = "\n".join(f"- {ans} (reasoning: {reas})" for ans, reas in zip(answer_list, reasoning_list))
@@ -50,4 +50,4 @@ class ReasoningEnsemble(EnsembleBase):
         final_answer = get_field(response, "final_answer")
         rationale = get_field(response, "rationale")
     
-        return final_answer, rationale
+        return final_answer, rationale, response

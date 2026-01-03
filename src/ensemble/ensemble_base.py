@@ -138,10 +138,12 @@ class EnsembleBase(ABC):
         problem_ids = self.answers["problem_id"].unique()
 
         for problem_id in problem_ids:
-            final_answer = self.evaluate_single_problem(problem_id)
+            final_answer, rationale, raw_response = self.evaluate_single_problem(problem_id)
             results.append({
                 "problem_id": problem_id,
-                "answer": final_answer
+                "answer": final_answer,
+                "rationale": rationale,
+                "raw_response": raw_response
             })
             results_df = pd.DataFrame(results)
             self.save_results_to_csv(results_df, self.ensemble_directory)

@@ -36,8 +36,8 @@ class ReasoningEnsembleWithImage(EnsembleBase):
         reasoning_list = single_problem_df["rationale"].tolist()
         image_path = os.path.join("data", self.dataset_name, "problems", str(problem_id), "question_panel.png")
 
-        final_answer, rationale = self.evaluate_reasoning_using_llm(answer_list, reasoning_list, question_image_path=image_path)
-        return final_answer, rationale
+        final_answer, rationale, raw_response = self.evaluate_reasoning_using_llm(answer_list, reasoning_list, question_image_path=image_path)
+        return final_answer, rationale, raw_response
         
     def evaluate_reasoning_using_llm(self, answer_list, reasoning_list, question_image_path):
         all_answers_str = "\n".join(f"- {ans} (reasoning: {reas})" for ans, reas in zip(answer_list, reasoning_list))
@@ -52,4 +52,4 @@ class ReasoningEnsembleWithImage(EnsembleBase):
         final_answer = get_field(response, "final_answer")
         rationale = get_field(response, "rationale")
 
-        return final_answer, rationale
+        return final_answer, rationale, response

@@ -38,8 +38,8 @@ class MajorityEnsemble(EnsembleBase):
         if self.dataset_config.category == "BP":
             answer_list = single_problem_df["answer"].tolist()
 
-            final_answer, rationale = self.evaluate_majority_using_llm(answer_list)
-            return final_answer, rationale
+            final_answer, rationale, raw_response = self.evaluate_majority_using_llm(answer_list)
+            return final_answer, rationale, raw_response
         
         else:
             if "answer" not in single_problem_df.columns:
@@ -51,7 +51,7 @@ class MajorityEnsemble(EnsembleBase):
             max_count = counts.max()
             tied_answers = counts[counts == max_count].index.tolist()
             most_popular_answer = random.choice(tied_answers)
-            return most_popular_answer, rationale
+            return most_popular_answer, rationale, None
         
     def evaluate_majority_using_llm(self, answer_list):
         
@@ -67,7 +67,7 @@ class MajorityEnsemble(EnsembleBase):
         final_answer = get_field(response, "final_answer")
         rationale = get_field(response, "rationale")
 
-        return final_answer, rationale
+        return final_answer, rationale, response
 
 
         
