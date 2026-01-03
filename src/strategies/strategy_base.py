@@ -194,7 +194,7 @@ class StrategyBase(ABC):
 
         if not os.path.exists(prompt_path):
             if prompt_number != 1:
-                self.logger.warning(f"Prompt {prompt_number} not found. Falling back to version 1.")
+                self.logger.warning(f"Prompt {prompt_number} for {prompt_type} not found. Falling back to version 1.")
                 
                 if prompt_type.startswith(("problem_description", "sample_answer")):
                     prompt_path = os.path.join(repo_root, "prompts", self.dataset_name, f"{prompt_type}_1.txt")
@@ -204,7 +204,7 @@ class StrategyBase(ABC):
                 if not os.path.exists(prompt_path):
                     raise ValueError(f"Neither prompt {prompt_number} nor default prompt 1 exists at {prompt_path}")
             else:
-                raise ValueError(f"Primary prompt file not found: {prompt_path}")
+                raise ValueError(f"Primary prompt file for {prompt_type} not found: {prompt_path}")
 
         try:
             with open(prompt_path, "r", encoding="utf-8") as f:
