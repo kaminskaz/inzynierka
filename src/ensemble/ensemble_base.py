@@ -9,7 +9,7 @@ import json
 import pandas as pd
 
 from src.technical.response_schema import GeneralEnsembleSchema
-from src.technical.utils import get_dataset_config, get_results_directory, get_ensemble_directory
+from src.technical.utils import get_dataset_config, get_results_directory, get_ensemble_directory, check_if_members_equal
 from src.tests.strategy_test import run_single_experiment
 
 
@@ -94,7 +94,7 @@ class EnsembleBase(ABC):
             df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, version)
             
             if meta is None:
-                self.logger.warning(f"""No metadata found for member {idx} with strategy {strategy}, model {model_name}, version {version}.
+                self.logger.warning(f"""No data found for member {idx} with strategy {strategy}, model {model_name}, version {version}.
                                     Defaulting to version '1'.""")
                 df, meta = self.load_data_from_results_path(self.dataset_name, strategy, model_name, "1")
                 if meta is None:
@@ -124,7 +124,6 @@ class EnsembleBase(ABC):
         if existing_version:
             self.logger.info(f"Ensemble configuration already exists as version {existing_version}.")
             self.exists = True
-            return
         return 
 
     def evaluate(self) -> None:
@@ -187,16 +186,36 @@ class EnsembleBase(ABC):
         return None
 
     def check_if_configs_equal(self, other_config: dict) -> bool:
-        # checks if the meta values in self.config match the ones in other_config, ignoring the 'member_{idx}' keys.
-        self_metas = [m for m in self.config.values() if m != {}]
-        other_metas = [v for v in other_config.values() if v != {}]
+        """
+        Compares two ensemble configs. 
+        Treats members as a set (order/naming doesn't matter).
+        Only checks members if top-level fields match exactly.
+        """
+        base_self = {k: v for k, v in self.config.items() if not k.startswith('member_')}
+        base_other = {k: v for k, v in other_config.items() if not k.startswith('member_')}
+        
+        if base_self != base_other:
+            return False
 
-        for meta in self_metas:
-            if meta in other_metas:
-                other_metas.remove(meta)
-            else:
+        members_self = [v for k, v in self.config.items() if k.startswith('member_')]
+        members_other = [v for k, v in other_config.items() if k.startswith('member_')]
+
+        if len(members_self) != len(members_other):
+            return False
+
+        remaining_other = list(members_other)
+        
+        for m_self in members_self:
+            match_found = False
+            for i, m_other in enumerate(remaining_other):
+                if check_if_members_equal(m_self, m_other):
+                    remaining_other.pop(i)
+                    match_found = True
+                    break
+            if not match_found:
                 return False
-        return len(other_metas) == 0
+
+        return True
     
     def get_ensemble_prompt_path(self, prompt_number: int = 1):
         prompt_path = os.path.join("prompts", "ensemble", f"ensemble_{self.type_name}_{prompt_number}.txt")
@@ -246,3 +265,4 @@ class EnsembleBase(ABC):
         )
 
         return main_prompt_filled
+    

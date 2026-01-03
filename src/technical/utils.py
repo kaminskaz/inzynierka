@@ -121,7 +121,7 @@ def get_ensemble_directory(
                 logger.info(f"Ensemble results directory created at: {path} with version specified.")
             return path
         
-        version_pattern = re.compile(rf"^{re.escape(prefix)}_ver(\d+)$")
+        version_pattern = re.compile(rf"^{re.escape(prefix)}ver(\d+)$")
         existing_versions = []
         for entry in os.scandir(base_results_dir):
             if entry.is_dir():
@@ -269,3 +269,27 @@ def setup_logging(level: int = logging.INFO) -> logging.Logger:
         logger.addHandler(file_handler)
 
     return logger
+
+def check_if_members_equal(member_a: dict, member_b: dict) -> bool:
+        """
+        Compares two member configurations. 
+        Ignores 'member_idx' and recursively checks 'config' if present.
+        """
+        a = {k: v for k, v in member_a.items() if k != 'member_idx'}
+        b = {k: v for k, v in member_b.items() if k != 'member_idx'}
+
+        if a.keys() != b.keys():
+            return False
+
+        for key in a:
+            val_a = a[key]
+            val_b = b[key]
+
+            if isinstance(val_a, dict) and isinstance(val_b, dict):
+                if not check_if_members_equal(val_a, val_b):
+                    return False
+            else:
+                if val_a != val_b:
+                    return False
+                    
+        return True
