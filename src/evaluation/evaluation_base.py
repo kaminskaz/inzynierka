@@ -170,7 +170,7 @@ class EvaluationBase(ABC):
             combined_df  = results_df
 
         meta_cols = [
-            "reasoning",
+            "judge_rationale",
             "dataset_name",
             "model_name",
             "strategy_name",
@@ -184,12 +184,21 @@ class EvaluationBase(ABC):
         other_cols = [c for c in combined_df.columns if c not in meta_cols]
         final_order = other_cols + meta_cols
 
-        combined_df = combined_df[final_order]
-        if not ensemble:
-            combined_df = combined_df.drop_duplicates(subset=["problem_id", "dataset_name", "model_name", "strategy_name", "version"], keep='last')
-        else:
-            combined_df = combined_df.drop_duplicates(subset=["problem_id", "dataset_name", "type_name", "version"], keep='last')
+        key_cols_single = ["problem_id", "dataset_name", "model_name", "strategy_name", "version"]
+        key_cols_ensemble = ["problem_id", "dataset_name", "type_name", "version"]
 
+        if not ensemble:
+            for col in key_cols_single:
+                if col in combined_df.columns:
+                    combined_df[col] = combined_df[col].astype(str).str.strip()
+            combined_df = combined_df.drop_duplicates(subset=key_cols_single, keep='last')
+        else:
+            for col in key_cols_ensemble:
+                if col in combined_df.columns:
+                    combined_df[col] = combined_df[col].astype(str).str.strip()
+            combined_df = combined_df.drop_duplicates(subset=key_cols_ensemble, keep='last')
+
+        combined_df = combined_df[final_order]
         combined_df.to_csv(all_results_concat_path, index=False)
 
     def _get_evaluation_paths(

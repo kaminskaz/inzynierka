@@ -1,3 +1,5 @@
+from time import sleep
+
 from src.base import FullPipeline
 from src.technical.configs.evaluation_config import EvaluationConfig
 from src.preprocessing.standard_processor import StandardProcessor
@@ -27,25 +29,29 @@ def main():
     #     llm_model_name="Qwen/Qwen2.5-VL-3B-Instruct"
     # )
     
-    print("Running evaluation...")
-    eval_config = EvaluationConfig(
-        dataset_name="cvr",
-        version="1",
-        strategy_name="direct",
-        model_name="Qwen/Qwen2.5-VL-3B-Instruct",
-        ensemble=False
-    )
-    pipeline.run_evaluation(eval_config)
+    # print("Running evaluation...")
+    # eval_config = EvaluationConfig(
+    #     dataset_name="cvr",
+    #     version="1",
+    #     strategy_name="direct",
+    #     model_name="Qwen/Qwen2.5-VL-3B-Instruct",
+    #     ensemble=False
+    # )
+    # pipeline.run_evaluation(eval_config)
 
-    eval_config_ensemble = EvaluationConfig(
-        dataset_name="cvr",
-        version="1",
-        type_name="reasoning",
-        judge_model_name="Qwen/Qwen2.5-VL-3B-Instruct",
-        ensemble=True,
-    )
-    pipeline.run_evaluation(eval_config_ensemble)
+    # eval_config_ensemble = EvaluationConfig(
+    #     dataset_name="cvr",
+    #     version="1",
+    #     type_name="reasoning",
+    #     judge_model_name="Qwen/Qwen2.5-VL-3B-Instruct",
+    #     ensemble=True,
+    # )
+    # pipeline.run_evaluation(eval_config_ensemble)
 
-    
+    print("Launching visualisation...")
+    pipeline.visualise()
+    # sleep(30) 
+    # pipeline.stop_visualiser()
+
 if __name__ == "__main__":
     main()
