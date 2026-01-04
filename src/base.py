@@ -1,7 +1,7 @@
 import argparse
 import logging
 import os
-import sys
+import sys, subprocess
 from typing import Any, List, Optional
 from src.ensemble.ensemble_factory import EnsembleFactory
 from src.evaluation.evaluation_base import EvaluationBase
@@ -12,11 +12,13 @@ from src.preprocessing.data_module import DataModule
 from src.strategies.strategy_factory import StrategyFactory
 from src.technical.utils import get_results_directory, get_dataset_config
 from src.technical.configs.evaluation_config import EvaluationConfig
+from src.visualisation.visualiser import StreamlitVisualiser
 
 
 class FullPipeline: 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        self._proc = None
 
     def prepare_data(
             self, 
@@ -196,8 +198,21 @@ class FullPipeline:
         for config in configs:
             self.run_evaluation(config)
 
-    def visualise(self):
-        pass
+    def visualise(self, csv_path: str = os.path.join("results", "all_results_concat.csv")) -> None:
+        visualiser_path = os.path.join("src", "visualisation", "visualiser.py")
+        self._proc = subprocess.Popen([sys.executable, "-m", "streamlit", "run", visualiser_path, "--", csv_path])
+        self.logger.info(f"Streamlit visualiser started with PID: {self._proc.pid}")
+
+    def stop_visualiser(self):
+        if self._proc and self._proc.poll() is None:
+            self.logger.info(f"Terminating Streamlit visualiser with PID: {self._proc.pid}")
+            self._proc.terminate()
+            try:
+                self._proc.wait(timeout=10)
+            except subprocess.TimeoutExpired:
+                self.logger.warning("Streamlit visualiser did not terminate in time. Killing process.")
+                self._proc.kill()
+            self.logger.info("Streamlit visualiser terminated.")
 
     def _load_model(
         self,

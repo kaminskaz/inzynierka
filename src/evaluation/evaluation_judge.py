@@ -112,7 +112,7 @@ class EvaluationWithJudge(EvaluationBase):
                 output_df.at[index, "key"] = key
                 continue
 
-            score, reasoning = self.evaluate_single_answer(
+            score, judge_rationale = self.evaluate_single_answer(
                 answer=answer,
                 key=key,
                 response_schema=BongardEvaluationSchema,
@@ -124,11 +124,10 @@ class EvaluationWithJudge(EvaluationBase):
                 output_df.at[index, "score"] = "LLM evaluation failed"
                 continue
 
-            if reasoning is None:
-                output_df.at[index, "reasoning"] = "LLM reasoning missing"
-
+            if judge_rationale is None:
+                output_df.at[index, "judge_rationale"] = "LLM reasoning missing"
             output_df.at[index, "score"] = score
-            output_df.at[index, "reasoning"] = reasoning
+            output_df.at[index, "judge_rationale"] = judge_rationale
         
         if stop_after_evaluation:
             self.judge_model_object.stop()

@@ -5,35 +5,10 @@ import pandas as pd
 import numpy as np
 import json
 import seaborn as sns
-
-# from src.technical.utils import shorten_model_name
-
-def shorten_model_name(model_name: str) -> str:
-    parts = model_name.split('/')
-    if len(parts) >= 3:
-        short_model_name = parts[1]
-    elif len(parts) == 2:
-        short_model_name = parts[1]
-    else:
-        short_model_name = model_name
-    short_model_name = short_model_name.replace('/', '_')
-    return short_model_name
-
-
-def _safe_display(value):
-    if pd.isna(value) or value == "":
-        return "-"
-    return value
-
-def map_strategy_column_name(is_ensemble):
-    if is_ensemble:
-        return "type_name"
-    else:
-        return "strategy_name"
+from src.visualisation.ui_helpers import safe_display, shorten_model_name
 
 
 def plot_judged_answers(df, score_col="score", dataset_col="dataset_name", strategy_col="strategy_name"):
-
     st.subheader("Scored Answers Summary")
 
     if df.empty:
@@ -202,31 +177,31 @@ def show_chosen_problem(df, problem_id, dataset_name, strategy_name, strategy_co
     with col2:
         st.markdown("#### Model Answer")
         st.markdown(
-            f"<p style='font-size:18px;'>{_safe_display(row.get('answer'))}</p>",
+            f"<p style='font-size:18px;'>{safe_display(row.get('answer'))}</p>",
             unsafe_allow_html=True
         )
 
         st.markdown("#### Confidence")
         st.markdown(
-            f"<p style='font-size:18px;'>{_safe_display(row.get('confidence'))}</p>",
+            f"<p style='font-size:18px;'>{safe_display(row.get('confidence'))}</p>",
             unsafe_allow_html=True
         )
 
         st.markdown("#### Key answer")
         st.markdown(
-            f"<p style='font-size:18px;'>{_safe_display(row.get('key'))}</p>",
+            f"<p style='font-size:18px;'>{safe_display(row.get('key'))}</p>",
             unsafe_allow_html=True
         )
 
         st.markdown("#### Score")
         st.markdown(
-            f"<p style='font-size:18px;'>{_safe_display(row.get('score'))}</p>",
+            f"<p style='font-size:18px;'>{safe_display(row.get('score'))}</p>",
             unsafe_allow_html=True
         )
 
         st.markdown("#### Rationale")
         st.markdown(
-            f"<p style='font-size:18px;'>{_safe_display(row.get('rationale'))}</p>",
+            f"<p style='font-size:18px;'>{safe_display(row.get('rationale'))}</p>",
             unsafe_allow_html=True
         )
 
@@ -269,9 +244,9 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
 
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown(f"<h3 style='font-size:24px;;'>Total samples: {_safe_display(total)}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='font-size:24px;;'>Total samples: {safe_display(total)}</h3>", unsafe_allow_html=True)
     with col2:
-        st.markdown(f"<h3 style='font-size:24px;;'>Accuracy: {_safe_display(accuracy):.2%}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='font-size:24px;;'>Accuracy: {safe_display(accuracy):.2%}</h3>", unsafe_allow_html=True)
 
     if not is_ensemble:
         cols = st.columns([3, 1, 2, 2])
@@ -294,16 +269,16 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
         cols = st.columns([3, 1, 2, 2])
 
         with cols[0]:
-            st.markdown(f"<p style='font-size:18px;'>{_safe_display(label)}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:18px;'>{safe_display(label)}</p>", unsafe_allow_html=True)
 
         with cols[1]:
-            st.markdown(f"<p style='font-size:18px;'>{_safe_display(count)}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='font-size:18px;'>{safe_display(count)}</p>", unsafe_allow_html=True)
 
         with cols[2]:
             if has_confidence:
                 val = round(avg_conf.get(label), 2)
                 st.markdown(
-                    f"<p style='font-size:18px;'>{_safe_display(val)}</p>",
+                    f"<p style='font-size:18px;'>{safe_display(val)}</p>",
                     unsafe_allow_html=True
                 )
             else:
@@ -313,7 +288,7 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
             if has_confidence:
                 val = round(med_conf.get(label), 2)
                 st.markdown(
-                    f"<p style='font-size:18px;'>{_safe_display(val)}</p>",
+                    f"<p style='font-size:18px;'>{safe_display(val)}</p>",
                     unsafe_allow_html=True
                 )
             else:
@@ -348,13 +323,13 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col='st
 
             cols = st.columns([3, 2, 2, 2])
             with cols[0]:
-                st.markdown(f"<p style='font-size:18px; font-weight:bold;'>{_safe_display(section_label)}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px; font-weight:bold;'>{safe_display(section_label)}</p>", unsafe_allow_html=True)
             with cols[1]:
-                st.markdown(f"<p style='font-size:18px;'>{_safe_display(available)} / {_safe_display(expected)}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'>{safe_display(available)} / {safe_display(expected)}</p>", unsafe_allow_html=True)
             with cols[2]:
-                st.markdown(f"<p style='font-size:18px;'>{_safe_display(f'{coverage:.1%}')}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'>{safe_display(f'{coverage:.1%}')}</p>", unsafe_allow_html=True)
             with cols[3]:
-                st.markdown(f"<p style='font-size:18px;'>{_safe_display(f'{missing} missing')}</p>", unsafe_allow_html=True)
+                st.markdown(f"<p style='font-size:18px;'>{safe_display(f'{missing} missing')}</p>", unsafe_allow_html=True)
 
 def load_json_safe(path: str):
     if not os.path.exists(path):
@@ -408,14 +383,14 @@ def show_single_model_config(
     if model_param_set and str(model_param_set) in param_sets:
         temperature = param_sets[str(model_param_set)].get("temperature")
 
-    st.markdown(f"<p style='font-size:18px;'><b>Model name:</b> {_safe_display(metadata.get('model'))}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {_safe_display(temperature)}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {_safe_display(metadata.get('dataset'))}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Model name:</b> {safe_display(metadata.get('model'))}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {safe_display(temperature)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {safe_display(metadata.get('dataset'))}</p>", unsafe_allow_html=True)
     category = metadata.get("config", {}).get("category")
     task_type = metadata.get("config", {}).get("task_type")
-    st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {_safe_display(category)}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Task Type:</b> {_safe_display(task_type)}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {_safe_display(metadata.get('strategy'))}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {safe_display(category)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Task Type:</b> {safe_display(task_type)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {safe_display(metadata.get('strategy'))}</p>", unsafe_allow_html=True)
 
 
     st.markdown("### Prompts")
@@ -478,14 +453,14 @@ def show_ensemble_config(dataset_name, type_name, ensemble_version):
         st.warning(f"Model config not found:\n`{tech_model_config_path}`")
         return
 
-    st.markdown(f"<p style='font-size:18px;'><b>Ensemble Model:</b> {_safe_display(metadata.get('ensemble_model'))}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Ensemble Model:</b> {safe_display(metadata.get('ensemble_model'))}</p>", unsafe_allow_html=True)
     category = metadata.get("dataset_category")
     task_type = metadata.get("task_type")
-    st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {_safe_display(metadata.get('dataset_name'))}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {_safe_display(category)}</p>", unsafe_allow_html=True)
-    st.markdown(f"<p style='font-size:18px;'><b>Task Type:</b> {_safe_display(task_type)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset:</b> {safe_display(metadata.get('dataset_name'))}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Dataset Category:</b> {safe_display(category)}</p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='font-size:18px;'><b>Task Type:</b> {safe_display(task_type)}</p>", unsafe_allow_html=True)
     st.markdown("<p style='font-size:18px;'><b>Prompts:</b></p>", unsafe_allow_html=True)
-    st.text_area("Main Prompt", value=_safe_display(metadata.get('main_prompt', "")), height=300)
+    st.text_area("Main Prompt", value=safe_display(metadata.get('main_prompt', "")), height=300)
 
     member_keys = sorted([k for k in metadata.keys() if k.startswith("member_")])
     for member_key in member_keys:
@@ -500,9 +475,9 @@ def show_ensemble_config(dataset_name, type_name, ensemble_version):
 
         if model_param_set and str(model_param_set) in param_sets:
             temperature = param_sets[str(model_param_set)].get("temperature")
-        st.markdown(f"<p style='font-size:18px;'><b>Model Name:</b> {_safe_display(model_name)}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {_safe_display(temperature)}</p>", unsafe_allow_html=True)
-        st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {_safe_display(member.get('strategy'))}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size:18px;'><b>Model Name:</b> {safe_display(model_name)}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size:18px;'><b>Temperature:</b> {safe_display(temperature)}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='font-size:18px;'><b>Strategy:</b> {safe_display(member.get('strategy'))}</p>", unsafe_allow_html=True)
 
         with st.expander(f"Show full config for {member_key.capitalize().replace('_', ' ')}"):
             st.json(member)
