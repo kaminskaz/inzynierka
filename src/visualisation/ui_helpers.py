@@ -1,30 +1,7 @@
 import streamlit as st
 import pandas as pd
-
-def show_csv_preview(df: pd.DataFrame) -> None:
-    """Display a preview of the DataFrame in Streamlit."""
-    if df.empty:
-        st.info("No data to display.")
-        return
-    st.subheader("Results CSV Preview")
-    st.dataframe(df.drop(columns=["filter_id", "ensemble"], errors="ignore"))
-
-def setup_layout() -> None:
-    """Inject custom CSS and page title."""
-    st.markdown(
-        """
-        <style>
-            .main { max-width: 90% !important; }
-            .block-container {
-                padding-top: 2rem;
-                max-width: 90% !important;
-            }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-    st.title("Streamlit Visualization App")
-
+import os
+import json
 
 def multiselect_filter(df: pd.DataFrame, column: str, label: str) -> pd.DataFrame:
     options = sorted(df[column].dropna().unique())
@@ -52,3 +29,11 @@ def shorten_model_name(model_name: str) -> str:
         short_model_name = model_name
     short_model_name = short_model_name.replace('/', '_')
     return short_model_name
+    
+def render_markdown(label: str, value, font_size=18):
+    st.markdown(
+        f"<p style='font-size:{font_size}px;'>"
+        f"<b>{safe_display(label)}</b>: {safe_display(value)}"
+        f"</p>",
+        unsafe_allow_html=True
+    )

@@ -1,42 +1,36 @@
 import os
 import json
 import streamlit as st
+import pandas as pd
 
-from src.visualisation.plots import (
-    create_countplot,
-    create_confidence_boxplot
-)
-from src.visualisation.data_handling import get_present_colors
-from src.visualisation.ui_helpers import shorten_model_name, safe_display
+from src.visualisation.plots import create_countplot, create_confidence_boxplot
+from src.visualisation.data_handling import get_present_colors, load_json_safe
+from src.visualisation.ui_helpers import shorten_model_name, safe_display, render_markdown
 
+def show_csv_preview(df: pd.DataFrame) -> None:
+    if df.empty:
+        st.info("No data to display.")
+        return
+    st.subheader("Results CSV Preview")
+    st.dataframe(df.drop(columns=["filter_id", "ensemble"], errors="ignore"))
 
-# ======================================================
-# Helpers
-# ======================================================
-
-def load_json_safe(path: str):
-    if not os.path.exists(path):
-        return None
-    try:
-        with open(path, "r") as f:
-            return json.load(f)
-    except Exception as e:
-        st.warning(f"Failed to load JSON: {e}")
-        return None
-
-
-def render_markdown(label: str, value, font_size=18):
-    """Label–value renderer for config-style sections."""
+def setup_layout() -> None:
     st.markdown(
-        f"<p style='font-size:{font_size}px;'>"
-        f"<b>{safe_display(label)}</b>: {safe_display(value)}"
-        f"</p>",
-        unsafe_allow_html=True
+        """
+        <style>
+            .main { max-width: 90% !important; }
+            .block-container {
+                padding-top: 2rem;
+                max-width: 90% !important;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
     )
+    st.title("Model Results")
 
 
 def render_cell(value, font_size=18, bold=False):
-    """HTML-safe table/grid cell renderer."""
     weight = "font-weight:bold;" if bold else ""
     st.markdown(
         f"<p style='{weight} font-size:{font_size}px;'>"
@@ -53,9 +47,7 @@ def centered_st(func):
     return wrapper
 
 
-# ======================================================
-# Plotting
-# ======================================================
+# plotting
 
 @centered_st
 def plot_judged_answers(df, **kwargs):
@@ -66,14 +58,12 @@ def plot_judged_answers(df, **kwargs):
 
 @centered_st
 def plot_confidence(df, **kwargs):
-    st.subheader("Model Confidence Distribution Across Answer Scores")
+    st.subheader("Model Confidence Distribution")
     fig = create_confidence_boxplot(df, **kwargs)
     st.pyplot(fig) if fig else st.info("No valid data to display.")
 
 
-# ======================================================
-# Problem Display
-# ======================================================
+# problem display
 
 def show_chosen_problem(df, problem_id, dataset_name, strategy_name, strategy_col="strategy_name"):
     if df.empty:
@@ -103,12 +93,9 @@ def show_chosen_problem(df, problem_id, dataset_name, strategy_name, strategy_co
             render_markdown(k.replace("_", " ").title(), row.get(k))
 
 
-# ======================================================
-# Evaluation Summary
-# ======================================================
+# evaluation summary
 
-def display_evaluation_summary(df, dataset_name, strategy_name,
-                               strategy_col="strategy_name", is_ensemble=False):
+def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col="strategy_name", is_ensemble=False):
 
     df = df[
         (df["dataset_name"] == dataset_name)
@@ -129,13 +116,15 @@ def display_evaluation_summary(df, dataset_name, strategy_name,
                      shorten_model_name(model_name), f"ver{version}")
     )
 
-    metrics = load_json_safe(os.path.join(base_path, "evaluation_results_metrics.json"))
-    summary = load_json_safe(os.path.join(base_path, "evaluation_results_summary.json"))
+    metrics_path = os.path.join(base_path, "evaluation_results_metrics.json")
+    summary_path = os.path.join(base_path, "evaluation_results_summary.json")
+    metrics = load_json_safe(metrics_path)
+    summary = load_json_safe(summary_path)
 
     if not metrics:
-        st.warning(f"Metrics not found at {base_path}")
+        st.warning(f"Metrics not found at {metrics_path}")
         return
-
+    
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"<h3>Total samples: {safe_display(metrics.get('total', 0))}</h3>",
@@ -177,46 +166,47 @@ def display_evaluation_summary(df, dataset_name, strategy_name,
         with cols[2]: render_cell(round(avg, 2))
         with cols[3]: render_cell(round(med, 2))
 
-    if summary:
-        render_cell("Data completeness", bold=True) 
+    if not summary:
+        st.warning(f"Summary not found at {summary_path}")
+        return
 
-        for key, label in [("answers_completeness", "Answers"), ("key_completeness", "Answer key")]:
-            section = summary.get(key)
-            if not section:
-                continue
+    render_cell("Data completeness", bold=True) 
 
-            expected = section.get("expected_num_samples", 0)
-            missing = section.get("num_missing_problem_ids", 0)
-            available = expected - missing
-            coverage = available / expected if expected else 0
+    for key, label in [("answers_completeness", "Answers"), ("key_completeness", "Answer key")]:
+        section = summary.get(key)
+        if not section:
+            continue
 
-            cols = st.columns([3, 2, 2, 2])
-            with cols[0]: render_cell(label)
-            with cols[1]: render_cell(f"{available}/{expected}")
-            with cols[2]: render_cell(f"{coverage:.1%}")
-            with cols[3]: render_cell(f"{missing} missing")
+        expected = section.get("expected_num_samples", 0)
+        missing = section.get("num_missing_problem_ids", 0)
+        available = expected - missing
+        coverage = available / expected if expected else 0
 
-            missing_ids = section.get("missing_problem_ids", [])
-            if missing_ids:
-                st.markdown(
-                    f"<p style='font-size:18px; color:#d62728;'>"
-                    f"<i>Missing Problem IDs: {', '.join(missing_ids)}</i></p>",
-                    unsafe_allow_html=True
-                )
+        cols = st.columns([3, 2, 2, 2])
+        with cols[0]: render_cell(label)
+        with cols[1]: render_cell(f"{available}/{expected}")
+        with cols[2]: render_cell(f"{coverage:.1%}")
+        with cols[3]: render_cell(f"{missing} missing")
+
+        missing_ids = section.get("missing_problem_ids", [])
+        if missing_ids:
+            st.markdown(
+                f"<p style='font-size:18px; color:#d62728;'>"
+                f"<i>Missing Problem IDs: {', '.join(missing_ids)}</i></p>",
+                unsafe_allow_html=True
+            )
     
 
-# ======================================================
-# Single Model Configuration
-# ======================================================
+# model configuration
 
 def show_single_model_config(model_name, dataset_name, strategy_name, version):
     st.subheader("Configuration")
 
-    base = os.path.join("results", dataset_name, strategy_name,
-                        shorten_model_name(model_name), f"ver{version}")
-    metadata = load_json_safe(os.path.join(base, "metadata.json"))
+    metadata_path = os.path.join("results", dataset_name, strategy_name,
+                        shorten_model_name(model_name), f"ver{version}", "metadata.json")
+    metadata = load_json_safe(metadata_path)
     if not metadata:
-        st.warning("Metadata not found.")
+        st.warning(f"Metadata not found at {metadata_path}")
         return
 
     tech_cfg = load_json_safe(os.path.join("src", "technical", "configs", "models_config.json")) or {}
@@ -248,7 +238,6 @@ def show_single_model_config(model_name, dataset_name, strategy_name, version):
         if value:
             st.text_area(key.replace("_", " ").title(), value, height=height)
 
-
     with st.expander("Full experiment metadata"):
         st.json(metadata)
 
@@ -256,18 +245,14 @@ def show_single_model_config(model_name, dataset_name, strategy_name, version):
         st.json(tech_cfg.get(model_name, {}))
 
 
-# ======================================================
-# Ensemble Configuration
-# ======================================================
-
 def show_ensemble_config(dataset_name, type_name, ensemble_version):
     st.subheader("Ensemble Configuration")
 
-    base = os.path.join("results", "ensembles", dataset_name, type_name,
-                        f"ensemble_ver{ensemble_version}")
-    metadata = load_json_safe(os.path.join(base, "ensemble_config.json"))
+    config_path = os.path.join("results", "ensembles", dataset_name, type_name,
+                        f"ensemble_ver{ensemble_version}", "ensemble_config.json")
+    metadata = load_json_safe(config_path)
     if not metadata:
-        st.warning("Metadata not found.")
+        st.warning(f"Metadata not found at {config_path}")
         return
 
     tech_cfg = load_json_safe(os.path.join("src", "technical", "configs", "models_config.json")) or {}
@@ -298,14 +283,9 @@ def show_ensemble_config(dataset_name, type_name, ensemble_version):
         st.json(metadata)
 
 
-# ======================================================
-# Problem × Strategy Table
-# ======================================================
+# problem × strategy table
 
-def show_problem_strategy_table(df, dataset_name,
-                                outcome_col="score",
-                                problem_col="problem_id",
-                                strategy_col="strategy_name"):
+def show_problem_strategy_table(df, dataset_name, outcome_col="score", problem_col="problem_id", strategy_col="strategy_name"):
 
     st.subheader("Problem × Strategy Outcome Overview")
 

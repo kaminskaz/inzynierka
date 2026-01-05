@@ -1,12 +1,11 @@
-# streamlit_app.py
 import streamlit as st
 import pandas as pd
 import argparse
 import os
 
 from src.visualisation.data_handling import load_results, prepare_columns
-from src.visualisation.ui_helpers import show_csv_preview, setup_layout, multiselect_filter, map_strategy_column_name
-from src.visualisation.display import plot_judged_answers, plot_confidence, show_problem_strategy_table, display_evaluation_summary, show_chosen_problem, show_single_model_config, show_ensemble_config
+from src.visualisation.ui_helpers import multiselect_filter, map_strategy_column_name
+from src.visualisation.display import *
 
 class StreamlitVisualiser:
     def __init__(self, csv_path: str):
@@ -33,7 +32,7 @@ class StreamlitVisualiser:
         self._show_overview(df_single, strategy_col)
         self._show_dataset_section(df_model, is_ensemble, strategy_col)
 
-    # --- Private helpers ---
+
     def _select_model(self) -> pd.DataFrame | None:
         options = sorted(self.df["filter_id"].unique())
         selected_id = st.selectbox("Select Model", options)
