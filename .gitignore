@@ -22,11 +22,8 @@ env/
 .env
 
 # Folder z danymi
-data/
-data_old/
-data_raw/
-results/
-results_old/
+data*
+results*
 
 # cache
 __pycache__/

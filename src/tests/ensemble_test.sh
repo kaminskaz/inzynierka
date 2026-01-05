@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH -A jrafalko-lab
 #SBATCH --job-name=im_reasoning_test # Tu nazywasz jakoś swój proces, byle co szczerze mało warte bo i tak po nicku ja znaj>
-#SBATCH --time=2:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slu>
+#SBATCH --time=5:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slu>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=1 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
 #SBATCH --cpus-per-gpu=8 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawa>
 #SBATCH --mem=64gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
-#SBATCH --partition=hopper # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać sho>
+#SBATCH --partition=short # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać sho>
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=01180698@pw.edu.pl
 # Debugging flags
@@ -35,18 +35,7 @@ source /mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin/activate
 export PATH=/mnt/evafs/groups/jrafalko-lab/inzynierka/.venv/bin:$PATH
 
 python -m src.tests.ensemble_test \
-    --dataset_name "$DATASET_NAME" \
-    --members_configuration "$MEMBERS_CONFIGURATION" \
-    --ensemble_type "$ENSEMBLE_TYPE" \
-    --prompt_number "1" \
-    --vllm_model_name "OpenGVLab/InternVL3-8B" \
-    --llm_model_name "mistralai/Mistral-7B-Instruct-v0.3" \
-    --temperature 0.5 \
-    --max_tokens 12288 \
-    --max_output_tokens 4096 \
-    --limit_mm_per_prompt 2 \
-    --custom_args --tensor-parallel-size 1 --gpu-memory-utilization 0.9
-    # --debug
+    --dataset_name "$DATASET_NAME"
 
 rm -rf ${JOB_HF_HOME}
 rm -rf ${JOB_TMPDIR}

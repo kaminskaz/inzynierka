@@ -14,6 +14,13 @@ from src.models.vllm import VLLM
 from src.technical.utils import get_dataset_config, get_results_directory
 from src.evaluation.evaluation_basic import EvaluationBasic
 from src.evaluation.evaluation_judge import EvaluationWithJudge
+import os
+import gc
+import time
+import torch
+from src.base import FullPipeline
+from src.models.vllm import VLLM
+from src.technical.exceptions import PipelineCriticalError
 
 
 logger = logging.getLogger(__name__)
@@ -92,29 +99,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run a single ensemble experiment')
     parser.add_argument('--dataset_name', type=str, required=True, 
                         help='Name of the dataset to use (same as in dataset_config.json)')
-    parser.add_argument('--members_configuration', type=json_list, required=True, 
-                        help='Configuration string/file for the ensemble members')
-    parser.add_argument('--ensemble_type', type=str, required=True, 
-                        help='The type of ensemble method to apply')
-    parser.add_argument('--prompt_number', type=int, default=1, required = False),
-    parser.add_argument('--vllm_model_name', type=str, required=False, 
-                        help='Name of the VLLM model (e.g., OpenGVLab/InternVL3-8B)')
-    parser.add_argument('--llm_model_name', type=str, required=False, 
-                        help='Name of the LLM model (e.g., mistralai/Mistral-7B-Instruct-v0.3)')
-    parser.add_argument('--temperature', type=float, default=1.0, 
-                        help='Temperature setting for the model')
-    parser.add_argument('--max_tokens', type=int, default=2048, 
-                        help='Maximum context tokens')
-    parser.add_argument('--max_output_tokens', type=int, default=1536, 
-                        help='Maximum output tokens')
-    parser.add_argument('--limit_mm_per_prompt', type=int, default=2, 
-                        help='Limit of multimodal inputs per prompt')
-    parser.add_argument('--debug', action='store_true', 
-                        help='Enable DEBUG logging level')
-    parser.add_argument('--local_testing', action='store_true',
-                        help='Enable local CPU testing mode')
-    parser.add_argument('--custom_args', nargs=argparse.REMAINDER, default=[], 
-                        help='List of custom arguments passed to the underlying model')
 
     args = parser.parse_args()
 
@@ -126,11 +110,56 @@ if __name__ == "__main__":
         ]
     )
 
-    run_single_ensemble(
-        dataset_name=args.dataset_name,
-        members_configuration=args.members_configuration,
-        type_name=args.ensemble_type,
-        vllm_model_name=args.vllm_model_name if args.vllm_model_name else None,
-        llm_model_name=args.llm_model_name if args.llm_model_name else None,
-        prompt_number=args.prompt_number if args.prompt_number else None
-    )
+    dataset = args.dataset_name
+
+    pipeline = FullPipeline()
+
+    ### top overall:
+    top_members_overall = [['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['direct', 'OpenGVLab/InternVL3-8B', '1']]
+
+    ### strategy ensembles:
+    direct_ens = [['direct', 'OpenGVLab/InternVL3-8B', '1'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['direct', 'llava-hf/llava-v1.6-mistral-7b-hf', '1']]
+    descr_ens = [['descriptive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['descriptive', 'llava-hf/llava-v1.6-mistral-7b-hf', '3'], ['descriptive', 'OpenGVLab/InternVL3-8B', '1']]
+    contrast_ens = [['contrastive', 'OpenGVLab/InternVL3-8B', '3'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['contrastive', 'llava-hf/llava-v1.6-mistral-7b-hf', '3']]
+    classif_ens = [['classification', 'OpenGVLab/InternVL3-8B', '1'], ['classification', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['classification', 'llava-hf/llava-v1.6-mistral-7b-hf', '3']]
+
+    ### model_ensembles
+    qwen_ens = [['classification', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['descriptive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '3']]
+    llava_ens = [['classification', 'llava-hf/llava-v1.6-mistral-7b-hf', '3'], ['contrastive', 'llava-hf/llava-v1.6-mistral-7b-hf', '3'], ['descriptive', 'llava-hf/llava-v1.6-mistral-7b-hf', '3'], ['direct', 'llava-hf/llava-v1.6-mistral-7b-hf', '1']]
+    intern_ens = [['classification', 'OpenGVLab/InternVL3-8B', '1'], ['contrastive', 'OpenGVLab/InternVL3-8B', '3'], ['descriptive', 'OpenGVLab/InternVL3-8B', '1'], ['direct', 'OpenGVLab/InternVL3-8B', '1']]
+
+    if dataset == "bp":
+        top_members_dataset = [['direct', 'OpenGVLab/InternVL3-8B', '1'], ['direct', 'OpenGVLab/InternVL3-8B', '3'], ['descriptive', 'OpenGVLab/InternVL3-8B', '1'], ['descriptive', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '1']]
+
+    elif dataset == "cvr":
+        top_members_dataset = [['classification', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['direct', 'OpenGVLab/InternVL3-8B', '1'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['classification', 'OpenGVLab/InternVL3-8B', '3']]
+
+    elif dataset == "raven":
+        top_members_dataset = [['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['contrastive', 'OpenGVLab/InternVL3-8B', '3']]
+
+    elif dataset == "marsvqa":
+        top_members_dataset = [['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['descriptive', 'OpenGVLab/InternVL3-8B', '1']]
+    else:
+        raise ValueError(f"Unknown dataset: {dataset}")
+    
+    configurations = [top_members_overall, top_members_dataset, qwen_ens, direct_ens, descr_ens, contrast_ens]
+    if dataset != "bp":
+        configurations.append(classif_ens)
+
+    model_name = 'Qwen/Qwen2.5-VL-7B-Instruct'
+    type_names = ["majority","confidence","reasoning","reasoning_with_image"]
+
+    for config in configurations:
+        model = VLLM(model_name)
+        for type_name in type_names:
+            pipeline.run_ensemble(dataset_name=dataset, members_configuration=config, type_name=type_name, model_object=model)
+        model.stop()
+
+    model_ensembles = [llava_ens, intern_ens]
+    models = ['llava-hf/llava-v1.6-mistral-7b-hf','OpenGVLab/InternVL3-8B']
+
+    for mod, conf in zip(models, model_ensembles):
+        model = VLLM(mod)
+        for type_name in type_names:
+            pipeline.run_ensemble(dataset_name=dataset, members_configuration=conf, type_name=type_name, model_object=model)
+        model.stop()
