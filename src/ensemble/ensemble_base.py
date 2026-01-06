@@ -149,16 +149,17 @@ class EnsembleBase(ABC):
             self.save_results_to_csv(results_df, self.ensemble_directory)
 
         results_df = pd.DataFrame(results)
-        self.save_results_to_csv(results_df, self.ensemble_directory)
+        self.save_results_to_csv(results_df, self.ensemble_directory, print=True)
         
     @abstractmethod
     def evaluate_single_problem(self):
         pass
 
-    def save_results_to_csv(self, results_df: pd.DataFrame, results_dir: str) -> None:
+    def save_results_to_csv(self, results_df: pd.DataFrame, results_dir: str, print: bool = False) -> None:
         path_to_csv = os.path.join(results_dir, "ensemble_results.csv")
         results_df.to_csv(path_to_csv, index=False, mode='w')
-        self.logger.info(f"Ensemble results saved to {path_to_csv}.")
+        if print:
+            self.logger.info(f"Ensemble results saved to {path_to_csv}.")
 
     def save_config_to_json(self, results_dir: str) -> None:
         path_to_json = os.path.join(results_dir, "ensemble_config.json")
