@@ -4,21 +4,17 @@
 #SBATCH --time=5:00:00 # dla short to masz max 2h dla long i experimental masz chyba 3-4 dni to jest czas po którym slu>
 #SBATCH --ntasks=1 # tutaj wystarczy 1 zawsze mieć chyba że chcesz multi gpu itp ale zapewne 1 GPU wam wystarczy
 #SBATCH --gpus=1 # Jak nie potrzebujesz GPU to wyrzucasz tą linijke
-#SBATCH --cpus-per-gpu=8 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawa>
-#SBATCH --mem=64gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
-#SBATCH --partition=short # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać sho>
+#SBATCH --cpus-per-gpu=6 # Ile cpu na jedno gpu ma być w tym konfigu to po prostu ile cpu chcesz mieć mówiłem żeby dawa>
+#SBATCH --mem=128gb # Ile ram chcesz mieć mamy dużo więc nie musisz dawać mało ale bez przesady
+#SBATCH --partition=hopper # Tutaj podajesz short,long,experimental jedną z tych partycji z której chcesz korzystać sho>
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=01180698@pw.edu.pl
 # Debugging flags
 
 # ---- PARAMETERS ----
 DATASET_NAME=${1:-bp}
-MEMBERS_CONFIGURATION=${2:-'[["direct", "OpenGVLab/InternVL3-8B", "1"], ["classification", "OpenGVLab/InternVL3-8B", "1"],["descriptive", "OpenGVLab/InternVL3-8B", "1"]]'}
-ENSEMBLE_TYPE=${3:-"reasoning_with_image"}
 
-echo "Ensemble Type: $ENSEMBLE_TYPE"
 echo "Dataset: $DATASET_NAME"
-echo "Members Configuration: $MEMBERS_CONFIGURATION"
 
 export PYTHONFAULTHANDLER=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True

@@ -29,8 +29,8 @@ class EnsembleBase(ABC):
         self.exists = False
         self.config["ensemble_model"] = ""
         self.config["dataset"] = self.dataset_name
-        self.config["dataset_category"] = self.dataset_config.get("category", "")
-        self.config["task_type"] = self.dataset_config.get("task_type", "")
+        self.config["dataset_category"] = self.dataset_config.category
+        self.config["task_type"] = self.dataset_config.task_type
 
         self._build_ensemble()
         
@@ -237,14 +237,14 @@ class EnsembleBase(ABC):
         return prompt_path
     
     def _get_filled_prompt(self, all_answers: str = None) -> str:
-        prompt_path = self.get_ensemble_prompt_path(self.dataset_name, self.prompt_number)
+        prompt_path = self.get_ensemble_prompt_path(self.prompt_number)
         with open(prompt_path, "r", encoding="utf-8") as f:
             main_prompt = f.read()
         
         first_member = next(v for k, v in self.config.items() if k.startswith("member_"))
         sample_answer = first_member.get("sample_answer_prompt", "")
         problem_description = first_member.get("problem_description_prompt", "")
-        task_type = self.dataset_config.get("task_type", "")
+        task_type = self.dataset_config.task_type
         if task_type == "close-ended":
             example_prompt_path = os.path.join("prompts", "ensemble", "close_ended_example.txt")
         else:
