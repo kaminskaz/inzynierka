@@ -27,7 +27,7 @@ def setup_layout() -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.title("Model Results")
+    st.title("Experiment Results Overview")
 
 
 def render_cell(value, font_size=18, bold=False):
