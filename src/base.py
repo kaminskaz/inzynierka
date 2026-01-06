@@ -21,9 +21,10 @@ class FullPipeline:
         self._proc = None
 
     def prepare_data(
-            self, 
-            config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json"),
-            download: bool = False):    
+        self, 
+        config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json"),
+        download: bool = False
+    ) -> None:    
         data_module = DataModule(
             config_path=config_path,
             load_from_hf=download
@@ -32,16 +33,16 @@ class FullPipeline:
         data_module.run()
     
     def run_experiment(
-            self,
-            dataset_name: str,
-            strategy_name: str, 
-            model_name: str, 
-            model_object: Optional[VLLM] = None,
-            restart_problem_id: Optional[str] = None,
-            restart_version: Optional[str] = None,
-            param_set_number: Optional[int] = None,
-            prompt_number: Optional[int]=1,
-        ) -> None:
+        self,
+        dataset_name: str,
+        strategy_name: str, 
+        model_name: str, 
+        model_object: Optional[VLLM] = None,
+        restart_problem_id: Optional[str] = None,
+        restart_version: Optional[str] = None,
+        param_set_number: Optional[int] = None,
+        prompt_number: Optional[int]=1,
+    ) -> None:
         """
         Initializes and runs a single experiment strategy.
         """
@@ -157,10 +158,10 @@ class FullPipeline:
 
 
     def run_evaluation(
-            self, 
-            config: EvaluationConfig,
-            evaluator: Optional[EvaluationBase] = None
-        ):
+        self, 
+        config: EvaluationConfig,
+        evaluator: Optional[EvaluationBase] = None
+    ) -> None:
 
         if evaluator is not None:
             self.logger.info("Using provided evaluator instance.")
@@ -194,11 +195,17 @@ class FullPipeline:
         if stop_after_evaluation and evaluator.judge_model_object is not None:
             evaluator.judge_model_object.stop()
 
-    def run_evaluations(self, configs: List[EvaluationConfig]):
+    def run_evaluations(
+        self, 
+        configs: List[EvaluationConfig]
+    ) -> None:
         for config in configs:
             self.run_evaluation(config)
 
-    def visualise(self, csv_path: str = os.path.join("results", "all_results_concat.csv")) -> None:
+    def visualise(
+        self, 
+        csv_path: str = os.path.join("results", "all_results_concat.csv")
+    ) -> None:
         visualiser_path = os.path.join("src", "visualisation", "visualiser.py")
         self._proc = subprocess.Popen([sys.executable, "-m", "streamlit", "run", visualiser_path, "--", csv_path])
         self.logger.info(f"Streamlit visualiser started with PID: {self._proc.pid}")
@@ -244,7 +251,10 @@ class FullPipeline:
             self.logger.error(f"An unexpected error occurred during VLLM setup for '{model_name}'. Error: {e}")
             return None
         
-    def check_data_preprocessed(self, dataset_name: str) -> bool:
+    def check_data_preprocessed(
+            self,
+            dataset_name: str
+        ) -> bool:
         """
         Checks if the specified dataset appears to be preprocessed and in the
         standardized format required by the strategies.

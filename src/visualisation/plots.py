@@ -12,7 +12,7 @@ def create_countplot(df, score_col="score", dataset_col="dataset_name", strategy
     colors = get_present_colors(df, score_col)
     ncols = 2
     nrows = (len(datasets) + 1) // ncols
-    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols*6, nrows*5))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols*5, nrows*4))
     axes = np.array(axes).flatten() if isinstance(axes, np.ndarray) else np.array([axes])
 
     max_count = df.groupby([dataset_col, strategy_col, score_col]).size().max()
@@ -44,7 +44,7 @@ def create_countplot(df, score_col="score", dataset_col="dataset_name", strategy
     handles = [plt.Rectangle((0,0),1,1,color=colors[label]) for label in colors]
     labels = list(colors.keys())
     fig.legend(handles, labels, title="Score", loc='upper right', bbox_to_anchor=(1.02,1))
-    plt.tight_layout(rect=[0,0,0.85,1])
+    plt.tight_layout(rect=[0,0,0.8,1])
     return fig
 
 def create_confidence_boxplot(df, score_col="score", confidence_col="confidence",
@@ -57,7 +57,7 @@ def create_confidence_boxplot(df, score_col="score", confidence_col="confidence"
     colors = get_present_colors(df, score_col)
     ncols = 2
     nrows = (len(datasets) + 1) // ncols
-    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols*6, nrows*5))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(ncols*5, nrows*4))
     axes = np.array(axes).flatten() if isinstance(axes, np.ndarray) else np.array([axes])
 
     min_confidence = df[confidence_col].min() if not df[confidence_col].empty else 0.0
@@ -78,7 +78,7 @@ def create_confidence_boxplot(df, score_col="score", confidence_col="confidence"
         )
         axes[i].set_title(dataset)
         axes[i].set_xlabel("Strategy")
-        axes[i].set_ylim(min_confidence - 0.1, max_confidence + 0.1)
+        axes[i].set_ylim(min_confidence - 0.05, max_confidence + 0.05)
         axes[i].set_ylabel("Confidence")
         axes[i].tick_params(axis='x', rotation=40)
         axes[i].get_legend().remove()
@@ -89,5 +89,5 @@ def create_confidence_boxplot(df, score_col="score", confidence_col="confidence"
     handles = [plt.Rectangle((0,0),1,1,color=colors[label]) for label in colors]
     labels = list(colors.keys())
     fig.legend(handles, labels, title="Score", loc='upper right', bbox_to_anchor=(1.02,1))
-    plt.tight_layout(rect=[0,0,0.85,1])
+    plt.tight_layout(rect=[0,0,0.8,1])
     return fig

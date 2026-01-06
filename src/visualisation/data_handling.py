@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
-from src.visualisation.plots_and_visualisations import shorten_model_name
+from src.visualisation.ui_helpers import shorten_model_name
 import streamlit as st
 import json
 
