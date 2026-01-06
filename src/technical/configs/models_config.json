@@ -78,7 +78,7 @@
         "max_tokens": 16384,
         "max_output_tokens": 2048,
         "limit_mm_per_prompt": 2,
-        "cpu_local_testing": true,
+        "cpu_local_testing": false,
         "custom_args": {
           "tensor_parallel_size": 1,
           "gpu_memory_utilization": 0.9
@@ -97,7 +97,7 @@
         "max_tokens": 4096,
         "max_output_tokens": 2048,
         "limit_mm_per_prompt": 2,
-        "cpu_local_testing": true,
+        "cpu_local_testing": false,
         "custom_args": {
           "tensor_parallel_size": 1,
           "gpu_memory_utilization": 0.9
