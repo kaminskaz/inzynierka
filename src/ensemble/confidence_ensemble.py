@@ -19,9 +19,11 @@ class ConfidenceEnsemble(EnsembleBase):
             skip_missing = True, 
             type_name = "confidence", 
             judge_model: Optional[LLMJudge] = None,
-            prompt_number: Optional[int] = 1
+            prompt_number: Optional[int] = 1,
+            version: Optional[int] = None,
+            seed: Optional[int] = 42
         ):
-        super().__init__(dataset_name, members_configuration, skip_missing, type_name, prompt_number)
+        super().__init__(dataset_name, members_configuration, skip_missing, type_name, prompt_number, version=version, seed=seed)
         if get_dataset_config(dataset_name).category == "BP":
             self.llm = judge_model if judge_model is not None else LLMJudge()
             self.config["ensemble_model"] = self.llm.get_model_name()
