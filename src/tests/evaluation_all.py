@@ -37,6 +37,24 @@ def run_all_evaluations():
                     print(f"running config: {eval_config}", flush=True)
                     pipeline.run_evaluation(eval_config)
 
+def run_ensemble_evaluations():
+    type_names = ["majority","confidence","reasoning","reasoning_with_image"]
+    versions = ["1","2","3","4","5","6","7","8","9"]
+    datasets = ["marsvqa", "cvr","raven", "bp"]
+
+    pipeline = FullPipeline()
+    for dataset in datasets:
+        for type in type_names:
+            for ver in versions:
+                eval_config = EvaluationConfig(
+                                    dataset_name=dataset,
+                                    version=ver,
+                                    type_name=type,
+                                    ensemble=True
+                                )
+                print(f"running config: {eval_config}", flush=True)
+                pipeline.run_evaluation(eval_config)
+
 def run_evals_update():
     mods = ["Qwen/Qwen2.5-VL-7B-Instruct", "llava-hf/llava-v1.6-mistral-7b-hf", "Qwen/Qwen2.5-VL-7B-Instruct", "Qwen/Qwen2.5-VL-7B-Instruct"]
     strats = ["direct","descriptive","descriptive","direct"]
@@ -55,8 +73,7 @@ def run_evals_update():
         print(f"running config: {eval_config}", flush=True)
         pipeline.run_evaluation(eval_config)
 
-    
-
 if __name__ == "__main__":
     #run_all_evaluations()
-    run_evals_update()
+    #run_evals_update()
+    run_ensemble_evaluations()
