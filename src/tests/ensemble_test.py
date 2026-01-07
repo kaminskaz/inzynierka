@@ -158,19 +158,17 @@ def seed_and_version_test(dataset):
             if model:
                 model.stop()
 
-def get_config_and_seed(version: int, dataset_name: str):
+def get_config_and_seed(version: int, dataset_name: str, model_number: int = 0):
     """
     Returns a specific configuration and seed based on the version number.
     
     Args:
-        version (int): Number between 0-89
+        version (int): Number of version
         dataset_name (str): Name of the dataset (bp, cvr, raven, marsvqa)
-    
+        model_number (int): Number of the model to use (default is 1)
     Returns:
         tuple: (list of ensemble members, int seed)
     """
-    if not (0 <= version <= 89):
-        raise ValueError("Version must be between 0 and 89.")
 
     seed = version % 10
 
@@ -198,11 +196,11 @@ def get_config_and_seed(version: int, dataset_name: str):
         8: [['classification', 'OpenGVLab/InternVL3-8B', '1'], ['classification', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['classification', 'llava-hf/llava-v1.6-mistral-7b-hf', '3']] # classification
     }
 
-    group_index = version // 10
+    group_index = version // 10 - model_number*10
     
     return mapping[group_index], seed
 
-def run_pipeline_for_dataset(dataset: str, pipeline, model_name):
+def run_pipeline_for_dataset(dataset: str, pipeline, model_name, model_number = 0):
     """
     Runs the ensemble pipeline and resets the model every 2 runs that require model.
     
@@ -217,15 +215,17 @@ def run_pipeline_for_dataset(dataset: str, pipeline, model_name):
     model = VLLM(model_name)
     run_counter = 0
 
+    offset = model_number * 100
+
     for type_name in type_names:
         if type_name in ["reasoning", "reasoning_with_image"] or dataset == "bp":
             max_range = 80 if dataset == "bp" else 90
-            versions_to_run = range(0, max_range, 10)
+            versions_to_run = (v + offset for v in range(0, max_range, 10))
         else:
-            versions_to_run = range(90)
+            versions_to_run = (v + offset for v in range(90))
 
         for ver in versions_to_run:
-            config, seed = get_config_and_seed(ver, dataset)
+            config, seed = get_config_and_seed(ver, dataset, model_number)
             
             pipeline.run_ensemble(
                 dataset_name=dataset,
@@ -263,9 +263,12 @@ if __name__ == "__main__":
 
     dataset = args.dataset_name
     pipeline = FullPipeline()
-    model_name = "Qwen/Qwen2.5-VL-7B-Instruct"
+    #model_name = "Qwen/Qwen2.5-VL-7B-Instruct"
+    #model_numeber = 0
+    model_name = "OpenGVLab/InternVL3-8B"
+    model_number = 1
 
-    run_pipeline_for_dataset(dataset, pipeline, model_name)
+    run_pipeline_for_dataset(dataset, pipeline, model_name, model_number)
     
     #run_all_ensembles(dataset)
     #seed_and_version_test(dataset) PASSED - models always deterministic, no model changes with seed
