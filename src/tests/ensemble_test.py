@@ -239,10 +239,10 @@ def run_pipeline_for_dataset(dataset: str, pipeline, model_name):
             # Increment counter and check for reset
             if type_name in ["reasoning", "reasoning_with_image"] or dataset == "bp":
                 run_counter += 1
-            if run_counter % 2 == 0:
-                print(f"--- Resetting model after {run_counter} total runs ---")
-                model.stop()
-                model = VLLM(model_name) # Replace old model with a fresh one
+                if run_counter % 2 == 0:
+                    print(f"--- Resetting model after {run_counter} total runs ---")
+                    model.stop()
+                    model = VLLM(model_name) # Replace old model with a fresh one
 
 import argparse
 
