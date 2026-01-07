@@ -184,19 +184,21 @@ class EvaluationBase(ABC):
         other_cols = [c for c in combined_df.columns if c not in meta_cols]
         final_order = other_cols + meta_cols
 
-        key_cols_single = ["problem_id", "dataset_name", "model_name", "strategy_name", "version"]
-        key_cols_ensemble = ["problem_id", "dataset_name", "type_name", "version"]
+        key_cols = [
+            "problem_id",
+            "dataset_name",
+            "version",
+            "ensemble",
+            "model_name",
+            "strategy_name",
+            "type_name",
+        ]
 
-        if not ensemble:
-            for col in key_cols_single:
-                if col in combined_df.columns:
-                    combined_df[col] = combined_df[col].astype(str).str.strip()
-            combined_df = combined_df.drop_duplicates(subset=key_cols_single, keep='last')
-        else:
-            for col in key_cols_ensemble:
-                if col in combined_df.columns:
-                    combined_df[col] = combined_df[col].astype(str).str.strip()
-            combined_df = combined_df.drop_duplicates(subset=key_cols_ensemble, keep='last')
+        for col in key_cols:
+            if col in combined_df.columns:
+                combined_df[col] = combined_df[col].fillna("").astype(str).str.strip()
+
+        combined_df = combined_df.drop_duplicates(subset=key_cols, keep="last")
 
         combined_df = combined_df[final_order]
         combined_df.to_csv(all_results_concat_path, index=False)
