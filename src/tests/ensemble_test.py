@@ -92,26 +92,7 @@ def run_single_ensemble(
             model.stop()
         raise e
     
-
-import argparse
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Run a single ensemble experiment')
-    parser.add_argument('--dataset_name', type=str, required=True, 
-                        help='Name of the dataset to use (same as in dataset_config.json)')
-
-    args = parser.parse_args()
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout)
-        ]
-    )
-
-    dataset = args.dataset_name
-
+def run_all_ensembles(dataset):
     pipeline = FullPipeline()
 
     ### top overall:
@@ -142,7 +123,7 @@ if __name__ == "__main__":
     else:
         raise ValueError(f"Unknown dataset: {dataset}")
     
-    configurations = [top_members_overall, top_members_dataset, qwen_ens, direct_ens, descr_ens, contrast_ens]
+    configurations = [top_members_overall, top_members_dataset, qwen_ens, llava_ens, intern_ens, direct_ens, descr_ens, contrast_ens]
     if dataset != "bp":
         configurations.append(classif_ens)
 
@@ -155,11 +136,46 @@ if __name__ == "__main__":
             pipeline.run_ensemble(dataset_name=dataset, members_configuration=config, type_name=type_name, model_object=model)
         model.stop()
 
-    model_ensembles = [llava_ens, intern_ens]
-    models = ['llava-hf/llava-v1.6-mistral-7b-hf','OpenGVLab/InternVL3-8B']
+def seed_and_version_test(dataset):
+    pipeline = FullPipeline()
+    ### top overall:
+    top_members_overall = [['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '3'], ['direct', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['contrastive', 'Qwen/Qwen2.5-VL-7B-Instruct', '1'], ['direct', 'OpenGVLab/InternVL3-8B', '1']]
+    configurations = [top_members_overall]
 
-    for mod, conf in zip(models, model_ensembles):
-        model = VLLM(mod)
-        for type_name in type_names:
-            pipeline.run_ensemble(dataset_name=dataset, members_configuration=conf, type_name=type_name, model_object=model)
-        model.stop()
+    model_name = 'Qwen/Qwen2.5-VL-7B-Instruct'
+    type_names = ["majority"]
+    versions = [100, 101, 102]
+    seeds = [100, 100, 101]
+
+    for ver, seed in zip(versions, seeds):
+        for config in configurations:
+            if dataset == "bp":
+                model = VLLM(model_name)
+            else:
+                model = None
+            for type_name in type_names:
+                pipeline.run_ensemble(dataset_name=dataset, members_configuration=config, type_name=type_name, model_object=model, version=ver, seed=seed)
+            if model:
+                model.stop()
+
+import argparse
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Run a single ensemble experiment')
+    parser.add_argument('--dataset_name', type=str, required=True, 
+                        help='Name of the dataset to use (same as in dataset_config.json)')
+
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+    dataset = args.dataset_name
+    
+    #run_all_ensembles(dataset)
+    seed_and_version_test(dataset)

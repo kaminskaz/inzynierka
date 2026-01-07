@@ -14,7 +14,7 @@ from src.tests.strategy_test import run_single_experiment
 
 
 class EnsembleBase(ABC):
-    def __init__(self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, type_name: str = "", prompt_number: int = 1):
+    def __init__(self, dataset_name: str, members_configuration: List[List[str]], skip_missing: bool = True, type_name: str = "", prompt_number: int = 1, version: int = None, seed: int = 42):
         self.logger = logging.getLogger(__name__)
         self.dataset_name = dataset_name
         self.config: Dict[str, Any] = {}
@@ -23,7 +23,8 @@ class EnsembleBase(ABC):
         self.members_configuration = members_configuration
         self.answers = pd.DataFrame()
         self.dataset_config = get_dataset_config(dataset_name)
-        self.seed = 42
+        self.seed = seed
+        self.version = version
         self.type_name = type_name
         self.ensemble_directory = None
         self.exists = False
@@ -31,6 +32,7 @@ class EnsembleBase(ABC):
         self.config["dataset"] = self.dataset_name
         self.config["dataset_category"] = self.dataset_config.category
         self.config["task_type"] = self.dataset_config.task_type
+        self.config["seed"]=self.seed
 
         self._build_ensemble()
         
@@ -131,7 +133,7 @@ class EnsembleBase(ABC):
             self.logger.info("Ensemble already exists. Skipping evaluation.")
             return
         
-        self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create_dir=True)
+        self.ensemble_directory = get_ensemble_directory(self.dataset_name, self.type_name, create_dir=True, version = self.version)
         self.save_config_to_json(self.ensemble_directory)
 
         results = []

@@ -8,6 +8,8 @@ import logging
 import re
 from src.technical.configs.model_config import ModelConfig
 from pydantic import BaseModel
+import random
+import numpy as np
 
 from src.technical.configs.dataset_config import DatasetConfig
 
@@ -293,3 +295,27 @@ def check_if_members_equal(member_a: dict, member_b: dict) -> bool:
                     return False
                     
         return True
+
+def set_all_seeds(seed: int = 42):
+    # 1. Base Python random module
+    random.seed(seed)
+    
+    # 2. NumPy
+    np.random.seed(seed)
+    
+    # 3. OS environment (important for some hashing operations)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    
+    # 4. PyTorch CPU
+    torch.manual_seed(seed)
+    
+    # 5. PyTorch GPU (if available)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed) # for multi-GPU
+    
+    # 6. Cudnn Determinism
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    
+    print(f"Seeds set to {seed} for random, numpy, and torch.")

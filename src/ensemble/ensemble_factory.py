@@ -38,7 +38,9 @@ class EnsembleFactory:
         skip_missing: bool = True, 
         judge_model: Optional[LLMJudge] = None, 
         type_name: str = "majority", 
-        prompt_number: int = 1
+        prompt_number: int = 1,
+        seed: int = 42,
+        version: int = None
     ) -> EnsembleBase:
         """
         Method to create, configure, and return an ensemble instance.
@@ -69,7 +71,9 @@ class EnsembleFactory:
                 skip_missing=skip_missing,
                 judge_model=judge_model, 
                 type_name=type_name,
-                prompt_number=prompt_number
+                prompt_number=prompt_number,
+                version=version,
+                seed=seed
             )
             self.logger.info(f"Successfully created: {ensemble_class.__name__}")
             return ensemble_instance

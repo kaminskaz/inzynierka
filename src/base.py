@@ -10,7 +10,7 @@ from src.models.llm_judge import LLMJudge
 from src.models.vllm import VLLM
 from src.preprocessing.data_module import DataModule
 from src.strategies.strategy_factory import StrategyFactory
-from src.technical.utils import get_results_directory, get_dataset_config
+from src.technical.utils import get_results_directory, get_dataset_config, set_all_seeds
 from src.technical.configs.evaluation_config import EvaluationConfig
 from src.visualisation.visualiser import StreamlitVisualiser
 
@@ -42,7 +42,10 @@ class FullPipeline:
         restart_version: Optional[str] = None,
         param_set_number: Optional[int] = None,
         prompt_number: Optional[int]=1,
+        seed: Optional[int] = 42
     ) -> None:
+        if seed:
+            set_all_seeds(seed)
         """
         Initializes and runs a single experiment strategy.
         """
@@ -102,8 +105,12 @@ class FullPipeline:
         vllm_model_name: Optional[str] = None,
         llm_model_name: Optional[str] = None, 
         model_object: Optional[VLLM] = None,
-        prompt_number: Optional[int] = 1
+        prompt_number: Optional[int] = 1, 
+        version: Optional[int] = None,
+        seed: Optional[int] = 42
     ) -> None:
+        if seed:
+            set_all_seeds(seed)
         """
         Initializes and runs a single experiment strategy.
         """
@@ -135,7 +142,9 @@ class FullPipeline:
                 skip_missing=True,
                 judge_model=model,
                 type_name=type_name,
-                prompt_number=prompt_number
+                prompt_number=prompt_number,
+                version=version,
+                seed=seed
             )
             
             self.logger.info("Ensemble created successfully. Running ensemble...")
@@ -160,8 +169,11 @@ class FullPipeline:
     def run_evaluation(
         self, 
         config: EvaluationConfig,
-        evaluator: Optional[EvaluationBase] = None
+        evaluator: Optional[EvaluationBase] = None,
+        seed: Optional[int] = 42
     ) -> None:
+        if seed:
+            set_all_seeds
 
         if evaluator is not None:
             self.logger.info("Using provided evaluator instance.")
