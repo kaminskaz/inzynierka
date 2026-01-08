@@ -422,7 +422,7 @@ def get_eval_config_from_path(
                 type_name=type_name,
                 ensemble=True,
                 judge_model_name=judge_model_name,
-                judge_model_object=judge_model_object,
+                judge_model_object=None,
                 prompt_number=prompt_number,
                 judge_param_set_number=param_set_number
             )
@@ -448,7 +448,7 @@ def get_eval_config_from_path(
                 model_name=model_name,
                 ensemble=False,
                 judge_model_name=judge_model_name,
-                judge_model_object=judge_model_object,
+                judge_model_object=None,
                 prompt_number=prompt_number,
                 judge_param_set_number=param_set_number
             )
