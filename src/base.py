@@ -10,9 +10,10 @@ from src.models.llm_judge import LLMJudge
 from src.models.vllm import VLLM
 from src.preprocessing.data_module import DataModule
 from src.strategies.strategy_factory import StrategyFactory
-from src.technical.utils import get_results_directory, get_dataset_config, set_all_seeds
+from src.technical.utils import get_results_directory, get_dataset_config, set_all_seeds, get_eval_config_from_path
 from src.technical.configs.evaluation_config import EvaluationConfig
 from src.visualisation.visualiser import StreamlitVisualiser
+import pathlib
 
 
 class FullPipeline: 
@@ -165,6 +166,58 @@ class FullPipeline:
                 model.stop()
             raise e
 
+    def run_missing_evaluations_in_directory(
+        self,
+        path: str, 
+        judge_model_name: Optional[str] = "mistralai/Mistral-7B-Instruct-v0.3",
+        param_set_number: Optional[int] = 1,
+        judge_model_object: Optional[LLMJudge] = None,
+        prompt_number: int = 1,
+        seed: Optional[int] = 42
+    ):
+
+        root_path = pathlib.Path(path)
+        if not str(root_path).startswith("results"):
+            self.logger.info(f"Skipping: Path '{path}' must start with 'results/'.")
+            return
+
+        if not root_path.exists() or not root_path.is_dir():
+            self.logger.info(f"Skipping: Path '{path}' does not exist or is not a directory.")
+            return
+
+        self.logger.info(f"Scanning for missing evaluations in: {root_path}")
+
+        # .rglob('*') finds all files and directories recursively
+        for subdir in root_path.rglob('*'):
+        
+            if subdir.is_dir() and ("ver" in subdir.name):
+
+                subfolders = [f for f in subdir.iterdir() if f.is_dir()]
+                if len(subfolders) > 0:
+                    continue
+
+                eval_file = subdir / "evaluation_results.csv"
+                if eval_file.exists():
+                    self.logger.info(f"Found existing results in {subdir}. Skipping.")
+                    continue
+
+                is_ensemble = "ensemble" in str(subdir).lower()
+                
+                try:
+                    config = self.get_eval_config_from_path(
+                        path=str(subdir),
+                        ensemble=is_ensemble,
+                        judge_model_name=judge_model_name,
+                        judge_model_object=judge_model_object,
+                        prompt_number=prompt_number,
+                        param_set_number=param_set_number
+                    )
+        
+                    self.logger.info(f"Running evaluation for: {subdir}")
+                    self.run_evaluation(config=config, seed=seed)
+                    
+                except ValueError as e:
+                    self.logger.info(f"Could not parse config for {subdir}: {e}")
 
     def run_evaluation(
         self, 

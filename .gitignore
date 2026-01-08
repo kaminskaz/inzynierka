@@ -24,6 +24,7 @@ env/
 # Folder z danymi
 data*
 results*
+deprecated/ensembles*
 
 # cache
 __pycache__/

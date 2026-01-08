@@ -7,9 +7,13 @@ from typing import Any, Dict, Optional, Union
 import logging
 import re
 from src.technical.configs.model_config import ModelConfig
+from src.models.llm_judge import LLMJudge
+from src.technical.configs.evaluation_config import EvaluationConfig
 from pydantic import BaseModel
 import random
 import numpy as np
+import pathlib
+from typing import Optional
 
 from src.technical.configs.dataset_config import DatasetConfig
 
@@ -100,6 +104,19 @@ def shorten_model_name(model_name: str) -> str:
         short_model_name = model_name
     short_model_name = short_model_name.replace('/', '_')
     return short_model_name
+
+def get_full_model_name_from_short(short_name_to_find: str) -> str:
+    """
+    Reverses the shorten_model_name logic by searching through the config keys.
+    """
+    model_config_path = os.path.join("src", "technical", "configs", "models_config.json")
+    with open(model_config_path, "r") as f:
+        json_data = json.load(f)
+    for full_model_name in json_data.keys():
+        if shorten_model_name(full_model_name) == short_name_to_find:
+            return full_model_name
+            
+    raise ValueError(f"Could not find a full model name matching: {short_name_to_find}")
 
 def get_ensemble_directory(
         dataset_name: str, 
@@ -319,3 +336,74 @@ def set_all_seeds(seed: int = 42):
     torch.backends.cudnn.benchmark = False
     
     print(f"Seeds set to {seed} for random, numpy, and torch.")
+
+def get_eval_config_from_path(
+    path: str,
+    ensemble: bool = False,
+    judge_model_name: Optional[str] = "mistralai/Mistral-7B-Instruct-v0.3",
+    param_set_number: int = 1,
+    judge_model_object: Optional[LLMJudge] = None,
+    prompt_number: int = 1
+):
+    p = pathlib.Path(path)
+    parts = p.parts
+    
+    try:
+        if ensemble:
+            # Expected: results/ensembles/dataset_name/type_name/ensemble_ver{version}
+            if len(parts) < 3:
+                raise ValueError(f"Path too short for ensemble: {path}")
+            
+            dataset_name = parts[-3]
+            type_name = parts[-2]
+            version_part = parts[-1]
+            
+            if "ensemble_ver" not in version_part:
+                raise ValueError(f"Missing 'ensemble_ver' prefix in: {version_part}")
+                
+            version = version_part.replace("ensemble_ver", "")
+
+            eval_config = EvaluationConfig(
+                dataset_name=dataset_name,
+                version=version,
+                type_name=type_name,
+                ensemble=True,
+                judge_model_name=judge_model_name,
+                judge_model_object=judge_model_object,
+                prompt_number=prompt_number,
+                param_set_number=param_set_number
+            )
+        else:
+            # Expected: results/dataset_name/strategy_name/short_model_name/ver{version}
+            if len(parts) < 4:
+                raise ValueError(f"Path too short for standard eval: {path}")
+            
+            dataset_name = parts[-4]
+            strategy_name = parts[-3]
+            model_name = get_full_model_name_from_short(parts[-2])
+            version_part = parts[-1]
+            
+            if "ver" not in version_part:
+                raise ValueError(f"Missing 'ver' prefix in: {version_part}")
+
+            version = version_part.replace("ver", "")
+
+            eval_config = EvaluationConfig(
+                dataset_name=dataset_name,
+                version=version,
+                strategy_name=strategy_name,
+                model_name=model_name,
+                ensemble=False,
+                judge_model_name=judge_model_name,
+                judge_model_object=judge_model_object,
+                prompt_number=prompt_number,
+                param_set_number=param_set_number
+            )
+            
+        return eval_config
+
+    except (IndexError, ValueError) as e:
+        raise ValueError(
+            f"Failed to parse EvaluationConfig from path: '{path}'. "
+            f"Error: {e}. Check if the folder structure matches the expected format."
+        )
