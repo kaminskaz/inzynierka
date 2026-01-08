@@ -103,7 +103,9 @@ class FullPipeline:
         members_configuration: List[List[str]],
         type_name: str,
         vllm_model_name: Optional[str] = None,
+        vllm_param_set_number: Optional[int] = None,
         llm_model_name: Optional[str] = None, 
+        llm_param_set_number: Optional[int] = None,
         model_object: Optional[VLLM] = None,
         prompt_number: Optional[int] = 1, 
         version: Optional[int] = None,
@@ -122,14 +124,16 @@ class FullPipeline:
                 if type_name == "reasoning_with_image" and vllm_model_name:
                     self.logger.info(f"Initializing VLLM model '{vllm_model_name}' for reasoning with image ensemble.")
                     model = VLLM(
-                        model_name=vllm_model_name
+                        model_name=vllm_model_name,
+                        param_set_number=vllm_param_set_number
                     )
 
                 elif (get_dataset_config(dataset_name).category == "BP" and llm_model_name) or (type_name == "reasoning" and llm_model_name):
                     self.logger.info(f"Initializing LLM model '{llm_model_name}' for ensemble.")
                     
                     model = LLMJudge(
-                        model_name=llm_model_name
+                        model_name=llm_model_name,
+                        param_set_number=llm_param_set_number
                     )
                 else:
                     model = None
@@ -189,6 +193,7 @@ class FullPipeline:
                 strategy_name=config.strategy_name,
                 judge_model_object=config.judge_model_object,
                 judge_model_name=config.judge_model_name,
+                judge_param_set_number=config.judge_param_set_number,
                 prompt_number=config.prompt_number
             )
 

@@ -19,5 +19,6 @@ class EvaluationConfig:
     output_all_results_concat_path: str = "all_results_concat"
 
     judge_model_name: Optional[str] = "mistralai/Mistral-7B-Instruct-v0.3"
+    judge_param_set_number: Optional[int] = None
     judge_model_object: Optional[LLMJudge] = None
     prompt_number: int = 1

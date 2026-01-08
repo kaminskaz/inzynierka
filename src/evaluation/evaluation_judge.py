@@ -8,7 +8,7 @@ import os
 from src.evaluation.evaluation_base import EvaluationBase
 from src.models.llm_judge import LLMJudge
 from src.technical.response_schema import BongardEvaluationSchema
-from src.technical.utils import get_results_directory
+from src.technical.utils import shorten_model_name
 
 
 class EvaluationWithJudge(EvaluationBase):
@@ -16,7 +16,7 @@ class EvaluationWithJudge(EvaluationBase):
             self, 
             judge_model_name: str = "mistralai/Mistral-7B-Instruct-v0.3",
             judge_model_object: Any = None,
-            param_set_number: int = None,
+            judge_param_set_number: int = None,
             prompt: str = None,
             prompt_number: int = 1,
             prompt_path: str = None
@@ -24,7 +24,7 @@ class EvaluationWithJudge(EvaluationBase):
         self.logger = logging.getLogger(__name__)
         self.prompt_number = prompt_number
         self.judge_model_name = judge_model_name
-        self.param_set_number = param_set_number
+        self.judge_param_set_number = judge_param_set_number
 
         if prompt is not None:
             self.prompt = prompt
@@ -62,12 +62,13 @@ class EvaluationWithJudge(EvaluationBase):
 
         if judge_model_object is not None:
             self.judge_model_object = judge_model_object
+            self.judge_model_name = judge_model_object.get_model_name()
 
         else:
             self.logger.info(f"Initializing judge model: {self.judge_model_name}")
             self.judge_model_object = LLMJudge(
                 model_name=self.judge_model_name,
-                param_set_number=self.param_set_number
+                param_set_number=self.judge_param_set_number
             )
 
     def evaluate_single_answer(
@@ -128,6 +129,10 @@ class EvaluationWithJudge(EvaluationBase):
                 output_df.at[index, "judge_rationale"] = "LLM reasoning missing"
             output_df.at[index, "score"] = score
             output_df.at[index, "judge_rationale"] = judge_rationale
+        output_df["judge_model_name"] = shorten_model_name(self.judge_model_name)
+        output_df["judge_model_param_set"] = (self.judge_param_set_number 
+                                              if self.judge_param_set_number is not None 
+                                              else 1)
         
         if stop_after_evaluation:
             self.judge_model_object.stop()
