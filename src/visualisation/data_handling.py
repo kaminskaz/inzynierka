@@ -44,6 +44,18 @@ def prepare_columns(df: pd.DataFrame) -> pd.DataFrame:
         df["model_name"].astype(str).apply(shorten_model_name)
         + "_ver" + df["version"].astype(str),
     )
+
+    df["judge_filter_id"] = np.where(
+        df["judge_model_name"].notna(),
+        df["judge_model_name"].astype(str)
+        + np.where(
+            df["judge_model_param_set"].notna(),
+            "_" + df["judge_model_param_set"].astype("Int64").astype(str),
+            ""
+        ),
+        ""
+    )
+
     return df
 
 def load_json_safe(path: str):
