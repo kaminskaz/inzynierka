@@ -36,7 +36,7 @@ class EnsembleFactory:
         dataset_name: str, 
         members_configuration: List[List[str]], 
         skip_missing: bool = True, 
-        judge_model: Optional[LLMJudge] = None, 
+        judge_model: Optional[LLMJudge] = None,
         type_name: str = "majority", 
         prompt_number: int = 1,
         seed: int = 42,

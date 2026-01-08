@@ -6,7 +6,7 @@ import logging
 from pydantic import BaseModel
 import pandas as pd
 import os
-from src.technical.utils import get_results_directory, get_dataset_config, get_ensemble_directory
+from src.technical.utils import get_results_directory, get_dataset_config, get_ensemble_directory, shorten_model_name
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -79,11 +79,11 @@ class EvaluationBase(ABC):
         )
 
         self._write_summary_and_metrics(
-            results_dir,
-            evaluation_output_path,
-            summary_answers,
-            summary_key,
-            output_df
+            results_dir=results_dir,
+            evaluation_output_path=evaluation_output_path,
+            summary_answers=summary_answers,
+            summary_key=summary_key,
+            output_df=output_df
         )
 
         if concat:
@@ -171,6 +171,8 @@ class EvaluationBase(ABC):
 
         meta_cols = [
             "judge_rationale",
+            "judge_model_name",
+            "judge_model_param_set",
             "dataset_name",
             "model_name",
             "strategy_name",
@@ -187,6 +189,9 @@ class EvaluationBase(ABC):
         key_cols = [
             "problem_id",
             "dataset_name",
+            "judge_model_name",
+            "judge_model_version",
+            "judge_model_param_set",
             "version",
             "ensemble",
             "model_name",
@@ -308,7 +313,16 @@ class EvaluationBase(ABC):
         summary_key, 
         output_df
     ):
-        output_summaries_path = os.path.join(results_dir, f"{evaluation_output_path}_summary.json")
+        if self.judge_model_name is not None:
+            model_suffix = f"_{shorten_model_name(self.judge_model_name)}"
+            if self.judge_param_set_number is not None:
+                model_suffix += f"_{self.judge_param_set_number}"
+            else:
+                model_suffix += "_1"
+        else:
+            model_suffix = ""
+
+        output_summaries_path = os.path.join(results_dir, f"{evaluation_output_path}_summary{model_suffix}.json")
         with open(output_summaries_path, "w") as summary_file:
             json.dump({
                 "answers_completeness": summary_answers,
@@ -317,11 +331,11 @@ class EvaluationBase(ABC):
         logger.info(f"Summaries saved to {output_summaries_path}")
 
         metrics = self.calculate_metrics(output_df)
-        metrics_path = os.path.join(results_dir, f"{evaluation_output_path}_metrics.json")
+        metrics_path = os.path.join(results_dir, f"{evaluation_output_path}_metrics{model_suffix}.json")
         with open(metrics_path, "w") as metrics_file:
             json.dump(metrics, metrics_file, indent=4)
         logger.info(f"Metrics saved to {metrics_path}")
 
-        output_path = os.path.join(results_dir, f"{evaluation_output_path}.csv")
+        output_path = os.path.join(results_dir, f"{evaluation_output_path}{model_suffix}.csv")
         output_df.to_csv(output_path, index=False)
         logger.info(f"Results saved to {output_path}")
