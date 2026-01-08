@@ -263,10 +263,10 @@ if __name__ == "__main__":
 
     dataset = args.dataset_name
     pipeline = FullPipeline()
-    #model_name = "Qwen/Qwen2.5-VL-7B-Instruct"
-    #model_numeber = 0
-    model_name = "OpenGVLab/InternVL3-8B"
-    model_number = 1
+    model_name = "Qwen/Qwen2.5-VL-7B-Instruct"
+    model_number = 0
+    # model_name = "OpenGVLab/InternVL3-8B"
+    # model_number = 1
 
     run_pipeline_for_dataset(dataset, pipeline, model_name, model_number)
     

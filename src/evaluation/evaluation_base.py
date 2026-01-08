@@ -160,6 +160,8 @@ class EvaluationBase(ABC):
 
         if ensemble:
             results_df["ensemble"] = True
+            results_df["seed"] = version % 10
+            results_df["ens_members_config_number"] = version // 10 % 10
         else:
             results_df["ensemble"] = False
 
