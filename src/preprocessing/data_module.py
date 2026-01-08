@@ -242,7 +242,7 @@ class DataModule:
             self.logger.info(f"--- Checking: {dataset_name} ---")
 
             # 1. Get list of all processed problem IDs from the file system
-            problem_dir = os.path.join("data", dataset_name, "problems")
+            problem_dir = Path(os.path.join("data", dataset_name, "problems"))
             if not problem_dir.exists():
                 self.logger.warning(f"  No 'problems' directory found for {dataset_name}.")
                 continue
@@ -264,10 +264,7 @@ class DataModule:
             annotation_keys = set()
 
             # 2. Load solutions
-            if dataset_name == "BP":
-                solutions_path = os.path.join(json_dir, "bp_solutions.json")
-            else:
-                solutions_path = os.path.join(json_dir, f"{dataset_name}_solutions.json")
+            solutions_path = os.path.join(json_dir, f"{dataset_name}_solutions.json")
 
             if os.path.exists(solutions_path):
                 try:
@@ -299,7 +296,7 @@ class DataModule:
             # 4. Compare and report
             # Solutions check
             missing_solutions = processed_problems - solution_keys
-            if not solutions_path.exists():
+            if not os.path.exists(solutions_path):
                 pass  # Already warned
             elif missing_solutions:
                 self.logger.warning(

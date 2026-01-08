@@ -35,7 +35,7 @@ class BaseProcessor(ABC):
     def is_already_processed(self, problem_id: str) -> bool:
         """Check if a problem has already been processed."""
         output_path = os.path.join(self.output_base_path, self.dataset_name, "problems", problem_id, "question_panel.png")
-        return output_path.exists()
+        return os.path.exists(output_path)
 
     def get_output_dir(self, subfolder: str) -> Path:
         """Get output directory path."""
