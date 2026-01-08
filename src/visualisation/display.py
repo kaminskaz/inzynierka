@@ -12,7 +12,14 @@ def show_csv_preview(df: pd.DataFrame) -> None:
         st.info("No data to display.")
         return
     st.subheader("Results CSV Preview")
-    st.dataframe(df.drop(columns=["filter_id", "ensemble"], errors="ignore"))
+    cols_to_drop = ["filter_id", "ensemble", "judge_filter_id"]
+    if df["ensemble"].all():
+        cols_to_drop.append("model_name")
+        cols_to_drop.append("strategy_name")
+        cols_to_drop.append("confidence")
+    else:
+        cols_to_drop.append("type_name")
+    st.dataframe(df.drop(columns=cols_to_drop, errors="ignore"))
 
 def setup_layout() -> None:
     st.markdown(
@@ -118,6 +125,10 @@ def display_evaluation_summary(df, dataset_name, strategy_name, strategy_col="st
 
     metrics_path = os.path.join(base_path, "evaluation_results_metrics.json")
     summary_path = os.path.join(base_path, "evaluation_results_summary.json")
+    if df["judge_filter_id"].notna().any() and df["judge_filter_id"].iloc[0]:
+        judge_model_id = df["judge_filter_id"].iloc[0]
+        metrics_path = os.path.join(base_path, f"evaluation_results_metrics_{judge_model_id}.json")
+        summary_path = os.path.join(base_path, f"evaluation_results_summary_{judge_model_id}.json")
     metrics = load_json_safe(metrics_path)
     summary = load_json_safe(summary_path)
 

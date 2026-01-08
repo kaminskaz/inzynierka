@@ -22,6 +22,11 @@ class StreamlitVisualiser:
             return
 
         df_model = self._select_model()
+        
+        if df_model is None:
+            return
+        df_model = self._select_judge_model(df_model) if df_model is not None else None
+
         if df_model is None:
             return
 
@@ -41,6 +46,33 @@ class StreamlitVisualiser:
             st.info("No data for selected model.")
             return None
         return df_model
+    
+    def _select_judge_model(self, df) -> pd.DataFrame | None:
+        if "judge_filter_id" not in df.columns:
+            return df
+
+        options = sorted(
+            x for x in df["judge_filter_id"].unique()
+            if pd.notna(x) and x != ""
+        )
+
+        if not options:
+            return df
+
+        selected_id = st.selectbox(
+            "Select Judge Model",
+            options,
+            index=0 
+        )
+
+        df_model = df[
+            (df["judge_filter_id"] == selected_id)
+            | (df["judge_filter_id"].isna())
+            | (df["judge_filter_id"] == "")
+        ]
+
+        return df_model
+
 
     def _apply_filters(self, df_model: pd.DataFrame) -> tuple[pd.DataFrame | None, bool | None, str | None]:
         df = df_model.copy()
