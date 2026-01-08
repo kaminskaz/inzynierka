@@ -12,7 +12,9 @@ from pydantic import BaseModel
 import random
 import numpy as np
 import pathlib
+from dotenv import load_dotenv
 from typing import Optional
+load_dotenv()
 
 from src.technical.configs.dataset_config import DatasetConfig
 
@@ -20,23 +22,31 @@ logger = logging.getLogger(__name__)
 
 
 def get_dataset_config(
-        dataset_name: str,
-        config_path=os.path.join("src", "technical", "configs", "dataset_config.json")
-    ) -> Optional[DatasetConfig]:
+        dataset_name: str=None,
+        raw_json: bool = False
+    ) -> Optional[DatasetConfig | dict]:
     """Gets the DatasetConfig for a specific dataset."""
+    if dataset_name is None:
+        raw_json = True
+    
+    resolved_config_path = get_config_path("dataset")
+
     try:
-        with open(config_path, "r") as f:
+        with open(resolved_config_path, "r") as f:
            dataset_configs_raw = json.load(f)
     except Exception as e:
         logger.error(
-            f"Failed to load dataset config file at {config_path}: {e}"
+            f"Failed to load dataset config file at {resolved_config_path}: {e}"
         )
         return None
+    
+    if raw_json:
+            return dataset_configs_raw
     
     raw_config = dataset_configs_raw.get(dataset_name)
     if not raw_config:
         logger.error(
-            f"No config found for dataset: '{dataset_name}' in {config_path}"
+            f"No config found for dataset: '{dataset_name}' in {resolved_config_path}"
         )
         return None
     
@@ -108,9 +118,7 @@ def get_full_model_name_from_short(short_name_to_find: str) -> str:
     """
     Reverses the shorten_model_name logic by searching through the config keys.
     """
-    model_config_path = os.path.join("src", "technical", "configs", "models_config.json")
-    with open(model_config_path, "r") as f:
-        json_data = json.load(f)
+    json_data = get_model_config(raw_json=True)
     for full_model_name in json_data.keys():
         if shorten_model_name(full_model_name) == short_name_to_find:
             return full_model_name
@@ -200,21 +208,32 @@ def get_field(obj, name, default=None):
 
 
 def get_model_config(
-    target_model_name: str, 
-    param_set_number: Optional[str | int] = None
-    ) -> ModelConfig:
-    """
-    Extracts a specific configuration for a given model name and param_set version.
-    """
-    model_config_path = os.path.join("src", "technical", "configs", "models_config.json")
-    with open(model_config_path, "r") as f:
-        json_data = json.load(f)
+    target_model_name: Optional[str] = None,
+    param_set_number: Optional[str | int] = None,
+    raw_json: bool = False
+    ) -> Optional[ModelConfig | dict]:
+
+    if target_model_name is None:
+        raw_json = True
+
+    resolved_config_path = get_config_path("model")
+
+    try:
+        with open(resolved_config_path, "r") as f:
+            json_data = json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load model config at {resolved_config_path}: {e}")
+        return None
+
+    if raw_json:
+        return json_data
 
     if target_model_name not in json_data:
-        raise ValueError(f"""Model '{target_model_name}' not found in configuration. 
-                         Please provide the missing configuration in src/technical/configs/model_config.json""")
+        logger.error(f"Model '{target_model_name}' not found in {resolved_config_path}")
+        return None
     
     model_attrs = json_data[target_model_name]
+
     if param_set_number is None:
         param_set_number = '1'
         logger.warning("\n param_set_number not provided. Defaulting to '1'.\n")
@@ -250,15 +269,50 @@ def get_model_config(
         "disable_sliding_window": custom_args.get("disable_sliding_window"),
     })
 
-    #if chat_template_path does not exist, set to None
     chat_template_path = config_dict.get("chat_template_path")
     if chat_template_path and not os.path.exists(chat_template_path):
-            raise FileNotFoundError(f"Chat template not found: {chat_template_path}")
+        logger.error(f"Chat template not found: {chat_template_path}")
     
-    clean_config = {k: v for k, v in config_dict.items() if v is not None}
+    try:
+        clean_config = {k: v for k, v in config_dict.items() if v is not None}
+        return ModelConfig(**clean_config)
+    except Exception as e:
+        logger.error(f"Error creating ModelConfig for {target_model_name}: {e}")
+        return None
+    
+def get_config_path(config_type: str) -> str:
+    """
+    Resolves the file path for a configuration type.
+    Checks environment variables first, then falls back to internal defaults.
+    """
+    configs = {
+        "dataset": {
+            "env_var": "DATASET_CONFIG_JSON_PATH",
+            "default": os.path.join("src", "technical", "configs", "dataset_config.json")  
+        },
+        "model": {
+            "env_var": "MODELS_CONFIG_JSON_PATH",
+            "default": os.path.join("src", "technical", "configs", "models_config.json")   
+        }
+    }
 
-    return ModelConfig(**clean_config)
+    if config_type not in configs:
+        raise ValueError(f"Invalid config_type: {config_type}. Choose 'dataset' or 'model'.")
 
+    cfg = configs[config_type]
+    env_path = os.getenv(cfg["env_var"])
+
+    if env_path and env_path.strip() and os.path.isfile(env_path):
+        return env_path
+    
+    if env_path:
+        logger.warning(
+            f"{cfg['env_var']} is set but invalid: '{env_path}'. "
+            f"Falling back to default: {cfg['default']}"
+        )
+    
+    return cfg["default"]
+    
 def setup_logging(level: int = logging.INFO) -> logging.Logger:
     """Setup logging configuration."""
 

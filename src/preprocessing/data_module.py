@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from huggingface_hub import snapshot_download, login
 from src.technical.configs.dataset_config import DatasetConfig
 from src.preprocessing.processor_factory import ProcessorFactory
+from src.technical.utils import get_config_path
 import logging
 import shutil
 
@@ -17,10 +18,9 @@ class DataModule:
 
     def __init__(
         self,
-        config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json"),
         load_from_hf: bool = False,
     ):
-        self.config_path = Path(config_path)
+        self.config_path = Path(get_config_path("dataset"))
         self.load_from_hf = load_from_hf
         self.logger = logging.getLogger("DataModule")
         self.configs: Dict[str, DatasetConfig] = {}

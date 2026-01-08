@@ -10,7 +10,7 @@ from src.models.llm_judge import LLMJudge
 from src.models.vllm import VLLM
 from src.preprocessing.data_module import DataModule
 from src.strategies.strategy_factory import StrategyFactory
-from src.technical.utils import get_results_directory, get_dataset_config, set_all_seeds, get_eval_config_from_path
+from src.technical.utils import get_results_directory, get_dataset_config, set_all_seeds, get_eval_config_from_path, get_config_path
 from src.technical.configs.evaluation_config import EvaluationConfig
 from src.visualisation.visualiser import StreamlitVisualiser
 import pathlib
@@ -23,11 +23,9 @@ class FullPipeline:
 
     def prepare_data(
         self, 
-        config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json"),
         download: bool = False
     ) -> None:    
         data_module = DataModule(
-            config_path=config_path,
             load_from_hf=download
         )
         
@@ -209,7 +207,7 @@ class FullPipeline:
                 is_ensemble = "ensemble" in str(subdir).lower()
                 
                 try:
-                    config = self.get_eval_config_from_path(
+                    config = get_eval_config_from_path(
                         path=str(subdir),
                         ensemble=is_ensemble,
                         judge_model_name=judge_model_name,

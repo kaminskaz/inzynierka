@@ -33,7 +33,6 @@ if __name__ == "__main__":
     logger = setup_logging(getattr(logging, args.log_level))
     
     data_module = DataModule(
-        config_path=args.config,
         load_from_hf=args.download
     )
     

@@ -17,11 +17,9 @@ class StrategyFactory:
     Factory to create and configure a specific strategy based on its name.
     """
     def __init__(
-        self,
-        config_path: str = os.path.join("src", "technical", "configs", "dataset_config.json")
+        self
     ):
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.config_path = Path(config_path)
 
         # Map strategy names (as used in the command line) to their classes
         self.strategy_map: Dict[str, type[StrategyBase]] = {
@@ -62,7 +60,7 @@ class StrategyFactory:
             raise ValueError(f"Unknown strategy: '{strategy_name}'")
 
         # get the Dataset Config
-        dataset_config = get_dataset_config(dataset_name, self.config_path)
+        dataset_config = get_dataset_config(dataset_name)
         if not dataset_config:
             raise ValueError(f"Failed to load config for dataset: '{dataset_name}'")
 
