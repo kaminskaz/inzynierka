@@ -1,0 +1,102 @@
+{
+    "101": [
+        "Parallel dents",
+        "Perpendicular dents"
+    ],
+    "102": [
+        "Internal arrows point outward",
+        "Internal arrows point inward"
+    ],
+    "103": [
+        "Isosceles triangle",
+        "Scalene triangle"
+    ],
+    "104": [
+        "One circle passes through the center of the other circle",
+        "No circle passes through the center of the other circle"
+    ],
+    "105": [
+        "Ends of line point to the same direction",
+        "Ends of line point to opposite directions"
+    ],
+    "106": [
+        "Negative slope",
+        "Positive slope"
+    ],
+    "107": [
+        "Three simple lines",
+        "Three complex lines"
+    ],
+    "108": [
+        "Petals taper off",
+        "Petals thicken"
+    ],
+    "109": [
+        "Circle on the right of the box",
+        "Circle on the left of the box"
+    ],
+    "110": [
+        "Four out of five objects are circles",
+        "Never four out of five objects are circles"
+    ],
+    "111": [
+        "Middle shape is a triangle",
+        "Middle shape is not a triangle"
+    ],
+    "112": [
+        "X-coordinates of dots are equidistant",
+        "Y-coordinates of dots are equidistant"
+    ],
+    "113": [
+        "T-like junction",
+        "Y-like junction"
+    ],
+    "114": [
+        "Four X-like points",
+        "Two X-like points"
+    ],
+    "115": [
+        "Innermost shape is reachable from the outermost one",
+        "Innermost shape is unreachable from the outermost one"
+    ],
+    "116": [
+        "Polygon stands on side",
+        "Polygon stands on vertex"
+    ],
+    "117": [
+        "Triangle points to center of circle",
+        "Triangle does not point to center of circle"
+    ],
+    "118": [
+        "No cycle",
+        "A cycle exists"
+    ],
+    "119": [
+        "A small correction will result into a single circle",
+        "No small correction will result into a single circle"
+    ],
+    "120": [
+        "All turns are in one direction",
+        "Turns are not all in one direction"
+    ],
+    "121": [
+        "Circle: VV; square: VΛ; triangle: ΛΛ; blank: ΛV",
+        "Circle: ΛΛ; square: ΛV; triangle: VV; blank: VΛ"
+    ],
+    "122": [
+        "Line divides interior into two regions",
+        "Not so"
+    ],
+    "123": [
+        "Similar shapes",
+        "Dissimilar shapes"
+    ],
+    "124": [
+        "Similar textures",
+        "Dissimilar textures"
+    ],
+    "125": [
+        "One protrusion and one indentation of the same shape",
+        "Not so"
+    ]
+}
