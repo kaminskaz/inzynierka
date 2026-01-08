@@ -200,9 +200,10 @@ class FullPipeline:
                 if len(subfolders) > 0:
                     continue
 
-                eval_file = subdir / "evaluation_results.csv"
-                if eval_file.exists():
-                    self.logger.info(f"Found existing results in {subdir}. Skipping.")
+                eval_file_exists = next(subdir.glob("evaluation_results*"), None)
+
+                if eval_file_exists:
+                    self.logger.info(f"Found existing results ({eval_file_exists.name}) in {subdir}. Skipping.")
                     continue
 
                 is_ensemble = "ensemble" in str(subdir).lower()
