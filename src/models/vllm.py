@@ -16,8 +16,8 @@ from src.technical.content import Content, ImageContent, TextContent
 from src.technical.prompt_formatter import PromptFormatter
 from src.technical.utils import get_model_config
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 class VLLM:
     def __init__(
@@ -50,10 +50,8 @@ class VLLM:
             timeout=3600.0,
             api_key=self.api_key,
             other_args=(
-                "--port",
-                str(port),
-                "--max-model-len",
-                str(config.max_tokens),
+                "--port", str(port),
+                "--max-model-len", str(config.max_tokens),
                 "--tensor-parallel-size", str(config.tensor_parallel_size),
                 "--gpu-memory-utilization", str(config.gpu_memory_utilization),
                 *(
@@ -67,6 +65,11 @@ class VLLM:
                     if config.limit_mm_per_prompt > 0
                     else ()
                 ),
+                *(
+                    ("--disable-sliding-window",)
+                    if config.disable_sliding_window
+                    else ()
+                )
             ),
         )
 

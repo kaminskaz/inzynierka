@@ -18,3 +18,4 @@ class ModelConfig:
     tensor_parallel_size: Optional[int] = 1
     gpu_memory_utilization: Optional[float] = 0.9
     chat_template_path: Optional[str] = None
+    disable_sliding_window: Optional[bool] = False

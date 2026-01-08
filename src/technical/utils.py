@@ -7,7 +7,6 @@ from typing import Any, Dict, Optional, Union
 import logging
 import re
 from src.technical.configs.model_config import ModelConfig
-from src.models.llm_judge import LLMJudge
 from src.technical.configs.evaluation_config import EvaluationConfig
 from pydantic import BaseModel
 import random
@@ -248,6 +247,7 @@ def get_model_config(
         "chat_template_path": target_params.get("chat_template_path"),
         "tensor_parallel_size": custom_args.get("tensor_parallel_size"),
         "gpu_memory_utilization": custom_args.get("gpu_memory_utilization"),
+        "disable_sliding_window": custom_args.get("disable_sliding_window"),
     })
 
     #if chat_template_path does not exist, set to None
@@ -342,7 +342,6 @@ def get_eval_config_from_path(
     ensemble: bool = False,
     judge_model_name: Optional[str] = "mistralai/Mistral-7B-Instruct-v0.3",
     param_set_number: int = 1,
-    judge_model_object: Optional[LLMJudge] = None,
     prompt_number: int = 1
 ):
     p = pathlib.Path(path)
