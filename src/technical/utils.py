@@ -371,7 +371,7 @@ def get_eval_config_from_path(
                 judge_model_name=judge_model_name,
                 judge_model_object=judge_model_object,
                 prompt_number=prompt_number,
-                param_set_number=param_set_number
+                judge_param_set_number=param_set_number
             )
         else:
             # Expected: results/dataset_name/strategy_name/short_model_name/ver{version}
@@ -397,7 +397,7 @@ def get_eval_config_from_path(
                 judge_model_name=judge_model_name,
                 judge_model_object=judge_model_object,
                 prompt_number=prompt_number,
-                param_set_number=param_set_number
+                judge_param_set_number=param_set_number
             )
             
         return eval_config

@@ -76,4 +76,5 @@ def run_evals_update():
 if __name__ == "__main__":
     #run_all_evaluations()
     #run_evals_update()
-    run_ensemble_evaluations()
+    pipeline = FullPipeline()
+    pipeline.run_missing_evaluations_in_directory(path="results/ensembles")

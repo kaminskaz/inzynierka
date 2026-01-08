@@ -174,7 +174,7 @@ class FullPipeline:
         self,
         path: str, 
         judge_model_name: Optional[str] = "mistralai/Mistral-7B-Instruct-v0.3",
-        param_set_number: Optional[int] = 1,
+        judge_param_set_number: Optional[int] = 1,
         judge_model_object: Optional[LLMJudge] = None,
         prompt_number: int = 1,
         seed: Optional[int] = 42
@@ -214,7 +214,7 @@ class FullPipeline:
                         judge_model_name=judge_model_name,
                         judge_model_object=judge_model_object,
                         prompt_number=prompt_number,
-                        param_set_number=param_set_number
+                        param_set_number=judge_param_set_number
                     )
         
                     self.logger.info(f"Running evaluation for: {subdir}")
