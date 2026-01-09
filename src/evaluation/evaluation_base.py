@@ -314,7 +314,7 @@ class EvaluationBase(ABC):
         summary_key, 
         output_df
     ):
-        if self.judge_model_name is not None:
+        if hasattr(self, 'judge_model_object'):
             model_suffix = f"_{shorten_model_name(self.judge_model_name)}"
             param_set = getattr(self, 'judge_param_set_number', None)
             if param_set is not None:
