@@ -59,6 +59,6 @@ class EvaluationFactory():
         if isinstance(evaluator, EvaluationWithJudge) and prompt is not None:
             evaluator.prompt = prompt
         if isinstance(evaluator, EvaluationWithJudge) and judge_param_set_number is not None:
-            evaluator.param_set_number = judge_param_set_number
+            evaluator.judge_param_set_number = judge_param_set_number
             
         return evaluator

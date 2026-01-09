@@ -8,8 +8,8 @@ from src.preprocessing.data_module import DataModule
 def main():
     pipeline = FullPipeline()
 
-    print("Preparing data...")
-    pipeline.prepare_data()
+    # print("Preparing data...")
+    # pipeline.prepare_data()
 
     # print("Running experiment...")
     # pipeline.run_experiment(
@@ -48,8 +48,8 @@ def main():
     # )
     # pipeline.run_evaluation(eval_config_ensemble)
 
-    # print("Launching visualisation...")
-    # pipeline.visualise()
+    print("Launching visualisation...")
+    pipeline.visualise()
     # sleep(30) 
     # pipeline.stop_visualiser()
 

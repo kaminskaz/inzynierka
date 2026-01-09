@@ -173,7 +173,6 @@ class FullPipeline:
         path: str, 
         judge_model_name: Optional[str] = "mistralai/Mistral-7B-Instruct-v0.3",
         judge_param_set_number: Optional[int] = 1,
-        judge_model_object: Optional[LLMJudge] = None,
         prompt_number: int = 1,
         seed: Optional[int] = 42
     ):
@@ -211,7 +210,6 @@ class FullPipeline:
                         path=str(subdir),
                         ensemble=is_ensemble,
                         judge_model_name=judge_model_name,
-                        judge_model_object=judge_model_object,
                         prompt_number=prompt_number,
                         param_set_number=judge_param_set_number
                     )
@@ -263,6 +261,13 @@ class FullPipeline:
 
         if stop_after_evaluation and evaluator.judge_model_object is not None:
             evaluator.judge_model_object.stop()
+
+    def run_evaluations(
+        self, 
+        configs: List[EvaluationConfig]
+    ) -> None:
+        for config in configs:
+            self.run_evaluation(config)
 
     def visualise(
         self, 

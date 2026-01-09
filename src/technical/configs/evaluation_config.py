@@ -18,5 +18,5 @@ class EvaluationConfig:
 
     judge_model_name: Optional[str] = "mistralai/Mistral-7B-Instruct-v0.3"
     judge_param_set_number: Optional[int] = None
-    judge_model_object = None
+    judge_model_object: Optional[object] = None
     prompt_number: int = 1

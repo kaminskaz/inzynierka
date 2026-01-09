@@ -160,8 +160,8 @@ class EvaluationBase(ABC):
 
         if ensemble:
             results_df["ensemble"] = True
-            results_df["seed"] = version % 10
-            results_df["ens_members_config_number"] = version // 10 % 10
+            results_df["seed"] = int(version) % 10
+            results_df["ens_members_config_number"] = int(version) // 10 % 10
         else:
             results_df["ensemble"] = False
 
@@ -192,7 +192,6 @@ class EvaluationBase(ABC):
             "problem_id",
             "dataset_name",
             "judge_model_name",
-            "judge_model_version",
             "judge_model_param_set",
             "version",
             "ensemble",
@@ -317,8 +316,9 @@ class EvaluationBase(ABC):
     ):
         if self.judge_model_name is not None:
             model_suffix = f"_{shorten_model_name(self.judge_model_name)}"
-            if self.judge_param_set_number is not None:
-                model_suffix += f"_{self.judge_param_set_number}"
+            param_set = getattr(self, 'judge_param_set_number', None)
+            if param_set is not None:
+                model_suffix += f"_{param_set}"
             else:
                 model_suffix += "_1"
         else:
