@@ -264,13 +264,6 @@ class FullPipeline:
         if stop_after_evaluation and evaluator.judge_model_object is not None:
             evaluator.judge_model_object.stop()
 
-    def run_evaluations(
-        self, 
-        configs: List[EvaluationConfig]
-    ) -> None:
-        for config in configs:
-            self.run_evaluation(config)
-
     def visualise(
         self, 
         csv_path: str = os.path.join("results", "all_results_concat.csv")
