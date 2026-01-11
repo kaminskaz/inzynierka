@@ -55,7 +55,7 @@ class EvaluationBase(ABC):
         )
 
         if not results_dir or not answers_path or not key_path:
-            return
+            raise ValueError("Evaluation cannot proceed due to missing paths.")
 
         answers_df = self._load_answers(answers_path)
         descriptions = self._load_descriptions(results_dir, ensemble)
@@ -227,15 +227,15 @@ class EvaluationBase(ABC):
             key_path = os.path.join("data", dataset_name, "jsons", f"{dataset_name}_solutions.json")
             
         if not results_dir or not os.path.exists(results_dir):
-            logger.error("Results directory is not provided or does not exist.")
+            logger.error(f"Results directory is not provided or does not exist {results_dir}.")
             results_dir = None
         
         if not answers_path or not os.path.exists(answers_path):
-            logger.error("Answers path is not provided or does not exist.")
+            logger.error(f"Answers path is not provided or does not exist {answers_path}.")
             answers_path = None 
 
         if not key_path or not os.path.exists(key_path):
-            logger.error("Key path is not provided or does not exist.")
+            logger.error(f"Key path is not provided or does not exist {key_path}.")
             key_path = None
 
         return answers_path, key_path
